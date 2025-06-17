@@ -1,4 +1,4 @@
 package-lock.json
-tsconfig.tsbuildinfo
 *.html
+*.js
 dist/

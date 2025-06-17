@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"declaration": false,
+		"paths": {
+			"superfetch": ["../dist/mod.d.ts"]
+		}
+	}
+}

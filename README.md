@@ -27,10 +27,7 @@ Superfetch uses `events` to signal the state of a fetch.
 	__click_target="section"
 	__click_projection="replace_children"
 	__click_throttle="_projectionTarget"
-	__click="./bear"
-	__click_assets=""
-	__click_stop-propagation
-	__click_prevent-default
+
 	__submit="./post-form.html"
 	__submit_action="POST"
 	__submit_projection="js_module"

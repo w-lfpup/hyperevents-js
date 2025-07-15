@@ -1,18 +1,20 @@
-export interface SuperFetchParamsInterface {
+import { dispatch } from "./dispatch_superchunk.js"; 
+
+export interface SuperChunkParamsInterface {
 	host: ParentNode;
 	eventNames: string[];
 	connected?: boolean;
 }
 
-export interface SuperFetchInterface {
+export interface SuperChunkInterface {
 	connect(): void;
 	disconnect(): void;
 }
 
-export class SuperFetch {
-	#params: SuperFetchParamsInterface;
+export class SuperChunk {
+	#params: SuperChunkParamsInterface;
 
-	constructor(params: SuperFetchParamsInterface) {
+	constructor(params: SuperChunkParamsInterface) {
 		this.#params = params;
 		if (this.#params.connected) this.connect();
 	}
@@ -20,9 +22,9 @@ export class SuperFetch {
 	connect() {
 		let { host, eventNames } = this.#params;
 		
-		// for (let name of eventNames) {
-		// 	host.addEventListener(name, dispatchSuperFetch);
-		// }
+		for (let name of eventNames) {
+			host.addEventListener(name, dispatch);
+		}
 
 		// addEventListener #fetch
 		// addEventListener #response
@@ -32,9 +34,9 @@ export class SuperFetch {
 	disconnect() {
 		let { host, eventNames } = this.#params;
 		
-		// for (let name of eventNames) {
-		// 	host.removeEventListener(name, dispatchSuperFetch);
-		// }
+		for (let name of eventNames) {
+			host.removeEventListener(name, dispatch);
+		}
 
 		// removeEventListener #fetch
 		// removeEventListener #response

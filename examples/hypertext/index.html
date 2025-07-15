@@ -3,7 +3,13 @@
 	<head>
 		<meta charset=utf-8 />
 		<meta name=viewport content="width=device-width, initial-scale=1">
-		
+		<script type="importmap">
+			{
+				"imports": {
+					"superchunk": "../../dist/mod.js"
+				}
+			}
+		</script>
 		<script type=module src="./mod.js"></script>
 	</head>
 	<body>
@@ -11,9 +17,6 @@
 		<main>
 			<ul>
 				<li>
-					<button>
-						bear
-					</button>
 					<a _href="./bear.html" _target="section" _projection="replace_children" _throttle="_projectionTarget" _stop-propagation>
 						<button>bear</button>
 					</a>

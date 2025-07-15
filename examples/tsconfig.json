@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"declaration": false,
 		"paths": {
-			"superfetch": ["../dist/mod.d.ts"]
+			"superchunk": ["../dist/mod.d.ts"]
 		}
 	}
 }

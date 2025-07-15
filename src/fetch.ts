@@ -1,11 +1,3 @@
-interface SuperFetchEvent extends Event {
-    href: string;
-    method: string;
-    projection_style: string;
-    projection: string;
-    throttle: string;
-    queue: string;
-}
 
 // export { dispatchRequestEvemt };
 

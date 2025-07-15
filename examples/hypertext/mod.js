@@ -1,5 +1,5 @@
-import { SuperFetch } from "superfetch";
-const _superFetch = new SuperFetch({
+import { SuperChunk } from "superchunk";
+const _superChunk = new SuperChunk({
     host: document,
     connected: true,
     eventNames: ["click"],

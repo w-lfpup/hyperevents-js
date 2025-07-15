@@ -1,15 +1,15 @@
-export interface SuperFetchParamsInterface {
+export interface SuperChunkParamsInterface {
     host: ParentNode;
     eventNames: string[];
     connected?: boolean;
 }
-export interface SuperFetchInterface {
+export interface SuperChunkInterface {
     connect(): void;
     disconnect(): void;
 }
-export declare class SuperFetch {
+export declare class SuperChunk {
     #private;
-    constructor(params: SuperFetchParamsInterface);
+    constructor(params: SuperChunkParamsInterface);
     connect(): void;
     disconnect(): void;
 }

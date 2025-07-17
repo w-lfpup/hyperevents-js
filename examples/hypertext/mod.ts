@@ -1,5 +1,6 @@
 import { SuperChunk } from "superchunk";
 import { ActionEvent } from "superchunk";
+import { JsonEvent } from "superchunk";
 
 const _superChunk = new SuperChunk({
 	host: document,
@@ -10,5 +11,11 @@ const _superChunk = new SuperChunk({
 document.addEventListener("#action", function (e: Event) {
 	if (e instanceof ActionEvent) {
 		console.log("#action", e.actionParams);
+	}
+});
+
+document.addEventListener("#json", function (e: Event) {
+	if (e instanceof JsonEvent) {
+		console.log("#json", e.jsonParams);
 	}
 });

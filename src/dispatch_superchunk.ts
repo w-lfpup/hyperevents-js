@@ -9,6 +9,7 @@
 */
 
 import { getActionEvent, getFallbackAction } from "./action_event.js";
+import { dispatchJsonEvent } from "./json_event.js";
 
 export function dispatch(e: Event) {
 	let { type } = e;
@@ -34,6 +35,7 @@ function getEvent(el: Element, type: string) {
 	}
 	// these two the user reacts to
 	if ("#json" === attr) {
+        dispatchJsonEvent(el, type);
 	}
 
 	// action events

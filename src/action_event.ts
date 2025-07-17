@@ -21,13 +21,9 @@ export class ActionEvent extends Event implements ActionEventInterface {
 
 export function getActionEvent(el: Element, kind: string) {
 	let action = el.getAttribute(`${kind}:action`);
-	if (action) {
-		return new ActionEvent({ action }, { bubbles: true });
-	}
+	if (action) return new ActionEvent({ action }, { bubbles: true });
 }
+
 export function getFallbackAction(el: Element, action: string | null) {
-	if (action) {
-		// return new ActionEvent({action})
-		return new ActionEvent({ action }, { bubbles: true });
-	}
+	if (action) return new ActionEvent({ action }, { bubbles: true });
 }

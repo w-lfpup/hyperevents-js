@@ -8,6 +8,7 @@
     #json
 */
 import { getActionEvent, getFallbackAction } from "./action_event.js";
+import { dispatchJsonEvent } from "./json_event.js";
 export function dispatch(e) {
     let { type } = e;
     for (let node of e.composedPath()) {
@@ -26,10 +27,14 @@ export function dispatch(e) {
 function getEvent(el, type) {
     let attr = el.getAttribute(`${type}:`);
     // load html fragments
-    if ("#html" === attr) { }
-    if ("#esmodule" === attr) { }
+    if ("#html" === attr) {
+    }
+    if ("#esmodule" === attr) {
+    }
     // these two the user reacts to
-    if ("#json" === attr) { }
+    if ("#json" === attr) {
+        dispatchJsonEvent(el, type);
+    }
     // action events
     if ("#action" === attr) {
         return getActionEvent(el, type);

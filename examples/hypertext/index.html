@@ -16,30 +16,21 @@
 		<header></header>
 		<main>
 			<ul>
+				<p>Actions</p>
 				<li>
-					<a _href="./bear.html" _target="section" _projection="replace_children" _throttle="_projectionTarget" _stop-propagation>
-						<button>bear</button>
-					</a>
+					<button click:="bear!">bear</button>
 				</li>
 				<li>
-					<a _href="./crow.html" _target="section" _projection="replace_children" _throttle="_projectionTarget" _click _stop-propagation>
-						<button>crow</button>
-					</a>
+					<button click:="#action" click:action="crow!">crow</button>
 				</li>
 				<li>
-					<a _href="./fox.html" _target="section" _projection="replace_children" _throttle="_projectionTarget">
-						<button>fox</button>
-					</a>
+					<button click:="fox!">fox</button>
 				</li>
 				<li>
-					<a _href="./wolf.html" _target="section" _projection="replace_children" _throttle="_projectionTarget">
-						<button>wolf</button>
-					</a>
+					<button click:="wolf!">wolf</button>
 				</li>
 				<li>
-					<a _href="./reset.html" _target="section" _projection="replace_children" _throttle="_projectionTarget">
-						<button>reset</button>
-					</a>
+					<button click:="reset!">reset</button>
 				</li>
 			</ul>
 			<section>

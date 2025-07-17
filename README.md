@@ -5,15 +5,14 @@ A hypertext extension for the browser.
 ## About
 
 `Superchunk` enables a browser to declaratively:
+
 - fetch html fragments
 - fetch esmodules
-- query JSON APIs 
+- query JSON APIs
 - dispatch actions
 - update DOM elements
 - throttle requests
 - queue requests
-
-
 
 ## Install
 
@@ -33,7 +32,6 @@ Superfetch uses `events` to signal the state of a fetch.
 ## License
 
 `Hx-js` is released under the BSD 3-Clause License.
-
 
 ```html
 
@@ -55,11 +53,11 @@ Superfetch uses `events` to signal the state of a fetch.
 
 	<form
 		enctype="multipart/form-data"
-		
+
 		submit:="./bear/story-likes/f3r49r.html"
 		submit:method="POST | PATCH | UPDATE"
 		submit:prevent-default
-	
+
 		submit:="./bear/story-likes/f3r49r.html"
 		submit:method="POST | PATCH | UPDATE"
 		submit:projection="replace"
@@ -98,12 +96,12 @@ Superfetch uses `events` to signal the state of a fetch.
 	focusin:throttle="_document"
 
 	click:target-selector="section[attr]"
-	
+
 
 	click:="querySelector"
 	click:selector="li"
 	click:query-selector-all="section[profile]"
-	
+
 	click:throttle="_currentTarget"
 	click:queue="_projectionTarget"
 	click:prevent-default

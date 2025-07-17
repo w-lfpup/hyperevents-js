@@ -1,4 +1,6 @@
-import { dispatch } from "./dispatch_superchunk.js"; 
+import { dispatch } from "./dispatch_superchunk.js";
+
+export { ActionEvent } from "./action_event.js";
 
 export interface SuperChunkParamsInterface {
 	host: ParentNode;
@@ -21,25 +23,17 @@ export class SuperChunk {
 
 	connect() {
 		let { host, eventNames } = this.#params;
-		
+
 		for (let name of eventNames) {
 			host.addEventListener(name, dispatch);
 		}
-
-		// addEventListener #fetch
-		// addEventListener #response
-		// addEventListener #projection
 	}
 
 	disconnect() {
 		let { host, eventNames } = this.#params;
-		
+
 		for (let name of eventNames) {
 			host.removeEventListener(name, dispatch);
 		}
-
-		// removeEventListener #fetch
-		// removeEventListener #response
-		// removeEventListener #projection
 	}
 }

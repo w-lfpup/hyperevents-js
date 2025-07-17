@@ -1,4 +1,3 @@
-
 // export { dispatchRequestEvemt };
 
 // class SuperRequestEvent extends Event implements SuperRequestEvent {

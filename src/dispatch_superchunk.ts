@@ -37,7 +37,7 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 	}
 	// these two the user reacts to
 	if ("#json" === attr) {
-		return dispatchJsonEvent(el, type);
+		return dispatchJsonEvent(sourceEvent, el, type);
 	}
 
 	// action events

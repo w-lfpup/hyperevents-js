@@ -1,6 +1,7 @@
 export interface JsonEventParamsInterface {
 	action: string;
 	jsonStr: string;
+	sourceEvent: Event;
 }
 
 export interface JsonEventInterface {
@@ -20,27 +21,29 @@ export class JsonEvent extends Event implements JsonEventInterface {
 	}
 }
 
-export function dispatchJsonEvent(el: Element, kind: string) {
+export function dispatchJsonEvent(
+	sourceEvent: Event,
+	el: Element,
+	kind: string,
+) {
 	let action = el.getAttribute(`${kind}:action`);
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (action && url) {
-		// use req and fetch
 		let req = new Request(url, {});
 		fetch(req)
-			.then(function (response: Response) {})
+			.then(function (response: Response) {
+				return Promise.all([response, response.text()]);
+			})
+			.then(function ([res, jsonStr]) {
+				let event = new JsonEvent(
+					{ action, jsonStr, sourceEvent },
+					{ bubbles: true },
+				);
+				el.dispatchEvent(event);
+			})
 			.catch(function (reason: any) {
 				console.log("#json error!");
 			});
-
-		new Promise(function (res, rej) {
-			// chance to create Function Chain with
-			res("{}");
-		}).then(function (jsonStr) {
-			if ("string" === typeof jsonStr) {
-				let event = new JsonEvent({ action, jsonStr }, { bubbles: true });
-				el.dispatchEvent(event);
-			}
-		});
 	}
 }

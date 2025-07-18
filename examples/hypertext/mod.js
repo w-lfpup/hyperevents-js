@@ -4,7 +4,7 @@ import { JsonEvent } from "superchunk";
 const _superChunk = new SuperChunk({
     host: document,
     connected: true,
-    eventNames: ["click"],
+    eventNames: ["click", "pointerover"],
 });
 document.addEventListener("#action", function (e) {
     if (e instanceof ActionEvent) {

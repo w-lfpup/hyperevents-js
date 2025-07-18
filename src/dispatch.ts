@@ -33,7 +33,6 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 
 	// load html fragments
 	if ("#html" === attr) {
-		
 	}
 
 	if ("#esmodule" === attr) {

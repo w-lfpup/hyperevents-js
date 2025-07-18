@@ -15,13 +15,12 @@ export function dispatchJsonEvent(el, kind) {
         // use req and fetch
         let req = new Request(url, {});
         fetch(req)
-            .then(function (response) {
-        })
+            .then(function (response) { })
             .catch(function (reason) {
             console.log("#json error!");
         });
         new Promise(function (res, rej) {
-            // chance to create Function Chain with 
+            // chance to create Function Chain with
             res("{}");
         }).then(function (jsonStr) {
             if ("string" === typeof jsonStr) {

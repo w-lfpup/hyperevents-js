@@ -22,8 +22,10 @@ export class ActionEvent extends Event implements ActionEventInterface {
 
 export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
 	let action = el.getAttribute(`${kind}:action`);
-	if (action)
-		return new ActionEvent({ action, sourceEvent }, { bubbles: true });
+	if (action) {
+		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
+		el.dispatchEvent(event);
+	}
 }
 
 export function getFallbackAction(
@@ -31,6 +33,8 @@ export function getFallbackAction(
 	el: Element,
 	action: string | null,
 ) {
-	if (action)
-		return new ActionEvent({ action, sourceEvent }, { bubbles: true });
+	if (action) {
+		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
+		el.dispatchEvent(event);
+	}
 }

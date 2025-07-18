@@ -10,10 +10,14 @@ export class ActionEvent extends Event {
 }
 export function getActionEvent(sourceEvent, el, kind) {
     let action = el.getAttribute(`${kind}:action`);
-    if (action)
-        return new ActionEvent({ action, sourceEvent }, { bubbles: true });
+    if (action) {
+        let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
+        el.dispatchEvent(event);
+    }
 }
 export function getFallbackAction(sourceEvent, el, action) {
-    if (action)
-        return new ActionEvent({ action, sourceEvent }, { bubbles: true });
+    if (action) {
+        let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
+        el.dispatchEvent(event);
+    }
 }

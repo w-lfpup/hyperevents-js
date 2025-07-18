@@ -2,6 +2,7 @@
     Listends to DOM event.
     Reviews composed elements, the chain of elements in an event path.
     Dispatches correlated superchunk events:
+	
     #action
     #html
     #esmodule
@@ -18,8 +19,9 @@ export function dispatch(e: Event) {
 		if (node instanceof Element) {
 			// also get source node?
 			if (node.hasAttribute(`${type}:prevent-default`)) e.preventDefault();
-			let event = dispatchEvent(e, node, type);
-			if (event) node.dispatchEvent(event);
+
+			dispatchEvent(e, node, type);
+
 			if (node.hasAttribute(`${type}:stop-propagation`)) return;
 		}
 	}
@@ -43,5 +45,5 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 		return getActionEvent(sourceEvent, el, type);
 	}
 
-	return getFallbackAction(sourceEvent, el, attr);
+	getFallbackAction(sourceEvent, el, attr);
 }

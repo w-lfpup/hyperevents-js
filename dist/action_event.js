@@ -8,12 +8,12 @@ export class ActionEvent extends Event {
         return this.#params;
     }
 }
-export function getActionEvent(el, kind) {
+export function getActionEvent(sourceEvent, el, kind) {
     let action = el.getAttribute(`${kind}:action`);
     if (action)
-        return new ActionEvent({ action }, { bubbles: true });
+        return new ActionEvent({ action, sourceEvent }, { bubbles: true });
 }
-export function getFallbackAction(el, action) {
+export function getFallbackAction(sourceEvent, el, action) {
     if (action)
-        return new ActionEvent({ action }, { bubbles: true });
+        return new ActionEvent({ action, sourceEvent }, { bubbles: true });
 }

@@ -14,9 +14,9 @@ export function dispatch(e) {
     for (let node of e.composedPath()) {
         if (node instanceof Element) {
             // also get source node?
-            let event = getEvent(node, type);
             if (node.hasAttribute(`${type}:prevent-default`))
                 e.preventDefault();
+            let event = dispatchEvent(e, node, type);
             if (event)
                 node.dispatchEvent(event);
             if (node.hasAttribute(`${type}:stop-propagation`))
@@ -24,7 +24,7 @@ export function dispatch(e) {
         }
     }
 }
-function getEvent(el, type) {
+function dispatchEvent(sourceEvent, el, type) {
     let attr = el.getAttribute(`${type}:`);
     // load html fragments
     if ("#html" === attr) {
@@ -33,11 +33,11 @@ function getEvent(el, type) {
     }
     // these two the user reacts to
     if ("#json" === attr) {
-        dispatchJsonEvent(el, type);
+        return dispatchJsonEvent(el, type);
     }
     // action events
     if ("#action" === attr) {
-        return getActionEvent(el, type);
+        return getActionEvent(sourceEvent, el, type);
     }
-    return getFallbackAction(el, attr);
+    return getFallbackAction(sourceEvent, el, attr);
 }

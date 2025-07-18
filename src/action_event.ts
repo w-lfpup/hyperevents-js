@@ -1,5 +1,6 @@
 export interface ActionEventParamsInterface {
 	action: string;
+	sourceEvent: Event;
 }
 
 export interface ActionEventInterface {
@@ -19,11 +20,17 @@ export class ActionEvent extends Event implements ActionEventInterface {
 	}
 }
 
-export function getActionEvent(el: Element, kind: string) {
+export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
 	let action = el.getAttribute(`${kind}:action`);
-	if (action) return new ActionEvent({ action }, { bubbles: true });
+	if (action)
+		return new ActionEvent({ action, sourceEvent }, { bubbles: true });
 }
 
-export function getFallbackAction(el: Element, action: string | null) {
-	if (action) return new ActionEvent({ action }, { bubbles: true });
+export function getFallbackAction(
+	sourceEvent: Event,
+	el: Element,
+	action: string | null,
+) {
+	if (action)
+		return new ActionEvent({ action, sourceEvent }, { bubbles: true });
 }

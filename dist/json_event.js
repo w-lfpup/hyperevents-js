@@ -12,6 +12,14 @@ export function dispatchJsonEvent(el, kind) {
     let action = el.getAttribute(`${kind}:action`);
     let url = el.getAttribute(`${kind}:url`);
     if (action && url) {
+        // use req and fetch
+        let req = new Request(url, {});
+        fetch(req)
+            .then(function (response) {
+        })
+            .catch(function (reason) {
+            console.log("#json error!");
+        });
         new Promise(function (res, rej) {
             // chance to create Function Chain with 
             res("{}");

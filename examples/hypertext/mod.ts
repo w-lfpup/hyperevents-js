@@ -10,12 +10,12 @@ const _superChunk = new SuperChunk({
 
 document.addEventListener("#action", function (e: Event) {
 	if (e instanceof ActionEvent) {
-		console.log("#action", e.actionParams);
+		console.log("#action", e, e.actionParams);
 	}
 });
 
 document.addEventListener("#json", function (e: Event) {
 	if (e instanceof JsonEvent) {
-		console.log("#json", e.jsonParams);
+		console.log("#json", e, e.jsonParams);
 	}
 });

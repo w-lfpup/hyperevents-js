@@ -14,15 +14,13 @@ export function dispatchHtmlEvent(
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (url) {
-		// let udatedUrl = new URL(url, location.href).toString();
-
 		let req = new Request(url, {});
 		fetch(req)
 			.then(function (response: Response) {
 				return Promise.all([response, response.text()]);
 			})
-			.then(function ([res, jsonStr]) {
-				//
+			.then(function ([res, htmlStr]) {
+				console.log(htmlStr);
 			})
 			.catch(function (reason: any) {
 				console.log("#json error!");

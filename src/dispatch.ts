@@ -12,6 +12,7 @@
 import { getActionEvent, getFallbackAction } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchModuleEvent } from "./esmodule_event.js";
+import { dispatchHtmlEvent } from "./html_event.js";
 
 export function dispatch(e: Event) {
 	let { type } = e;
@@ -33,11 +34,13 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 
 	// load html fragments
 	if ("#html" === attr) {
+		return dispatchHtmlEvent(sourceEvent, el, type);
 	}
 
 	if ("#esmodule" === attr) {
 		return dispatchModuleEvent(el, type);
 	}
+	
 	// these two the user reacts to
 	if ("#json" === attr) {
 		return dispatchJsonEvent(sourceEvent, el, type);

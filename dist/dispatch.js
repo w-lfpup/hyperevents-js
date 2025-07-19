@@ -11,6 +11,7 @@
 import { getActionEvent, getFallbackAction } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchModuleEvent } from "./esmodule_event.js";
+import { dispatchHtmlEvent } from "./html_event.js";
 export function dispatch(e) {
     let { type } = e;
     for (let node of e.composedPath()) {
@@ -28,6 +29,7 @@ function dispatchEvent(sourceEvent, el, type) {
     let attr = el.getAttribute(`${type}:`);
     // load html fragments
     if ("#html" === attr) {
+        return dispatchHtmlEvent(sourceEvent, el, type);
     }
     if ("#esmodule" === attr) {
         return dispatchModuleEvent(el, type);

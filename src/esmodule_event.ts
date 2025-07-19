@@ -2,10 +2,8 @@ const urlSet = new Set<string>();
 
 export function dispatchModuleEvent(el: Element, kind: string) {
 	let url = el.getAttribute(`${kind}:url`);
-
 	if (url) {
 		let updatedUrl = new URL(url, location.href).toString();
-
 		if (urlSet.has(updatedUrl)) return;
 
 		import(updatedUrl)

@@ -40,7 +40,7 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 	if ("#esmodule" === attr) {
 		return dispatchModuleEvent(el, type);
 	}
-	
+
 	// these two the user reacts to
 	if ("#json" === attr) {
 		return dispatchJsonEvent(sourceEvent, el, type);

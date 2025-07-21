@@ -1,10 +1,13 @@
-// dont get queued, not asynchronous
+// not queue-able
 
-// can be throttled
+// throttle by action on
+// _document _currentTarget _target
+// { _document: {action: timestamp} }
 
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
 	action: string;
+	target?: Element | null;
 }
 
 export interface ActionEventInterface {

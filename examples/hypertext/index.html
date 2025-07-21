@@ -15,7 +15,9 @@
 	<body>
 		<header></header>
 		<main>
-			<ul>
+			<ul
+				pointerover:="#esmodule"
+				pointerover:url="./scripts/uwu.js">
 				<p>Actions</p>
 				<li>
 					<button click:="bear!">bear</button>
@@ -27,23 +29,23 @@
 					<button
 						click:="#json"
 						click:action="foxy_json"
-						click:url="./hey_foxy.json">
+						click:url="./json/hey_foxy.json">
 						fox
 					</button>
 				</li>
 				<li>
 					<button
 						click:="#html"
-						click:url="./wolf.html">
+						click:url="./html_fragments/wolf.html">
 						wolf
 					</button>
 				</li>
 				<li
 					pointerover:="#esmodule"
-					pointerover:url="./hellos.js">
+					pointerover:url="./scripts/uwu.js">
 					<button
-						click:="#esmodule"
-						click:url="./hello.js">
+						click:="#action"
+						click:action="eagle!">
 						eagle
 					</button>
 				</li>

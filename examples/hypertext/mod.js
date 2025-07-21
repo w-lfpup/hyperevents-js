@@ -1,12 +1,18 @@
-function logEvent(e) {
-	if ("#projection" === e.type) {
-		console.log("removed:", e.disconnectedFragment);
-	}
-
-	console.log(e);
-}
-
-document.addEventListener("#request", logEvent);
-document.addEventListener("#response", logEvent);
-document.addEventListener("#response-error", logEvent);
-document.addEventListener("#projection", logEvent);
+import { SuperChunk } from "superchunk";
+import { ActionEvent } from "superchunk";
+import { JsonEvent } from "superchunk";
+const _superChunk = new SuperChunk({
+    host: document,
+    connected: true,
+    eventNames: ["click", "pointerover"],
+});
+document.addEventListener("#action", function (e) {
+    if (e instanceof ActionEvent) {
+        console.log("#action", e, e.actionParams);
+    }
+});
+document.addEventListener("#json", function (e) {
+    if (e instanceof JsonEvent) {
+        console.log("#json", e, e.jsonParams);
+    }
+});

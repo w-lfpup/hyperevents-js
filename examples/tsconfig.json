@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"declaration": false,
+		"paths": {
+			"superchunk": ["../dist/mod.d.ts"]
+		}
+	}
+}

@@ -3,54 +3,52 @@
 	<head>
 		<meta charset=utf-8 />
 		<meta name=viewport content="width=device-width, initial-scale=1">
-		
-		<script type=module src="../../dist/api/mod.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"superchunk": "../../dist/mod.js"
+				}
+			}
+		</script>
 		<script type=module src="./mod.js"></script>
-
-		<link href="./mod.css" rel="stylesheet">
 	</head>
 	<body>
 		<header></header>
 		<main>
 			<ul>
+				<p>Actions</p>
+				<li>
+					<button click:="bear!">bear</button>
+				</li>
+				<li>
+					<button click:="#action" click:action="crow!">crow</button>
+				</li>
 				<li>
 					<button
-						_click_href="./bear"
-						_click_target="section"
-						_click_projection="replace_children"
-						_click_throttle="_projectionTarget"
-						_click_stop-propagation 
-						_click_prevent-default
-						
-						hover_="hovered over a button!"
-						hover_stop-propagation_
-						hover_prevent-default_
-					>
-						bear
+						click:="#json"
+						click:action="foxy_json"
+						click:url="./hey_foxy.json">
+						fox
 					</button>
-					<a _href="./bear.html"_target="section" _projection="replace_children" _throttle="_projectionTarget" _stop-propagation>
-						<button>bear</button>
-					</a>
 				</li>
 				<li>
-					<a _href="./crow.html" _target="section" _projection="replace_children" _throttle="_projectionTarget" _click _stop-propagation>
-						<button>crow</button>
-					</a>
+					<button
+						click:="#html"
+						click:url="./wolf.html">
+						wolf
+					</button>
+				</li>
+				<li
+					pointerover:="#esmodule"
+					pointerover:url="./hello.js">
+					<button
+						click:="#esmodule"
+						click:url="./hello.js">
+						eagle
+					</button>
 				</li>
 				<li>
-					<a _href="./fox.html" _target="section" _projection="replace_children" _throttle="_projectionTarget">
-						<button>fox</button>
-					</a>
-				</li>
-				<li>
-					<a _href="./wolf.html" _target="section" _projection="replace_children" _throttle="_projectionTarget">
-						<button>wolf</button>
-					</a>
-				</li>
-				<li>
-					<a _href="./reset.html" _target="section" _projection="replace_children" _throttle="_projectionTarget">
-						<button>reset</button>
-					</a>
+					<button click:="reset!">reset</button>
 				</li>
 			</ul>
 			<section>

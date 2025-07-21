@@ -1,20 +1,19 @@
 {
-	"name": "hypertext-extension",
+	"name": "superfetch",
 	"workspaces": [
 		"actions"
 	],
 	"version": "0.1.0",
-	"description": "HTML with actions and projections",
-	"type": "module",
-	"main": "dist/mod.js",
+	"description": "declarative HTML projections",
 	"scripts": {
-		"build": "npm run --workspaces build",
+		"build": "npx tsc --project ./src",
+		"build:examples": "npx tsc --project ./examples",
 		"format": "npx prettier ./ --write"
 	},
 	"devDependencies": {
 		"prettier": "^3.2.5",
 		"typescript": "^5.4.5"
 	},
-	"author": "wolfpup",
+	"author": "W-lfpup",
 	"license": "BSD-3-Clause"
 }

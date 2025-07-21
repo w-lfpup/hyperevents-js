@@ -1,7 +1,7 @@
 export interface JsonEventParamsInterface {
-    action: string;
-    jsonStr: string;
     sourceEvent: Event;
+    jsonStr: string;
+    action: string | null;
 }
 export interface JsonEventInterface {
     readonly jsonParams: JsonEventParamsInterface;

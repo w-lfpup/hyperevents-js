@@ -1,5 +1,14 @@
+// asynchronous
+// queue-able
+
 export interface HtmlEventParamsInterface {
 	sourceEvent: Event;
+	html: string;
+	target?: Element;
+	destination?: Element;
+	projection?: string;
+	// throttle?: Element;
+	// queue?: Element;
 }
 
 export interface HtmlEventInterface {

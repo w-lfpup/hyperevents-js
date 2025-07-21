@@ -1,5 +1,9 @@
 export interface HtmlEventParamsInterface {
     sourceEvent: Event;
+    html: string;
+    target?: Element;
+    destination?: Element;
+    projection?: string;
 }
 export interface HtmlEventInterface {
     readonly htmlParams: HtmlEventParamsInterface;

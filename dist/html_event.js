@@ -1,3 +1,5 @@
+// asynchronous
+// queue-able
 export function dispatchHtmlEvent(sourceEvent, el, kind) {
     let url = el.getAttribute(`${kind}:url`);
     if (url) {

@@ -1,6 +1,6 @@
 export interface ActionEventParamsInterface {
-    action: string;
     sourceEvent: Event;
+    action: string;
 }
 export interface ActionEventInterface {
     readonly actionParams: ActionEventParamsInterface;

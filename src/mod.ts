@@ -3,6 +3,14 @@ import { dispatch } from "./dispatch.js";
 export { ActionEvent } from "./action_event.js";
 export { JsonEvent } from "./json_event.js";
 
+/*
+	Queue, throttle actions that require remote interactions
+
+	Esmodule is unique 
+
+	throttle is _doc _target _currentTarget selector _url
+*/
+
 export interface SuperChunkParamsInterface {
 	host: ParentNode;
 	eventNames: string[];

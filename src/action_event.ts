@@ -1,6 +1,10 @@
+// dont get queued, not asynchronous
+
+// can be throttled
+
 export interface ActionEventParamsInterface {
-	action: string;
 	sourceEvent: Event;
+	action: string;
 }
 
 export interface ActionEventInterface {

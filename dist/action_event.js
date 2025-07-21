@@ -1,3 +1,4 @@
+// dont get queued, not asynchronous
 export class ActionEvent extends Event {
     #params;
     constructor(params, eventInit) {

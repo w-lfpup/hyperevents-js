@@ -1,3 +1,5 @@
+// asynchronous
+// queue-able
 export class JsonEvent extends Event {
     #params;
     constructor(params, eventInit) {
@@ -11,8 +13,9 @@ export class JsonEvent extends Event {
 export function dispatchJsonEvent(sourceEvent, el, kind) {
     let action = el.getAttribute(`${kind}:action`);
     let url = el.getAttribute(`${kind}:url`);
-    if (action && url) {
+    if (url) {
         let req = new Request(url, {});
+        // import("./some.json", {type: "json"})
         fetch(req)
             .then(function (response) {
             return Promise.all([response, response.text()]);

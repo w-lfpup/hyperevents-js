@@ -38,7 +38,7 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 ```html
 <button
 	click:="json"
-	click:json="/api/fetch_some.json"
+	click:json="/fetch/some.json"
 ></button>
 ```
 
@@ -49,7 +49,7 @@ Super chunk can fetch html using the following syntax:
 ```html
 <button
 	click:="html"
-	click:url="/api/fetch_some.html"
+	click:url="/fetch/some.html"
 ></button>
 ```
 
@@ -60,7 +60,7 @@ Super chunk can fetch esmodules using the following syntax:
 ```html
 <button
 	click:="esmodule"
-	click:url="/components/button.js"
+	click:url="/components/yet-another-button.js"
 ></button>
 ```
 

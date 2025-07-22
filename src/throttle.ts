@@ -42,7 +42,11 @@ export function shouldThrottle(
 	return true;
 }
 
-function throttleByString(timeoutMs: number, action: string): boolean {
+function throttleByString(
+	timeoutMs: number,
+	action: string,
+	abortController?: AbortController,
+): boolean {
 	let throttler = stringMap.get(action);
 	if (throttler) {
 		let now = performance.now();
@@ -50,7 +54,8 @@ function throttleByString(timeoutMs: number, action: string): boolean {
 
 		if (timeoutMs < delta) {
 			throttler.abortController?.abort();
-			stringMap.set(action, { timestamp: now });
+			stringMap.set(action, { abortController, timestamp: now });
+
 			return false;
 		}
 	}
@@ -58,7 +63,11 @@ function throttleByString(timeoutMs: number, action: string): boolean {
 	return true;
 }
 
-function throttleByElement(el: EventTarget | null, timeoutMs: number): boolean {
+function throttleByElement(
+	el: EventTarget | null,
+	timeoutMs: number,
+	abortController?: AbortController,
+): boolean {
 	if (el) {
 		let throttler = elementMap.get(el);
 		if (throttler) {
@@ -67,7 +76,7 @@ function throttleByElement(el: EventTarget | null, timeoutMs: number): boolean {
 
 			if (timeoutMs < delta) {
 				throttler.abortController?.abort();
-				elementMap.set(el, { timestamp: now });
+				elementMap.set(el, { abortController, timestamp: now });
 
 				return false;
 			}

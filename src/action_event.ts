@@ -29,7 +29,7 @@ export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
 		action = el.getAttribute(`${kind}:action`);
 	}
 
-	if (action && shouldThrottle(sourceEvent, el, kind, action)) {
+	if (action && shouldThrottle(sourceEvent, el, kind, `action:${action}`)) {
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);
 	}

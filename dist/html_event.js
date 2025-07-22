@@ -1,9 +1,24 @@
 // asynchronous
 // queue-able
-export function dispatchHtmlEvent(el, kind) {
+// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
+// AFAIK we can't use an AbortController on a dynamic import
+// but we can on a fetch
+import { shouldThrottle, setThrottler } from "./throttle.js";
+export function dispatchHtmlEvent(el, currentTarget, kind) {
     let url = el.getAttribute(`${kind}:url`);
     if (url) {
-        let req = new Request(url, {});
+        let params = { el, currentTarget, kind, prefix: "json", url };
+        if (shouldThrottle(params))
+            return;
+        let abortController = new AbortController();
+        setThrottler(params, abortController);
+        // this entire chunk is queue-able
+        let req = new Request(url, {
+            signal: AbortSignal.any([
+                AbortSignal.timeout(500),
+                abortController.signal,
+            ]),
+        });
         fetch(req)
             .then(function (response) {
             return Promise.all([response, response.text()]);

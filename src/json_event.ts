@@ -6,7 +6,7 @@
 
 // could leave a "status=pending|fulfilled|rejected status:code=200|400|500
 
-import { shouldThrottle } from "./throttle.js";
+import { shouldThrottle, setThrottler } from "./throttle.js";
 
 export interface JsonEventParamsInterface {
 	jsonStr: string;
@@ -30,12 +30,31 @@ export class JsonEvent extends Event implements JsonEventInterface {
 	}
 }
 
-export function dispatchJsonEvent(el: Element, kind: string) {
+export function dispatchJsonEvent(
+	el: Element,
+	currentTarget: Event["currentTarget"],
+	kind: string,
+) {
 	let action = el.getAttribute(`${kind}:action`);
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (url) {
-		let req = new Request(url, {});
+		let params = { el, currentTarget, kind, prefix: "json", action, url };
+		if (shouldThrottle(params)) return;
+
+		let abortController = new AbortController();
+		setThrottler(params, abortController);
+
+		// this entire chunk is queue-able
+
+		if (abortController.signal.aborted) return;
+
+		let req = new Request(url, {
+			signal: AbortSignal.any([
+				AbortSignal.timeout(500),
+				abortController.signal,
+			]),
+		});
 
 		fetch(req)
 			.then(function (response: Response) {
@@ -47,6 +66,10 @@ export function dispatchJsonEvent(el: Element, kind: string) {
 			})
 			.catch(function (reason: any) {
 				console.log("#json error!");
+			})
+			.finally(function () {
+				// call next queue?
 			});
+		// to here
 	}
 }

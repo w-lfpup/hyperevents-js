@@ -29,14 +29,14 @@ function dispatchEvent(sourceEvent, currentTarget, el, type) {
     let attr = el.getAttribute(`${type}:`);
     // load html fragments
     if ("html" === attr) {
-        return dispatchHtmlEvent(el, type);
+        return dispatchHtmlEvent(el, currentTarget, type);
     }
     if ("esmodule" === attr) {
         return dispatchModuleEvent(el, type);
     }
     // these two the user reacts to
     if ("json" === attr) {
-        return dispatchJsonEvent(el, type);
+        return dispatchJsonEvent(el, currentTarget, type);
     }
     // action events
     return getActionEvent(sourceEvent, currentTarget, el, type);

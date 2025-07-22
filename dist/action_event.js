@@ -15,9 +15,16 @@ export function getActionEvent(sourceEvent, currentTarget, el, kind) {
         action = el.getAttribute(`${kind}:action`);
     }
     if (action) {
-        if (shouldThrottle(el, currentTarget, kind, "action", action))
+        let params = {
+            el,
+            currentTarget,
+            kind,
+            prefix: "action",
+            action,
+        };
+        if (shouldThrottle(params))
             return;
-        setThrottler(el, currentTarget, kind, "action", action);
+        setThrottler(params);
         let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
         el.dispatchEvent(event);
     }

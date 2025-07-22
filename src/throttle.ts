@@ -11,14 +11,19 @@ let stringMap = new Map<string, Throttled>();
 let elementMap = new WeakMap<EventTarget, Throttled>();
 
 // two functions throttle
-export function shouldThrottle(
-	el: Element,
-	currentTarget: Event["currentTarget"],
-	kind: string,
-	prefix: string,
-	action?: ReturnType<Element["getAttribute"]>,
-	url?: ReturnType<Element["getAttribute"]>,
-): boolean {
+
+interface ShouldThrottleParams {
+	el: Element;
+	currentTarget: Event["currentTarget"];
+	kind: string;
+	prefix: string;
+	action?: ReturnType<Element["getAttribute"]>;
+	url?: ReturnType<Element["getAttribute"]>;
+}
+
+export function shouldThrottle(params: ShouldThrottleParams): boolean {
+	let { el, kind } = params;
+
 	let throttle = el.getAttribute(`${kind}:throttle`);
 	if (throttle) {
 		let timeoutStr = el.getAttribute(`${kind}:throttle-ms`) ?? "";
@@ -26,26 +31,25 @@ export function shouldThrottle(
 
 		if (!Number.isNaN(timeoutMs)) {
 			// throttle by string
-			if (url && "url" === throttle) {
+			let { url, prefix, action, currentTarget } = params;
+
+			if (url && "url" === throttle)
 				return shouldThrottleByString(
 					timeoutMs,
 					`${prefix}:${throttle}:${url}`,
 				);
-			}
-			if (action && "action" === throttle) {
+
+			if (action && "action" === throttle)
 				return shouldThrottleByString(
 					timeoutMs,
 					`${prefix}:${throttle}:${action}`,
 				);
-			}
 
 			// throttle by element
-			if ("target" === throttle) {
-				return shouldThrottleByElement(el, timeoutMs);
-			}
-			if ("currentTarget" === throttle) {
+			if ("target" === throttle) return shouldThrottleByElement(el, timeoutMs);
+
+			if ("currentTarget" === throttle)
 				return shouldThrottleByElement(currentTarget, timeoutMs);
-			}
 		}
 	}
 
@@ -86,25 +90,22 @@ function shouldThrottleByElement(
 }
 
 export function setThrottler(
-	el: Element,
-	currentTarget: Event["currentTarget"],
-	kind: string,
-	prefix: string,
-	action?: ReturnType<Element["getAttribute"]>,
-	url?: ReturnType<Element["getAttribute"]>,
+	params: ShouldThrottleParams,
 	abortController?: AbortController,
 ) {
+	let { el, kind } = params;
+
 	let throttle = el.getAttribute(`${kind}:throttle`);
 	if (throttle) {
+		let { url, prefix, action, currentTarget } = params;
 		let timestamp = performance.now();
 		let throttler = { timestamp, abortController };
+
 		// throttle by string
-		if (url && "url" === throttle) {
+		if (url && "url" === throttle)
 			stringMap.set(`${prefix}:${throttle}:${url}`, throttler);
-		}
-		if (action && "action" === throttle) {
+		if (action && "action" === throttle)
 			stringMap.set(`${prefix}:${throttle}:${action}`, throttler);
-		}
 
 		// throttle by element
 		if ("target" === throttle) elementMap.set(el, throttler);

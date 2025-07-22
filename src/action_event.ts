@@ -3,7 +3,7 @@ import { shouldThrottle, setThrottler } from "./throttle.js";
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
 	action: string;
-	target?: Element | null;
+	// target?: Element | null;
 }
 
 export interface ActionEventInterface {
@@ -35,8 +35,16 @@ export function getActionEvent(
 	}
 
 	if (action) {
-		if (shouldThrottle(el, currentTarget, kind, "action", action)) return;
-		setThrottler(el, currentTarget, kind, "action", action);
+		let params = {
+			el,
+			currentTarget,
+			kind,
+			prefix: "action",
+			action,
+		};
+
+		if (shouldThrottle(params)) return;
+		setThrottler(params);
 
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);

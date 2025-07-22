@@ -39,7 +39,7 @@ function dispatchEvent(
 
 	// load html fragments
 	if ("html" === attr) {
-		return dispatchHtmlEvent(el, type);
+		return dispatchHtmlEvent(el, currentTarget, type);
 	}
 
 	if ("esmodule" === attr) {
@@ -48,7 +48,7 @@ function dispatchEvent(
 
 	// these two the user reacts to
 	if ("json" === attr) {
-		return dispatchJsonEvent(el, type);
+		return dispatchJsonEvent(el, currentTarget, type);
 	}
 
 	// action events

@@ -1,1 +1,2 @@
-export declare function shouldThrottle(el: Element, currentTarget: EventTarget | null, kind: string, prefix: string, action?: string | null, url?: string | null): boolean;
+export declare function shouldThrottle(el: Element, currentTarget: Event["currentTarget"], kind: string, prefix: string, action?: ReturnType<Element["getAttribute"]>, url?: ReturnType<Element["getAttribute"]>): boolean;
+export declare function setThrottler(el: Element, currentTarget: Event["currentTarget"], kind: string, prefix: string, action?: ReturnType<Element["getAttribute"]>, url?: ReturnType<Element["getAttribute"]>, abortController?: AbortController): void;

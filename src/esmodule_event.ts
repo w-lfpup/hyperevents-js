@@ -1,3 +1,4 @@
+// this could explode so maybe blow up every 1024 elements or something
 let set = new Set();
 
 export function dispatchModuleEvent(el: Element, kind: string) {

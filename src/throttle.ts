@@ -1,6 +1,3 @@
-// throttle by element and action
-
-// throttle could be a fetch
 interface Throttled {
 	abortController?: AbortController;
 	timestamp: DOMHighResTimeStamp;
@@ -16,11 +13,11 @@ let elementMap = new WeakMap<EventTarget, Throttled>();
 // two functions throttle
 export function shouldThrottle(
 	el: Element,
-	currentTarget: EventTarget | null,
+	currentTarget: Event["currentTarget"],
 	kind: string,
 	prefix: string,
-	action?: string | null,
-	url?: string | null,
+	action?: ReturnType<Element["getAttribute"]>,
+	url?: ReturnType<Element["getAttribute"]>,
 ): boolean {
 	let throttle = el.getAttribute(`${kind}:throttle`);
 	if (throttle) {
@@ -30,18 +27,24 @@ export function shouldThrottle(
 		if (!Number.isNaN(timeoutMs)) {
 			// throttle by string
 			if (url && "url" === throttle) {
-				return throttleByString(timeoutMs, `${prefix}:${throttle}:${url}`);
+				return shouldThrottleByString(
+					timeoutMs,
+					`${prefix}:${throttle}:${url}`,
+				);
 			}
 			if (action && "action" === throttle) {
-				return throttleByString(timeoutMs, `${prefix}:${throttle}:${action}`);
+				return shouldThrottleByString(
+					timeoutMs,
+					`${prefix}:${throttle}:${action}`,
+				);
 			}
 
 			// throttle by element
 			if ("target" === throttle) {
-				return throttleByElement(el, timeoutMs);
+				return shouldThrottleByElement(el, timeoutMs);
 			}
 			if ("currentTarget" === throttle) {
-				return throttleByElement(currentTarget, timeoutMs);
+				return shouldThrottleByElement(currentTarget, timeoutMs);
 			}
 		}
 	}
@@ -49,34 +52,63 @@ export function shouldThrottle(
 	return false;
 }
 
-function throttleByString(timeoutMs: number, action: string): boolean {
+function shouldThrottleByString(timeoutMs: number, action: string): boolean {
 	let throttler = stringMap.get(action);
 	if (throttler) {
-		let now = performance.now();
-		let delta = now - throttler.timestamp;
-
-		if (timeoutMs > delta) {
-			throttler.abortController?.abort();
-			return false;
+		let delta = performance.now() - throttler.timestamp;
+		if (delta < timeoutMs) {
+			return true;
 		}
+
+		throttler.abortController?.abort();
 	}
 
-	return true;
+	return false;
 }
 
-function throttleByElement(el: EventTarget | null, timeoutMs: number): boolean {
+function shouldThrottleByElement(
+	el: Event["currentTarget"],
+	timeoutMs: number,
+): boolean {
 	if (el) {
 		let throttler = elementMap.get(el);
 		if (throttler) {
-			let now = performance.now();
-			let delta = now - throttler.timestamp;
-
-			if (timeoutMs < delta) {
-				throttler.abortController?.abort();
-				return false;
+			let delta = performance.now() - throttler.timestamp;
+			if (delta < timeoutMs) {
+				return true;
 			}
+
+			throttler.abortController?.abort();
 		}
 	}
 
-	return true;
+	return false;
+}
+
+export function setThrottler(
+	el: Element,
+	currentTarget: Event["currentTarget"],
+	kind: string,
+	prefix: string,
+	action?: ReturnType<Element["getAttribute"]>,
+	url?: ReturnType<Element["getAttribute"]>,
+	abortController?: AbortController,
+) {
+	let throttle = el.getAttribute(`${kind}:throttle`);
+	if (throttle) {
+		let timestamp = performance.now();
+		let throttler = { timestamp, abortController };
+		// throttle by string
+		if (url && "url" === throttle) {
+			stringMap.set(`${prefix}:${throttle}:${url}`, throttler);
+		}
+		if (action && "action" === throttle) {
+			stringMap.set(`${prefix}:${throttle}:${action}`, throttler);
+		}
+
+		// throttle by element
+		if ("target" === throttle) elementMap.set(el, throttler);
+		if (currentTarget && "currentTarget" === throttle)
+			elementMap.set(currentTarget, throttler);
+	}
 }

@@ -37,7 +37,6 @@ export function dispatchJsonEvent(el: Element, kind: string) {
 	if (url) {
 		let req = new Request(url, {});
 
-		// import(url, {assert: {type: "json"}}).then(function(res) {})
 		fetch(req)
 			.then(function (response: Response) {
 				return Promise.all([response, response.text()]);

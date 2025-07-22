@@ -1,4 +1,4 @@
-import { shouldThrottle } from "./throttle.js";
+import { shouldThrottle, setThrottler } from "./throttle.js";
 
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
@@ -34,10 +34,10 @@ export function getActionEvent(
 		action = el.getAttribute(`${kind}:action`);
 	}
 
-	if (shouldThrottle(el, currentTarget, kind, "action", action)) return;
-
 	if (action) {
-		// set throttle
+		if (shouldThrottle(el, currentTarget, kind, "action", action)) return;
+		setThrottler(el, currentTarget, kind, "action", action);
+
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);
 	}

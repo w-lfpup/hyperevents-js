@@ -43,10 +43,11 @@ export function shouldThrottle(
 }
 
 function throttleByString(timeoutMs: number, action: string): boolean {
-	let now = performance.now();
 	let throttler = stringMap.get(action);
 	if (throttler) {
+		let now = performance.now();
 		let delta = now - throttler.timestamp;
+
 		if (timeoutMs < delta) {
 			throttler.abortController?.abort();
 			stringMap.set(action, { timestamp: now });
@@ -59,10 +60,11 @@ function throttleByString(timeoutMs: number, action: string): boolean {
 
 function throttleByElement(el: EventTarget | null, timeoutMs: number): boolean {
 	if (el) {
-		let now = performance.now();
 		let throttler = elementMap.get(el);
 		if (throttler) {
+			let now = performance.now();
 			let delta = now - throttler.timestamp;
+
 			if (timeoutMs < delta) {
 				throttler.abortController?.abort();
 				elementMap.set(el, { timestamp: now });

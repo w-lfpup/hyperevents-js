@@ -13,20 +13,21 @@ export function shouldThrottle(sourceEvent, el, kind, action) {
         if ("_url" === throttle) {
             return throttleByString(timeoutMs, action);
         }
-        if ("_action" === throttle) { }
+        if ("_action" === throttle) {
+        }
         // // throttle by element
         if ("_target" === throttle) {
             throttleByElement(sourceEvent.target, timeoutMs);
         }
-        if ("_currentTarget" === throttle) { }
+        if ("_currentTarget" === throttle) {
+        }
     }
-    ;
     return true;
 }
 function throttleByString(timeoutMs, action) {
-    let now = performance.now();
     let throttler = stringMap.get(action);
     if (throttler) {
+        let now = performance.now();
         let delta = now - throttler.timestamp;
         if (timeoutMs < delta) {
             throttler.abortController?.abort();
@@ -38,9 +39,9 @@ function throttleByString(timeoutMs, action) {
 }
 function throttleByElement(el, timeoutMs) {
     if (el) {
-        let now = performance.now();
         let throttler = elementMap.get(el);
         if (throttler) {
+            let now = performance.now();
             let delta = now - throttler.timestamp;
             if (timeoutMs < delta) {
                 throttler.abortController?.abort();

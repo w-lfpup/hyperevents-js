@@ -1,9 +1,3 @@
-// not queue-able
-
-// throttle by action on
-// _document _currentTarget _target
-// { _document: {action: timestamp} }
-
 import { shouldThrottle } from "./throttle.js";
 
 export interface ActionEventParamsInterface {
@@ -35,9 +29,7 @@ export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
 		action = el.getAttribute(`${kind}:action`);
 	}
 
-	if (action) {
-		if (shouldThrottle(sourceEvent, el, kind, action)) return;
-
+	if (action && shouldThrottle(sourceEvent, el, kind, action)) {
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);
 	}

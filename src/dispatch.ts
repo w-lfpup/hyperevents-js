@@ -22,19 +22,24 @@ export function dispatch(e: Event) {
 			// also get source node?
 			if (node.hasAttribute(`${type}:prevent-default`)) e.preventDefault();
 
-			dispatchEvent(e, node, type);
+			dispatchEvent(e, e.currentTarget, node, type);
 
 			if (node.hasAttribute(`${type}:stop-propagation`)) return;
 		}
 	}
 }
 
-function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
+function dispatchEvent(
+	sourceEvent: Event,
+	currentTarget: EventTarget | null,
+	el: Element,
+	type: string,
+) {
 	let attr = el.getAttribute(`${type}:`);
 
 	// load html fragments
 	if ("html" === attr) {
-		return dispatchHtmlEvent(sourceEvent, el, type);
+		return dispatchHtmlEvent(el, type);
 	}
 
 	if ("esmodule" === attr) {
@@ -43,9 +48,9 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 
 	// these two the user reacts to
 	if ("json" === attr) {
-		return dispatchJsonEvent(sourceEvent, el, type);
+		return dispatchJsonEvent(el, type);
 	}
 
 	// action events
-	return getActionEvent(sourceEvent, el, type);
+	return getActionEvent(sourceEvent, currentTarget, el, type);
 }

@@ -1,5 +1,4 @@
 export interface HtmlEventParamsInterface {
-    sourceEvent: Event;
     html: string;
     target?: Element;
     destination?: Element;
@@ -8,4 +7,4 @@ export interface HtmlEventParamsInterface {
 export interface HtmlEventInterface {
     readonly htmlParams: HtmlEventParamsInterface;
 }
-export declare function dispatchHtmlEvent(sourceEvent: Event, el: Element, kind: string): void;
+export declare function dispatchHtmlEvent(el: Element, kind: string): void;

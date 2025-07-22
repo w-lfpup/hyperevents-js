@@ -1,6 +1,6 @@
 // asynchronous
 // queue-able
-export function dispatchHtmlEvent(sourceEvent, el, kind) {
+export function dispatchHtmlEvent(el, kind) {
     let url = el.getAttribute(`${kind}:url`);
     if (url) {
         let req = new Request(url, {});
@@ -12,7 +12,7 @@ export function dispatchHtmlEvent(sourceEvent, el, kind) {
             console.log(htmlStr);
         })
             .catch(function (reason) {
-            console.log("#json error!");
+            console.log("#html error!");
         });
     }
 }

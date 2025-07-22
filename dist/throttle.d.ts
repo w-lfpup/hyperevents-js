@@ -1,1 +1,1 @@
-export declare function shouldThrottle(sourceEvent: Event, el: Element, kind: string, action: string): boolean;
+export declare function shouldThrottle(el: Element, currentTarget: EventTarget | null, kind: string, prefix: string, action?: string | null, url?: string | null): boolean;

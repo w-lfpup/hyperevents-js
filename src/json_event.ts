@@ -6,15 +6,11 @@
 
 // could leave a "status=pending|fulfilled|rejected status:code=200|400|500
 
+import { shouldThrottle } from "./throttle.js";
+
 export interface JsonEventParamsInterface {
-	sourceEvent: Event;
 	jsonStr: string;
-	action: string | null;
-	// target?: Element;
-	// throttle?: Element;
-	// throttle-timeout-ms?: 100;
-	// queue?: Element;
-	// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
+	action?: string | null;
 }
 
 export interface JsonEventInterface {
@@ -34,26 +30,20 @@ export class JsonEvent extends Event implements JsonEventInterface {
 	}
 }
 
-export function dispatchJsonEvent(
-	sourceEvent: Event,
-	el: Element,
-	kind: string,
-) {
+export function dispatchJsonEvent(el: Element, kind: string) {
 	let action = el.getAttribute(`${kind}:action`);
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (url) {
 		let req = new Request(url, {});
-		// import("./some.json", {type: "json"})
+
+		// import(url, {assert: {type: "json"}}).then(function(res) {})
 		fetch(req)
 			.then(function (response: Response) {
 				return Promise.all([response, response.text()]);
 			})
 			.then(function ([res, jsonStr]) {
-				let event = new JsonEvent(
-					{ action, jsonStr, sourceEvent },
-					{ bubbles: true },
-				);
+				let event = new JsonEvent({ action, jsonStr }, { bubbles: true });
 				el.dispatchEvent(event);
 			})
 			.catch(function (reason: any) {

@@ -9,12 +9,15 @@ export class ActionEvent extends Event {
         return this.#params;
     }
 }
-export function getActionEvent(sourceEvent, el, kind) {
+export function getActionEvent(sourceEvent, currentTarget, el, kind) {
     let action = el.getAttribute(`${kind}:`);
     if ("action" === action) {
         action = el.getAttribute(`${kind}:action`);
     }
-    if (action && shouldThrottle(sourceEvent, el, kind, action)) {
+    if (shouldThrottle(el, currentTarget, kind, "action", action))
+        return;
+    if (action) {
+        // set throttle
         let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
         el.dispatchEvent(event);
     }

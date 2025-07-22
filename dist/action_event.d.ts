@@ -11,4 +11,4 @@ export declare class ActionEvent extends Event implements ActionEventInterface {
     constructor(params: ActionEventParamsInterface, eventInit?: EventInit);
     get actionParams(): ActionEventParamsInterface;
 }
-export declare function getActionEvent(sourceEvent: Event, el: Element, kind: string): void;
+export declare function getActionEvent(sourceEvent: Event, currentTarget: EventTarget | null, el: Element, kind: string): void;

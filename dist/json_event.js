@@ -10,18 +10,18 @@ export class JsonEvent extends Event {
         return this.#params;
     }
 }
-export function dispatchJsonEvent(sourceEvent, el, kind) {
+export function dispatchJsonEvent(el, kind) {
     let action = el.getAttribute(`${kind}:action`);
     let url = el.getAttribute(`${kind}:url`);
     if (url) {
         let req = new Request(url, {});
-        // import("./some.json", {type: "json"})
+        // import(url, {assert: {type: "json"}}).then(function(res) {})
         fetch(req)
             .then(function (response) {
             return Promise.all([response, response.text()]);
         })
             .then(function ([res, jsonStr]) {
-            let event = new JsonEvent({ action, jsonStr, sourceEvent }, { bubbles: true });
+            let event = new JsonEvent({ action, jsonStr }, { bubbles: true });
             el.dispatchEvent(event);
         })
             .catch(function (reason) {

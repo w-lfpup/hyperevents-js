@@ -19,25 +19,25 @@ export function dispatch(e) {
             // also get source node?
             if (node.hasAttribute(`${type}:prevent-default`))
                 e.preventDefault();
-            dispatchEvent(e, node, type);
+            dispatchEvent(e, e.currentTarget, node, type);
             if (node.hasAttribute(`${type}:stop-propagation`))
                 return;
         }
     }
 }
-function dispatchEvent(sourceEvent, el, type) {
+function dispatchEvent(sourceEvent, currentTarget, el, type) {
     let attr = el.getAttribute(`${type}:`);
     // load html fragments
     if ("html" === attr) {
-        return dispatchHtmlEvent(sourceEvent, el, type);
+        return dispatchHtmlEvent(el, type);
     }
     if ("esmodule" === attr) {
         return dispatchModuleEvent(el, type);
     }
     // these two the user reacts to
     if ("json" === attr) {
-        return dispatchJsonEvent(sourceEvent, el, type);
+        return dispatchJsonEvent(el, type);
     }
     // action events
-    return getActionEvent(sourceEvent, el, type);
+    return getActionEvent(sourceEvent, currentTarget, el, type);
 }

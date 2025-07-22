@@ -23,13 +23,21 @@ export class ActionEvent extends Event implements ActionEventInterface {
 	}
 }
 
-export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
+export function getActionEvent(
+	sourceEvent: Event,
+	currentTarget: EventTarget | null,
+	el: Element,
+	kind: string,
+) {
 	let action = el.getAttribute(`${kind}:`);
 	if ("action" === action) {
 		action = el.getAttribute(`${kind}:action`);
 	}
 
-	if (action && shouldThrottle(sourceEvent, el, kind, `action:${action}`)) {
+	if (shouldThrottle(el, currentTarget, kind, "action", action)) return;
+
+	if (action) {
+		// set throttle
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);
 	}

@@ -4,34 +4,38 @@
 let stringMap = new Map();
 // throttle by _target _currentTarget
 let elementMap = new WeakMap();
-export function shouldThrottle(sourceEvent, el, kind, action) {
+// two functions throttle
+export function shouldThrottle(el, currentTarget, kind, prefix, action, url) {
     let throttle = el.getAttribute(`${kind}:throttle`);
-    let timeoutStr = el.getAttribute(`${kind}:throttle-ms`) ?? "";
-    let timeoutMs = parseInt(timeoutStr);
-    if (throttle && !Number.isNaN(timeoutMs)) {
-        // throttle by string
-        if ("_url" === throttle) {
-            return throttleByString(timeoutMs, action);
-        }
-        if ("_action" === throttle) {
-        }
-        // // throttle by element
-        if ("_target" === throttle) {
-            throttleByElement(sourceEvent.target, timeoutMs);
-        }
-        if ("_currentTarget" === throttle) {
+    if (throttle) {
+        let timeoutStr = el.getAttribute(`${kind}:throttle-ms`) ?? "";
+        let timeoutMs = parseInt(timeoutStr);
+        if (!Number.isNaN(timeoutMs)) {
+            // throttle by string
+            if (url && "url" === throttle) {
+                return throttleByString(timeoutMs, `${prefix}:${throttle}:${url}`);
+            }
+            if (action && "action" === throttle) {
+                return throttleByString(timeoutMs, `${prefix}:${throttle}:${action}`);
+            }
+            // throttle by element
+            if ("target" === throttle) {
+                return throttleByElement(el, timeoutMs);
+            }
+            if ("currentTarget" === throttle) {
+                return throttleByElement(currentTarget, timeoutMs);
+            }
         }
     }
-    return true;
+    return false;
 }
 function throttleByString(timeoutMs, action) {
     let throttler = stringMap.get(action);
     if (throttler) {
         let now = performance.now();
         let delta = now - throttler.timestamp;
-        if (timeoutMs < delta) {
+        if (timeoutMs > delta) {
             throttler.abortController?.abort();
-            stringMap.set(action, { timestamp: now });
             return false;
         }
     }
@@ -45,7 +49,6 @@ function throttleByElement(el, timeoutMs) {
             let delta = now - throttler.timestamp;
             if (timeoutMs < delta) {
                 throttler.abortController?.abort();
-                elementMap.set(el, { timestamp: now });
                 return false;
             }
         }

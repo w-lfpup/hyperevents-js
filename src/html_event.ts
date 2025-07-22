@@ -6,14 +6,14 @@
 // AFAIK we can't use an AbortController on a dynamic import
 // but we can on a fetch
 
+import { shouldThrottle } from "./throttle.js";
+
 export interface HtmlEventParamsInterface {
-	sourceEvent: Event;
 	html: string;
 	target?: Element;
 	destination?: Element;
 	projection?: string;
-	// throttle?: Element;
-	// queue?: Element;
+	// throttle?: Element;	// queue?: Element;
 	// timeout-ms?: number;
 }
 
@@ -21,11 +21,7 @@ export interface HtmlEventInterface {
 	readonly htmlParams: HtmlEventParamsInterface;
 }
 
-export function dispatchHtmlEvent(
-	sourceEvent: Event,
-	el: Element,
-	kind: string,
-) {
+export function dispatchHtmlEvent(el: Element, kind: string) {
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (url) {
@@ -38,7 +34,7 @@ export function dispatchHtmlEvent(
 				console.log(htmlStr);
 			})
 			.catch(function (reason: any) {
-				console.log("#json error!");
+				console.log("#html error!");
 			});
 	}
 }

@@ -1,6 +1,11 @@
 // asynchronous
 // queue-able
 
+// AFAIK we can't use an AbortController on a dynamic import
+// but we can on a fetch
+
+// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
+
 export interface JsonEventParamsInterface {
 	sourceEvent: Event;
 	jsonStr: string;
@@ -9,6 +14,7 @@ export interface JsonEventParamsInterface {
 	// throttle?: Element;
 	// throttle-timeout-ms?: 100;
 	// queue?: Element;
+	// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
 }
 
 export interface JsonEventInterface {

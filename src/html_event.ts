@@ -1,6 +1,11 @@
 // asynchronous
 // queue-able
 
+// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
+
+// AFAIK we can't use an AbortController on a dynamic import
+// but we can on a fetch
+
 export interface HtmlEventParamsInterface {
 	sourceEvent: Event;
 	html: string;
@@ -9,6 +14,7 @@ export interface HtmlEventParamsInterface {
 	projection?: string;
 	// throttle?: Element;
 	// queue?: Element;
+	// timeout-ms?: number;
 }
 
 export interface HtmlEventInterface {

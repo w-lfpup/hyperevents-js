@@ -4,6 +4,8 @@
 // _document _currentTarget _target
 // { _document: {action: timestamp} }
 
+import { shouldThrottle } from "./throttle.js";
+
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
 	action: string;
@@ -28,19 +30,14 @@ export class ActionEvent extends Event implements ActionEventInterface {
 }
 
 export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
-	let action = el.getAttribute(`${kind}:action`);
-	if (action) {
-		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
-		el.dispatchEvent(event);
+	let action = el.getAttribute(`${kind}:`);
+	if ("action" === action) {
+		action = el.getAttribute(`${kind}:action`);
 	}
-}
 
-export function getFallbackAction(
-	sourceEvent: Event,
-	el: Element,
-	action: string | null,
-) {
 	if (action) {
+		if (shouldThrottle(sourceEvent, el, kind, action)) return;
+
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);
 	}

@@ -1,9 +1,3 @@
-// Unless there's no reason for a set?
-// Or there's a broader esmodule map?
-// should this be queable and throttle-able?
-// It's mainly for loading interactivity, a new slice of state, a webcomponent.
-// Gut feeling says this should NOT be queue-able or throttle-able
-// Let the browser handle it or only 
 let set = new Set();
 export function dispatchModuleEvent(el, kind) {
     let url = el.getAttribute(`${kind}:url`);
@@ -12,10 +6,8 @@ export function dispatchModuleEvent(el, kind) {
         if (set.has(updatedUrl))
             return;
         set.add(updatedUrl);
-        import(updatedUrl)
-            .catch(function (reason) {
+        import(updatedUrl).catch(function (_reason) {
             set.delete(updatedUrl);
-            console.log("esmodule error!", reason);
         });
     }
 }

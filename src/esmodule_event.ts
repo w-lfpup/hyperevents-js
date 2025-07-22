@@ -1,4 +1,3 @@
-// could be from function args?
 let set = new Set();
 
 export function dispatchModuleEvent(el: Element, kind: string) {

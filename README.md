@@ -39,6 +39,8 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 <button
 	click:="json"
 	click:json="/fetch/some.json"
+	click:throttle="_document"
+	click:throttle-ms="100"
 ></button>
 ```
 

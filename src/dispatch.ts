@@ -9,7 +9,7 @@
     #json
 */
 
-import { getActionEvent, getFallbackAction } from "./action_event.js";
+import { getActionEvent } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchModuleEvent } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
@@ -33,23 +33,19 @@ function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
 	let attr = el.getAttribute(`${type}:`);
 
 	// load html fragments
-	if ("#html" === attr) {
+	if ("html" === attr) {
 		return dispatchHtmlEvent(sourceEvent, el, type);
 	}
 
-	if ("#esmodule" === attr) {
+	if ("esmodule" === attr) {
 		return dispatchModuleEvent(el, type);
 	}
 
 	// these two the user reacts to
-	if ("#json" === attr) {
+	if ("json" === attr) {
 		return dispatchJsonEvent(sourceEvent, el, type);
 	}
 
 	// action events
-	if ("#action" === attr) {
-		return getActionEvent(sourceEvent, el, type);
-	}
-
-	getFallbackAction(sourceEvent, el, attr);
+	return getActionEvent(sourceEvent, el, type);
 }

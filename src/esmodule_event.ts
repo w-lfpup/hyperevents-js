@@ -8,7 +8,7 @@ export function dispatchModuleEvent(el: Element, kind: string) {
 		if (set.has(updatedUrl)) return;
 		set.add(updatedUrl);
 
-		import(updatedUrl).catch(function (_reason: any) {
+		import(updatedUrl).catch(function () {
 			set.delete(updatedUrl);
 		});
 	}

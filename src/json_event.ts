@@ -4,8 +4,6 @@
 // AFAIK we can't use an AbortController on a dynamic import
 // but we can on a fetch
 
-// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
-
 import type {
 	Queuable,
 	QueueNextCallback,
@@ -51,18 +49,18 @@ export function dispatchJsonEvent(
 		if (shouldThrottle(params)) return;
 
 		let abortController = new AbortController();
+
 		setThrottler(params, abortController);
 
-		// this entire chunk is queue-able
-		let queueParams = { prefix: "json", el, currentTarget, kind, action, url };
 		if (shouldQueue(params)) {
-			let entry = new JsonRequest(params, abortController);
+			let entry = new QueueableJson(params, abortController);
 			enqueue(el, entry);
+			// enqueue(el, getQueuable(params, abortController));
 		}
 	}
 }
 
-class JsonRequest implements Queuable {
+class QueueableJson implements Queuable {
 	#params: ShouldQueueParams;
 	#abortController: AbortController;
 
@@ -76,6 +74,8 @@ class JsonRequest implements Queuable {
 		let { url, action, el } = this.#params;
 		if (!url) return;
 
+		// if timeout add to queue
+
 		let req = new Request(url, {
 			signal: AbortSignal.any([
 				AbortSignal.timeout(500),
@@ -85,7 +85,7 @@ class JsonRequest implements Queuable {
 
 		fetch(req)
 			.then(function (response: Response) {
-				return Promise.all([response, response.text()]);
+				return Promise.all([response, response.clone().text()]);
 			})
 			.then(function ([response, jsonStr]) {
 				let event = new JsonEvent(
@@ -102,3 +102,41 @@ class JsonRequest implements Queuable {
 			});
 	}
 }
+
+// function getQueuable(
+// 	params: ShouldQueueParams,
+// 	abortController: AbortController,
+// ) {
+// 	return function queuedCallback(queueNextCallback: QueueNextCallback) {
+// 		if (abortController.signal.aborted) return;
+// 		let { url, action, el } = params;
+// 		if (!url) return;
+
+// 		// if timeout add to queue
+
+// 		let req = new Request(url, {
+// 			signal: AbortSignal.any([
+// 				AbortSignal.timeout(500),
+// 				abortController.signal,
+// 			]),
+// 		});
+
+// 		fetch(req)
+// 			.then(function (response: Response) {
+// 				return Promise.all([response, response.text()]);
+// 			})
+// 			.then(function ([response, jsonStr]) {
+// 				let event = new JsonEvent(
+// 					{ response, action, jsonStr },
+// 					{ bubbles: true },
+// 				);
+// 				el.dispatchEvent(event);
+// 			})
+// 			.catch(function (reason: any) {
+// 				console.log("#json error!");
+// 			})
+// 			.finally(function () {
+// 				queueNextCallback(el);
+// 			});
+// 	}
+// }

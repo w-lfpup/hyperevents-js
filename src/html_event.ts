@@ -6,7 +6,14 @@
 // AFAIK we can't use an AbortController on a dynamic import
 // but we can on a fetch
 
+import type {
+	Queuable,
+	QueueNextCallback,
+	ShouldQueueParams,
+} from "./queue.js";
+
 import { shouldThrottle, setThrottler } from "./throttle.js";
+import { shouldQueue, enqueue } from "./queue.js";
 
 export interface HtmlEventParamsInterface {
 	html: string;
@@ -34,11 +41,34 @@ export function dispatchHtmlEvent(
 		let abortController = new AbortController();
 		setThrottler(params, abortController);
 
-		// this entire chunk is queue-able
+		if (shouldQueue(params)) {
+			let entry = new QueueableHtml(params, abortController);
+			enqueue(el, entry);
+			// enqueue(el, getQueuable(params, abortController));
+		}
+	}
+}
+
+class QueueableHtml implements Queuable {
+	#params: ShouldQueueParams;
+	#abortController: AbortController;
+
+	constructor(params: ShouldQueueParams, abortController: AbortController) {
+		this.#params = params;
+		this.#abortController = abortController;
+	}
+
+	dispatch(queueNextCallback: QueueNextCallback) {
+		if (this.#abortController.signal.aborted) return;
+		let { url, action, el } = this.#params;
+		if (!url) return;
+
+		// if timeout add to queue
+
 		let req = new Request(url, {
 			signal: AbortSignal.any([
 				AbortSignal.timeout(500),
-				abortController.signal,
+				this.#abortController.signal,
 			]),
 		});
 
@@ -46,11 +76,18 @@ export function dispatchHtmlEvent(
 			.then(function (response: Response) {
 				return Promise.all([response, response.text()]);
 			})
-			.then(function ([res, htmlStr]) {
-				console.log(htmlStr);
+			.then(function ([response, html]) {
+				// let event = new HtmlEvent(
+				// 	{ response, action, jsonStr },
+				// 	{ bubbles: true },
+				// );
+				// el.dispatchEvent(event);
 			})
 			.catch(function (reason: any) {
 				console.log("#html error!");
+			})
+			.finally(function () {
+				queueNextCallback(el);
 			});
 	}
 }

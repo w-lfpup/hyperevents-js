@@ -1,17 +1,23 @@
 import type { DispatchParams } from "./type_flyweight.js";
-interface ShouldThrottleParams {
+interface ThrottleParams {
     prefix: string;
     action?: ReturnType<Element["getAttribute"]>;
     url?: ReturnType<Element["getAttribute"]>;
     throttle?: ReturnType<Element["getAttribute"]>;
-    thottleTimeoutMs?: ReturnType<Element["getAttribute"]>;
+    throttleTimeoutMs?: ReturnType<Element["getAttribute"]>;
 }
-export declare function getThrottleParams(dispatchParams: DispatchParams, prefix: string, action: string): {
+interface GetThrottleParams {
+    prefix: string;
+    action?: ReturnType<Element["getAttribute"]>;
+    url?: ReturnType<Element["getAttribute"]>;
+}
+export declare function getThrottleParams(dispatchParams: DispatchParams, params: GetThrottleParams): {
+    prefix: string;
+    action?: ReturnType<Element["getAttribute"]>;
+    url?: ReturnType<Element["getAttribute"]>;
     throttle: string | null;
     throttleTimeoutMs: string | null;
-    action: string;
-    prefix: string;
 };
-export declare function shouldThrottle(dispatchParams: DispatchParams, throttleParams: ShouldThrottleParams): boolean;
-export declare function setThrottler(params: DispatchParams, throttleParams: ShouldThrottleParams, abortController?: AbortController): void;
+export declare function shouldThrottle(dispatchParams: DispatchParams, throttleParams: ThrottleParams): boolean;
+export declare function setThrottler(params: DispatchParams, throttleParams: ThrottleParams, abortController?: AbortController): void;
 export {};

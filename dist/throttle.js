@@ -3,23 +3,20 @@
 let stringMap = new Map();
 // throttle by _target _currentTarget
 let elementMap = new WeakMap();
-export function getThrottleParams(dispatchParams, prefix, action) {
+export function getThrottleParams(dispatchParams, params) {
     let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
     return {
         throttle: el.getAttribute(`${type}:throttle`),
         throttleTimeoutMs: el.getAttribute(`${type}:throttle-ms`),
-        action,
-        prefix,
+        ...params,
     };
 }
 export function shouldThrottle(dispatchParams, throttleParams) {
-    let { el, sourceEvent } = dispatchParams;
-    let { type } = sourceEvent;
-    let throttle = el.getAttribute(`${type}:throttle`);
-    if (throttle) {
-        let timeoutStr = el.getAttribute(`${type}:throttle-ms`) ?? "";
-        let timeoutMs = parseInt(timeoutStr);
+    let { el } = dispatchParams;
+    let { throttle, throttleTimeoutMs } = throttleParams;
+    if (throttle && throttleTimeoutMs) {
+        let timeoutMs = parseInt(throttleTimeoutMs ?? "");
         if (!Number.isNaN(timeoutMs)) {
             // throttle by string
             let { currentTarget } = dispatchParams;

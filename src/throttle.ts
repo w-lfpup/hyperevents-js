@@ -14,18 +14,23 @@ let elementMap = new WeakMap<EventTarget, Throttled>();
 
 // two functions throttle
 
-interface ShouldThrottleParams {
+interface ThrottleParams {
 	prefix: string;
 	action?: ReturnType<Element["getAttribute"]>;
 	url?: ReturnType<Element["getAttribute"]>;
 	throttle?: ReturnType<Element["getAttribute"]>;
-	thottleTimeoutMs?: ReturnType<Element["getAttribute"]>;
+	throttleTimeoutMs?: ReturnType<Element["getAttribute"]>;
+}
+
+interface GetThrottleParams {
+	prefix: string;
+	action?: ReturnType<Element["getAttribute"]>;
+	url?: ReturnType<Element["getAttribute"]>;
 }
 
 export function getThrottleParams(
 	dispatchParams: DispatchParams,
-	prefix: string,
-	action: string,
+	params: GetThrottleParams,
 ) {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
@@ -33,22 +38,19 @@ export function getThrottleParams(
 	return {
 		throttle: el.getAttribute(`${type}:throttle`),
 		throttleTimeoutMs: el.getAttribute(`${type}:throttle-ms`),
-		action,
-		prefix,
+		...params,
 	};
 }
 
 export function shouldThrottle(
 	dispatchParams: DispatchParams,
-	throttleParams: ShouldThrottleParams,
+	throttleParams: ThrottleParams,
 ): boolean {
-	let { el, sourceEvent } = dispatchParams;
-	let { type } = sourceEvent;
+	let { el } = dispatchParams;
 
-	let throttle = el.getAttribute(`${type}:throttle`);
-	if (throttle) {
-		let timeoutStr = el.getAttribute(`${type}:throttle-ms`) ?? "";
-		let timeoutMs = parseInt(timeoutStr);
+	let { throttle, throttleTimeoutMs } = throttleParams;
+	if (throttle && throttleTimeoutMs) {
+		let timeoutMs = parseInt(throttleTimeoutMs ?? "");
 
 		if (!Number.isNaN(timeoutMs)) {
 			// throttle by string
@@ -113,7 +115,7 @@ function shouldThrottleByElement(
 
 export function setThrottler(
 	params: DispatchParams,
-	throttleParams: ShouldThrottleParams,
+	throttleParams: ThrottleParams,
 	abortController?: AbortController,
 ) {
 	let { el, sourceEvent, currentTarget } = params;

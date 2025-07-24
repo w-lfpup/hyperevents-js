@@ -26,7 +26,7 @@ export class ActionEvent extends Event implements ActionEventInterface {
 }
 
 export function getActionEvent(dispatchParams: DispatchParams) {
-	let { el, currentTarget, sourceEvent } = dispatchParams;
+	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
 	let action = el.getAttribute(`${type}:`);
@@ -35,7 +35,10 @@ export function getActionEvent(dispatchParams: DispatchParams) {
 	}
 
 	if (action) {
-		let throttleParams = getThrottleParams(dispatchParams, "action", action);
+		let throttleParams = getThrottleParams(dispatchParams, {
+			prefix: "action",
+			action,
+		});
 		if (shouldThrottle(dispatchParams, throttleParams)) return;
 		setThrottler(dispatchParams, throttleParams);
 

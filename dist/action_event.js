@@ -10,14 +10,14 @@ export class ActionEvent extends Event {
     }
 }
 export function getActionEvent(dispatchParams) {
-    let { el, currentTarget, sourceEvent } = dispatchParams;
+    let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
     let action = el.getAttribute(`${type}:`);
     if ("action" === action) {
         action = el.getAttribute(`${type}:action`);
     }
     if (action) {
-        let throttleParams = getThrottleParams(dispatchParams, "action", action);
+        let throttleParams = getThrottleParams(dispatchParams, { prefix: "action", action });
         if (shouldThrottle(dispatchParams, throttleParams))
             return;
         setThrottler(dispatchParams, throttleParams);

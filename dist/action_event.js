@@ -16,10 +16,10 @@ export function getActionEvent(sourceEvent, currentTarget, el, kind) {
     }
     if (action) {
         let params = {
+            prefix: "action",
             el,
             currentTarget,
             kind,
-            prefix: "action",
             action,
         };
         if (shouldThrottle(params))

@@ -6,11 +6,10 @@ A hypertext extension for the browser.
 
 `Superchunk` enables a browser to declaratively:
 
-- fetch html fragments
 - fetch esmodules
 - query JSON APIs
+- fetch html fragments
 - dispatch actions
-- move elements around DOM elements
 - throttle requests
 - queue requests
 
@@ -26,8 +25,18 @@ Superchunk dispatches action events using the following syntax:
 
 ```html
 <button
-	click:="action"
-	click:action="update_something"
+	click:="update_something"
+></button>
+```
+
+## ES Modules
+
+Super chunk can fetch esmodules using the following syntax:
+
+```html
+<button
+	pointerover:="esmodule"
+	pointerover:url="/components/yet-another-button.js"
 ></button>
 ```
 
@@ -37,10 +46,10 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 
 ```html
 <button
-	click:="json"
-	click:json="/fetch/some.json"
-	click:throttle="_document"
-	click:throttle-ms="100"
+	pointerdown:="json"
+	pointerdown:json="/fetch/some.json"
+	pointerdown:throttle="document"
+	pointerdown:throttle-ms="100"
 ></button>
 ```
 
@@ -52,17 +61,6 @@ Super chunk can fetch html using the following syntax:
 <button
 	click:="html"
 	click:url="/fetch/some.html"
-></button>
-```
-
-## ES Modules
-
-Super chunk can fetch esmodules using the following syntax:
-
-```html
-<button
-	click:="esmodule"
-	click:url="/components/yet-another-button.js"
 ></button>
 ```
 

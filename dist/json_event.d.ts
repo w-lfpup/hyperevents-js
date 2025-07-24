@@ -1,4 +1,5 @@
 export interface JsonEventParamsInterface {
+    response: Response;
     jsonStr: string;
     action?: string | null;
 }

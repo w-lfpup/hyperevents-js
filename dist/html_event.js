@@ -7,7 +7,7 @@ import { shouldThrottle, setThrottler } from "./throttle.js";
 export function dispatchHtmlEvent(el, currentTarget, kind) {
     let url = el.getAttribute(`${kind}:url`);
     if (url) {
-        let params = { el, currentTarget, kind, prefix: "json", url };
+        let params = { prefix: "json", el, currentTarget, kind, url };
         if (shouldThrottle(params))
             return;
         let abortController = new AbortController();

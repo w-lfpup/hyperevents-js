@@ -36,10 +36,10 @@ export function getActionEvent(
 
 	if (action) {
 		let params = {
+			prefix: "action",
 			el,
 			currentTarget,
 			kind,
-			prefix: "action",
 			action,
 		};
 

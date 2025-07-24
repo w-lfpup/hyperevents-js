@@ -6,9 +6,17 @@
 
 // could leave a "status=pending|fulfilled|rejected status:code=200|400|500
 
+import type {
+	Queuable,
+	QueueNextCallback,
+	ShouldQueueParams,
+} from "./queue.js";
+
 import { shouldThrottle, setThrottler } from "./throttle.js";
+import { shouldQueue, enqueue } from "./queue.js";
 
 export interface JsonEventParamsInterface {
+	response: Response;
 	jsonStr: string;
 	action?: string | null;
 }
@@ -39,20 +47,39 @@ export function dispatchJsonEvent(
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (url) {
-		let params = { el, currentTarget, kind, prefix: "json", action, url };
+		let params = { prefix: "json", el, currentTarget, kind, action, url };
 		if (shouldThrottle(params)) return;
 
 		let abortController = new AbortController();
 		setThrottler(params, abortController);
 
 		// this entire chunk is queue-able
+		let queueParams = { prefix: "json", el, currentTarget, kind, action, url };
+		if (shouldQueue(params)) {
+			let entry = new JsonRequest(params, abortController);
+			enqueue(el, entry);
+		}
+	}
+}
 
-		if (abortController.signal.aborted) return;
+class JsonRequest implements Queuable {
+	#params: ShouldQueueParams;
+	#abortController: AbortController;
+
+	constructor(params: ShouldQueueParams, abortController: AbortController) {
+		this.#params = params;
+		this.#abortController = abortController;
+	}
+
+	dispatch(queueNextCallback: QueueNextCallback) {
+		if (this.#abortController.signal.aborted) return;
+		let { url, action, el } = this.#params;
+		if (!url) return;
 
 		let req = new Request(url, {
 			signal: AbortSignal.any([
 				AbortSignal.timeout(500),
-				abortController.signal,
+				this.#abortController.signal,
 			]),
 		});
 
@@ -60,16 +87,18 @@ export function dispatchJsonEvent(
 			.then(function (response: Response) {
 				return Promise.all([response, response.text()]);
 			})
-			.then(function ([res, jsonStr]) {
-				let event = new JsonEvent({ action, jsonStr }, { bubbles: true });
+			.then(function ([response, jsonStr]) {
+				let event = new JsonEvent(
+					{ response, action, jsonStr },
+					{ bubbles: true },
+				);
 				el.dispatchEvent(event);
 			})
 			.catch(function (reason: any) {
 				console.log("#json error!");
 			})
 			.finally(function () {
-				// call next queue?
+				queueNextCallback(el);
 			});
-		// to here
 	}
 }

@@ -13,8 +13,6 @@ export interface HtmlEventParamsInterface {
 	target?: Element;
 	destination?: Element;
 	projection?: string;
-	// throttle?: Element;	// queue?: Element;
-	// timeout-ms?: number;
 }
 
 export interface HtmlEventInterface {
@@ -29,7 +27,7 @@ export function dispatchHtmlEvent(
 	let url = el.getAttribute(`${kind}:url`);
 
 	if (url) {
-		let params = { el, currentTarget, kind, prefix: "json", url };
+		let params = { prefix: "json", el, currentTarget, kind, url };
 
 		if (shouldThrottle(params)) return;
 

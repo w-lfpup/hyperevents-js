@@ -1,15 +1,19 @@
+import type { DispatchParams } from "./type_flyweight.js";
+
 // this could explode so maybe blow up every 1024 elements or something
 let set = new Set();
 
-export function dispatchModuleEvent(el: Element, kind: string) {
-	let url = el.getAttribute(`${kind}:url`);
-	if (url) {
-		let updatedUrl = new URL(url, location.href).toString();
-		if (set.has(updatedUrl)) return;
-		set.add(updatedUrl);
+export function dispatchModuleEvent(params: DispatchParams) {
+	let { el, type } = params;
 
-		import(updatedUrl).catch(function () {
-			set.delete(updatedUrl);
+	let urlAttr = el.getAttribute(`${type}:url`);
+	if (urlAttr) {
+		let url = new URL(urlAttr, location.href).toString();
+		if (set.has(url)) return;
+		set.add(url);
+
+		import(url).catch(function () {
+			set.delete(url);
 		});
 	}
 }

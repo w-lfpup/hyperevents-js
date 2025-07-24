@@ -9,48 +9,46 @@
     #json
 */
 
+import type { DispatchParams } from "./type_flyweight.js";
+
 import { getActionEvent } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchModuleEvent } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 
-export function dispatch(e: Event) {
-	let { type } = e;
+export function dispatch(sourceEvent: Event) {
+	let { type, currentTarget } = sourceEvent;
 
-	for (let node of e.composedPath()) {
+	for (let node of sourceEvent.composedPath()) {
 		if (node instanceof Element) {
 			// also get source node?
-			if (node.hasAttribute(`${type}:prevent-default`)) e.preventDefault();
+			if (node.hasAttribute(`${type}:prevent-default`))
+				sourceEvent.preventDefault();
 
-			dispatchEvent(e, e.currentTarget, node, type);
+			dispatchEvent({ el: node, currentTarget, sourceEvent });
 
 			if (node.hasAttribute(`${type}:stop-propagation`)) return;
 		}
 	}
 }
 
-function dispatchEvent(
-	sourceEvent: Event,
-	currentTarget: EventTarget | null,
-	el: Element,
-	type: string,
-) {
-	let attr = el.getAttribute(`${type}:`);
+function dispatchEvent(params: DispatchParams) {
+	let attr = params.el.getAttribute(`${params.sourceEvent.type}:`);
 
 	// load html fragments
 	if ("html" === attr) {
-		return dispatchHtmlEvent(el, currentTarget, type);
+		return dispatchHtmlEvent(params);
 	}
 
 	if ("esmodule" === attr) {
-		return dispatchModuleEvent(el, type);
+		return dispatchModuleEvent(params);
 	}
 
 	// these two the user reacts to
 	if ("json" === attr) {
-		return dispatchJsonEvent(el, currentTarget, type);
+		return dispatchJsonEvent(params);
 	}
 
 	// action events
-	return getActionEvent(sourceEvent, currentTarget, el, type);
+	return getActionEvent(params);
 }

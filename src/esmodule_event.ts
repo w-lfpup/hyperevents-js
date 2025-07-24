@@ -4,9 +4,9 @@ import type { DispatchParams } from "./type_flyweight.js";
 let set = new Set();
 
 export function dispatchModuleEvent(params: DispatchParams) {
-	let { el, type } = params;
+	let { el, sourceEvent } = params;
 
-	let urlAttr = el.getAttribute(`${type}:url`);
+	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
 	if (urlAttr) {
 		let url = new URL(urlAttr, location.href).toString();
 		if (set.has(url)) return;

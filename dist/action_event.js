@@ -1,4 +1,4 @@
-import { shouldThrottle, setThrottler } from "./throttle.js";
+import { shouldThrottle, setThrottler, getThrottleParams } from "./throttle.js";
 export class ActionEvent extends Event {
     #params;
     constructor(params, eventInit) {
@@ -9,22 +9,18 @@ export class ActionEvent extends Event {
         return this.#params;
     }
 }
-export function getActionEvent(sourceEvent, currentTarget, el, kind) {
-    let action = el.getAttribute(`${kind}:`);
+export function getActionEvent(dispatchParams) {
+    let { el, currentTarget, sourceEvent } = dispatchParams;
+    let { type } = sourceEvent;
+    let action = el.getAttribute(`${type}:`);
     if ("action" === action) {
-        action = el.getAttribute(`${kind}:action`);
+        action = el.getAttribute(`${type}:action`);
     }
     if (action) {
-        let params = {
-            prefix: "action",
-            el,
-            currentTarget,
-            kind,
-            action,
-        };
-        if (shouldThrottle(params))
+        let throttleParams = getThrottleParams(dispatchParams, "action", action);
+        if (shouldThrottle(dispatchParams, throttleParams))
             return;
-        setThrottler(params);
+        setThrottler(dispatchParams, throttleParams);
         let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
         el.dispatchEvent(event);
     }

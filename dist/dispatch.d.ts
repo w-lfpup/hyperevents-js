@@ -1,1 +1,1 @@
-export declare function dispatch(e: Event): void;
+export declare function dispatch(sourceEvent: Event): void;

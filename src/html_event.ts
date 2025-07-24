@@ -6,6 +6,8 @@
 // AFAIK we can't use an AbortController on a dynamic import
 // but we can on a fetch
 
+import type { DispatchParams } from "./type_flyweight.js";
+
 import type {
 	Queuable,
 	QueueNextCallback,
@@ -16,6 +18,7 @@ import { shouldThrottle, setThrottler } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 
 export interface HtmlEventParamsInterface {
+	response: Response;
 	html: string;
 	target?: Element;
 	destination?: Element;
@@ -26,26 +29,36 @@ export interface HtmlEventInterface {
 	readonly htmlParams: HtmlEventParamsInterface;
 }
 
-export function dispatchHtmlEvent(
-	el: Element,
-	currentTarget: Event["currentTarget"],
-	kind: string,
-) {
-	let url = el.getAttribute(`${kind}:url`);
+export class HtmlEvent extends Event implements HtmlEventInterface {
+	#params: HtmlEventParamsInterface;
+
+	constructor(params: HtmlEventParamsInterface, eventInit?: EventInit) {
+		super("#html", eventInit);
+		this.#params = params;
+	}
+
+	get htmlParams() {
+		return this.#params;
+	}
+}
+
+export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
+	let { el, sourceEvent } = dispatchParams;
+	let { type } = sourceEvent;
+
+	let url = el.getAttribute(`${type}:url`);
 
 	if (url) {
-		let params = { prefix: "json", el, currentTarget, kind, url };
-
-		if (shouldThrottle(params)) return;
-
-		let abortController = new AbortController();
-		setThrottler(params, abortController);
-
-		if (shouldQueue(params)) {
-			let entry = new QueueableHtml(params, abortController);
-			enqueue(el, entry);
-			// enqueue(el, getQueuable(params, abortController));
-		}
+		// let params = { prefix: "html", el, currentTarget, type, url };
+		// if (shouldThrottle(params)) return;
+		// let abortController = new AbortController();
+		// setThrottler(params, abortController);
+		// if (shouldQueue(params)) {
+		// 	let entry = new QueueableHtml(params, abortController);
+		// 	return enqueue(el, entry);
+		// 	// enqueue(el, getQueuable(params, abortController));
+		// }
+		// fetchHtml(params, abortController);
 	}
 }
 
@@ -59,35 +72,37 @@ class QueueableHtml implements Queuable {
 	}
 
 	dispatch(queueNextCallback: QueueNextCallback) {
-		if (this.#abortController.signal.aborted) return;
-		let { url, action, el } = this.#params;
-		if (!url) return;
-
-		// if timeout add to queue
-
-		let req = new Request(url, {
-			signal: AbortSignal.any([
-				AbortSignal.timeout(500),
-				this.#abortController.signal,
-			]),
-		});
-
-		fetch(req)
-			.then(function (response: Response) {
-				return Promise.all([response, response.text()]);
-			})
-			.then(function ([response, html]) {
-				// let event = new HtmlEvent(
-				// 	{ response, action, jsonStr },
-				// 	{ bubbles: true },
-				// );
-				// el.dispatchEvent(event);
-			})
-			.catch(function (reason: any) {
-				console.log("#html error!");
-			})
-			.finally(function () {
-				queueNextCallback(el);
-			});
+		fetchHtml(this.#params, this.#abortController, queueNextCallback);
 	}
+}
+
+function fetchHtml(
+	params: ShouldQueueParams,
+	abortController: AbortController,
+	queueNextCallback?: QueueNextCallback,
+) {
+	if (abortController.signal.aborted) return;
+	let { url, action, el } = params;
+	if (!url) return;
+
+	// if timeout add to queue
+
+	let req = new Request(url, {
+		signal: AbortSignal.any([AbortSignal.timeout(500), abortController.signal]),
+	});
+
+	fetch(req)
+		.then(function (response: Response) {
+			return Promise.all([response, response.text()]);
+		})
+		.then(function ([response, html]) {
+			let event = new HtmlEvent({ response, html }, { bubbles: true });
+			el.dispatchEvent(event);
+		})
+		.catch(function () {
+			console.log("#html error!");
+		})
+		.finally(function () {
+			if (queueNextCallback) queueNextCallback(el);
+		});
 }

@@ -3,15 +3,27 @@
 let stringMap = new Map();
 // throttle by _target _currentTarget
 let elementMap = new WeakMap();
-export function shouldThrottle(params) {
-    let { el, kind } = params;
-    let throttle = el.getAttribute(`${kind}:throttle`);
+export function getThrottleParams(dispatchParams, prefix, action) {
+    let { el, sourceEvent } = dispatchParams;
+    let { type } = sourceEvent;
+    return {
+        throttle: el.getAttribute(`${type}:throttle`),
+        throttleTimeoutMs: el.getAttribute(`${type}:throttle-ms`),
+        action,
+        prefix,
+    };
+}
+export function shouldThrottle(dispatchParams, throttleParams) {
+    let { el, sourceEvent } = dispatchParams;
+    let { type } = sourceEvent;
+    let throttle = el.getAttribute(`${type}:throttle`);
     if (throttle) {
-        let timeoutStr = el.getAttribute(`${kind}:throttle-ms`) ?? "";
+        let timeoutStr = el.getAttribute(`${type}:throttle-ms`) ?? "";
         let timeoutMs = parseInt(timeoutStr);
         if (!Number.isNaN(timeoutMs)) {
             // throttle by string
-            let { url, prefix, action, currentTarget } = params;
+            let { currentTarget } = dispatchParams;
+            let { url, prefix, action } = throttleParams;
             if (url && "url" === throttle)
                 return shouldThrottleByString(timeoutMs, `${prefix}:${throttle}:${url}`);
             if (action && "action" === throttle)
@@ -49,11 +61,11 @@ function shouldThrottleByElement(el, timeoutMs) {
     }
     return false;
 }
-export function setThrottler(params, abortController) {
-    let { el, kind } = params;
-    let throttle = el.getAttribute(`${kind}:throttle`);
+export function setThrottler(params, throttleParams, abortController) {
+    let { el, sourceEvent, currentTarget } = params;
+    let throttle = el.getAttribute(`${sourceEvent.type}}:throttle`);
     if (throttle) {
-        let { url, prefix, action, currentTarget } = params;
+        let { url, prefix, action } = throttleParams;
         let timestamp = performance.now();
         let throttler = { timestamp, abortController };
         // throttle by string

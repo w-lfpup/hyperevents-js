@@ -6,11 +6,10 @@ export function enqueue(el, queueEntry) {
         queue.incoming.push(queueEntry);
         return;
     }
-    ;
     let freshQueue = {
         status: "enqueued",
         incoming: [],
-        outgoing: []
+        outgoing: [],
     };
     queueMap.set(el, freshQueue);
     queueEntry.dispatch(queueNext);

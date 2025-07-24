@@ -33,21 +33,17 @@ export function dispatch(sourceEvent: Event) {
 }
 
 function dispatchEvent(params: DispatchParams) {
-	let attr = params.el.getAttribute(`${params.sourceEvent.type}:`);
+	let { el, sourceEvent } = params;
+
+	let attr = el.getAttribute(`${sourceEvent.type}:`);
 
 	// load html fragments
-	if ("html" === attr) {
-		return dispatchHtmlEvent(params);
-	}
+	if ("html" === attr) return dispatchHtmlEvent(params);
 
-	if ("esmodule" === attr) {
-		return dispatchModuleEvent(params);
-	}
+	if ("esmodule" === attr) return dispatchModuleEvent(params);
 
 	// these two the user reacts to
-	if ("json" === attr) {
-		return dispatchJsonEvent(params);
-	}
+	if ("json" === attr) return dispatchJsonEvent(params);
 
 	// action events
 	return getActionEvent(params);

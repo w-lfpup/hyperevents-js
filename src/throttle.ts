@@ -1,3 +1,5 @@
+import type { DispatchParams } from "./type_flyweight.js";
+
 interface Throttled {
 	abortController?: AbortController;
 	timestamp: DOMHighResTimeStamp;
@@ -13,25 +15,45 @@ let elementMap = new WeakMap<EventTarget, Throttled>();
 // two functions throttle
 
 interface ShouldThrottleParams {
-	el: Element;
-	currentTarget: Event["currentTarget"];
-	kind: string;
 	prefix: string;
 	action?: ReturnType<Element["getAttribute"]>;
 	url?: ReturnType<Element["getAttribute"]>;
+	throttle?: ReturnType<Element["getAttribute"]>;
+	thottleTimeoutMs?: ReturnType<Element["getAttribute"]>;
 }
 
-export function shouldThrottle(params: ShouldThrottleParams): boolean {
-	let { el, kind } = params;
+export function getThrottleParams(
+	dispatchParams: DispatchParams,
+	prefix: string,
+	action: string,
+) {
+	let { el, sourceEvent } = dispatchParams;
+	let { type } = sourceEvent;
 
-	let throttle = el.getAttribute(`${kind}:throttle`);
+	return {
+		throttle: el.getAttribute(`${type}:throttle`),
+		throttleTimeoutMs: el.getAttribute(`${type}:throttle-ms`),
+		action,
+		prefix,
+	};
+}
+
+export function shouldThrottle(
+	dispatchParams: DispatchParams,
+	throttleParams: ShouldThrottleParams,
+): boolean {
+	let { el, sourceEvent } = dispatchParams;
+	let { type } = sourceEvent;
+
+	let throttle = el.getAttribute(`${type}:throttle`);
 	if (throttle) {
-		let timeoutStr = el.getAttribute(`${kind}:throttle-ms`) ?? "";
+		let timeoutStr = el.getAttribute(`${type}:throttle-ms`) ?? "";
 		let timeoutMs = parseInt(timeoutStr);
 
 		if (!Number.isNaN(timeoutMs)) {
 			// throttle by string
-			let { url, prefix, action, currentTarget } = params;
+			let { currentTarget } = dispatchParams;
+			let { url, prefix, action } = throttleParams;
 
 			if (url && "url" === throttle)
 				return shouldThrottleByString(
@@ -90,14 +112,15 @@ function shouldThrottleByElement(
 }
 
 export function setThrottler(
-	params: ShouldThrottleParams,
+	params: DispatchParams,
+	throttleParams: ShouldThrottleParams,
 	abortController?: AbortController,
 ) {
-	let { el, kind } = params;
+	let { el, sourceEvent, currentTarget } = params;
 
-	let throttle = el.getAttribute(`${kind}:throttle`);
+	let throttle = el.getAttribute(`${sourceEvent.type}}:throttle`);
 	if (throttle) {
-		let { url, prefix, action, currentTarget } = params;
+		let { url, prefix, action } = throttleParams;
 		let timestamp = performance.now();
 		let throttler = { timestamp, abortController };
 

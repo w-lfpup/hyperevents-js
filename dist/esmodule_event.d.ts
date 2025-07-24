@@ -1,1 +1,2 @@
-export declare function dispatchModuleEvent(el: Element, kind: string): void;
+import type { DispatchParams } from "./type_flyweight.js";
+export declare function dispatchModuleEvent(params: DispatchParams): void;

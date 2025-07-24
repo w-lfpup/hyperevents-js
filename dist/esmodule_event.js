@@ -1,14 +1,15 @@
 // this could explode so maybe blow up every 1024 elements or something
 let set = new Set();
-export function dispatchModuleEvent(el, kind) {
-    let url = el.getAttribute(`${kind}:url`);
-    if (url) {
-        let updatedUrl = new URL(url, location.href).toString();
-        if (set.has(updatedUrl))
+export function dispatchModuleEvent(params) {
+    let { el, sourceEvent } = params;
+    let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
+    if (urlAttr) {
+        let url = new URL(urlAttr, location.href).toString();
+        if (set.has(url))
             return;
-        set.add(updatedUrl);
-        import(updatedUrl).catch(function (_reason) {
-            set.delete(updatedUrl);
+        set.add(url);
+        import(url).catch(function () {
+            set.delete(url);
         });
     }
 }

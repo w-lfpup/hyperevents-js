@@ -12,7 +12,7 @@ import type {
 	ShouldQueueParams,
 } from "./queue.js";
 
-import { shouldThrottle, setThrottler, getThrottleParams } from "./throttle.js";
+import { setThrottler, getThrottleParams } from "./throttle.js";
 
 import { shouldQueue, enqueue } from "./queue.js";
 
@@ -47,63 +47,69 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	let url = el.getAttribute(`${type}:url`);
 
 	if (url) {
-		// let throttleParams = getThrottleParams(dispatchParams, "json", action);
-		// if (shouldThrottle(dispatchParams, throttleParams)) return;
-		// setThrottler(dispatchParams, throttleParams);
-		// let abortController = new AbortController();
-		// setThrottler(params, abortController);
+		let throttleParams = getThrottleParams(dispatchParams, {
+			prefix: "json",
+			action,
+		});
+
+		let abortController = new AbortController();
+
+		if (throttleParams)
+			setThrottler(dispatchParams, throttleParams, abortController);
+
 		// if (shouldQueue(params)) {
 		// 	let entry = new QueueableJson(params, abortController);
 		// 	return enqueue(el, entry);
 		// }
+
 		// fetchJson(params, abortController);
 	}
 }
 
-class QueueableJson implements Queuable {
-	#params: ShouldQueueParams;
-	#abortController: AbortController;
+// class QueueableJson implements Queuable {
+// 	#params: ShouldQueueParams;
+// 	#abortController: AbortController;
 
-	constructor(params: ShouldQueueParams, abortController: AbortController) {
-		this.#params = params;
-		this.#abortController = abortController;
-	}
+// 	constructor(params: ShouldQueueParams, abortController: AbortController) {
+// 		this.#params = params;
+// 		this.#abortController = abortController;
+// 	}
 
-	dispatch(queueNextCallback: QueueNextCallback) {
-		fetchJson(this.#params, this.#abortController, queueNextCallback);
-	}
-}
+// 	dispatch(queueNextCallback: QueueNextCallback) {
+// 		fetchJson(this.#params, this.#abortController, queueNextCallback);
+// 	}
+// }
 
-function fetchJson(
-	params: ShouldQueueParams,
-	abortController: AbortController,
-	queueNextCallback?: QueueNextCallback,
-) {
-	if (abortController.signal.aborted) return;
-	let { url, action, el } = params;
-	if (!url) return;
+// function fetchJson(
+// 	params: ShouldQueueParams,
+// 	abortController: AbortController,
+// 	queueNextCallback?: QueueNextCallback,
+// ) {
+// 	if (abortController.signal.aborted) return;
+// 	let { url, action } = params;
+// 	if (!url) return;
 
-	// if timeout add to queue
+// 	// if timeout add to queue
 
-	let req = new Request(url, {
-		signal: AbortSignal.any([AbortSignal.timeout(500), abortController.signal]),
-	});
+// 	let req = new Request(url, {
+// 		signal: AbortSignal.any([AbortSignal.timeout(500), abortController.signal]),
+// 	});
 
-	fetch(req)
-		.then(function (response: Response) {
-			return Promise.all([response, response.text()]);
-		})
-		.then(function ([response, jsonStr]) {
-			let event = new JsonEvent(
-				{ response, action, jsonStr },
-				{ bubbles: true },
-			);
-			el.dispatchEvent(event);
-		})
-		.catch(function (_reason: any) {
-			console.log("#json error!");
-		})
-		.finally(function () {
-			if (queueNextCallback) queueNextCallback(el);
-		});
-}
+// 	fetch(req)
+// 		.then(function (response: Response) {
+// 			return Promise.all([response, response.text()]);
+// 		})
+// 		.then(function ([response, jsonStr]) {
+// 			let event = new JsonEvent(
+// 				{ response, action, jsonStr },
+// 				{ bubbles: true },
+// 			);
+// 			el.dispatchEvent(event);
+// 		})
+// 		.catch(function (_reason: any) {
+// 			console.log("#json error!");
+// 		})
+// 		.finally(function () {
+// 			if (queueNextCallback) queueNextCallback(el);
+// 		});
+// }

@@ -6,35 +6,34 @@ let elementMap = new WeakMap();
 export function getThrottleParams(dispatchParams, params) {
     let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
-    return {
-        throttle: el.getAttribute(`${type}:throttle`),
-        throttleTimeoutMs: el.getAttribute(`${type}:throttle-ms`),
+    let throttle = el.getAttribute(`${type}:throttle`);
+    let throttleMsAttr = el.getAttribute(`${type}:throttle-ms`) ?? "";
+    let timeoutMs = parseInt(throttleMsAttr);
+    if (!throttle || Number.isNaN(timeoutMs))
+        return;
+    let throttleParams = {
+        throttle,
+        timeoutMs,
         ...params,
     };
-}
-export function shouldThrottle(dispatchParams, throttleParams) {
-    let { el } = dispatchParams;
-    let { throttle, throttleTimeoutMs } = throttleParams;
-    if (throttle && throttleTimeoutMs) {
-        let timeoutMs = parseInt(throttleTimeoutMs ?? "");
-        if (!Number.isNaN(timeoutMs)) {
-            // throttle by string
-            let { currentTarget } = dispatchParams;
-            let { url, prefix, action } = throttleParams;
-            if (url && "url" === throttle)
-                return shouldThrottleByString(timeoutMs, `${prefix}:${throttle}:${url}`);
-            if (action && "action" === throttle)
-                return shouldThrottleByString(timeoutMs, `${prefix}:${throttle}:${action}`);
-            // throttle by element
-            if ("target" === throttle)
-                return shouldThrottleByElement(el, timeoutMs);
-            if ("currentTarget" === throttle)
-                return shouldThrottleByElement(currentTarget, timeoutMs);
-        }
+    if (shouldThrottle(dispatchParams, throttleParams)) {
+        return throttleParams;
     }
+}
+function shouldThrottle(dispatchParams, throttleParams) {
+    let { currentTarget, el } = dispatchParams;
+    let { action, prefix, throttle, timeoutMs, url } = throttleParams;
+    if ("_target" === throttle)
+        return shouldThrottleByElement(el, timeoutMs);
+    if ("_currentTarget" === throttle)
+        return shouldThrottleByElement(currentTarget, timeoutMs);
+    if (url && "url" === throttle)
+        return shouldThrottleByString(`${prefix}:${throttle}:${url}`, timeoutMs);
+    if (action && "action" === throttle)
+        return shouldThrottleByString(`${prefix}:${throttle}:${action}`, timeoutMs);
     return false;
 }
-function shouldThrottleByString(timeoutMs, action) {
+function shouldThrottleByString(action, timeoutMs) {
     let throttler = stringMap.get(action);
     if (throttler) {
         let delta = performance.now() - throttler.timestamp;
@@ -59,8 +58,8 @@ function shouldThrottleByElement(el, timeoutMs) {
     return false;
 }
 export function setThrottler(params, throttleParams, abortController) {
-    let { el, sourceEvent, currentTarget } = params;
-    let throttle = el.getAttribute(`${sourceEvent.type}}:throttle`);
+    let { el, currentTarget } = params;
+    let { throttle } = throttleParams;
     if (throttle) {
         let { url, prefix, action } = throttleParams;
         let timestamp = performance.now();
@@ -71,9 +70,9 @@ export function setThrottler(params, throttleParams, abortController) {
         if (action && "action" === throttle)
             stringMap.set(`${prefix}:${throttle}:${action}`, throttler);
         // throttle by element
-        if ("target" === throttle)
+        if ("_target" === throttle)
             elementMap.set(el, throttler);
-        if (currentTarget && "currentTarget" === throttle)
+        if (currentTarget && "_currentTarget" === throttle)
             elementMap.set(currentTarget, throttler);
     }
 }

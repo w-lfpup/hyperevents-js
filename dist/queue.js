@@ -29,9 +29,9 @@ function queueNext(el) {
             entry.dispatch(queueNext);
     }
 }
-export function shouldQueue(params) {
-    let { el, kind } = params;
-    let queueTarget = el.getAttribute(`${kind}:queue`);
+export function shouldQueue(dispatchParams, params) {
+    let { el, sourceEvent } = dispatchParams;
+    let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
     if (queueTarget) {
         // throttle by element
         if ("target" === queueTarget)

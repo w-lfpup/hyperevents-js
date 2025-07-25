@@ -1,3 +1,5 @@
+import type { DispatchParams } from "./type_flyweight.js";
+
 export interface QueueNextCallback {
 	(el: Element): void;
 }
@@ -13,9 +15,6 @@ interface Queue {
 }
 
 export interface ShouldQueueParams {
-	el: Element;
-	currentTarget: Event["currentTarget"];
-	kind: string;
 	prefix: string;
 	action?: ReturnType<Element["getAttribute"]>;
 	url?: ReturnType<Element["getAttribute"]>;
@@ -56,10 +55,13 @@ function queueNext(el: Element) {
 	}
 }
 
-export function shouldQueue(params: ShouldQueueParams): string | undefined {
-	let { el, kind } = params;
+export function shouldQueue(
+	dispatchParams: DispatchParams,
+	params: ShouldQueueParams,
+): string | undefined {
+	let { el, sourceEvent } = dispatchParams;
 
-	let queueTarget = el.getAttribute(`${kind}:queue`);
+	let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
 	if (queueTarget) {
 		// throttle by element
 		if ("target" === queueTarget) return queueTarget;

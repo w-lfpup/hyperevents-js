@@ -1,6 +1,6 @@
-// dont get queued, not asynchronous
+import type { DispatchParams } from "./type_flyweight.js";
 
-// can be throttled
+import { getThrottleParams, setThrottler } from "./throttle.js";
 
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
@@ -24,20 +24,21 @@ export class ActionEvent extends Event implements ActionEventInterface {
 	}
 }
 
-export function getActionEvent(sourceEvent: Event, el: Element, kind: string) {
-	let action = el.getAttribute(`${kind}:action`);
-	if (action) {
-		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
-		el.dispatchEvent(event);
-	}
-}
+export function dispatchActionEvent(dispatchParams: DispatchParams) {
+	let { el, sourceEvent } = dispatchParams;
+	let { type } = sourceEvent;
 
-export function getFallbackAction(
-	sourceEvent: Event,
-	el: Element,
-	action: string | null,
-) {
+	let action = el.getAttribute(`${type}:`);
+	if ("action" === action) {
+		action = el.getAttribute(`${type}:action`);
+	}
+
+	let reqParams = { action };
+
 	if (action) {
+		let throttleParams = getThrottleParams(dispatchParams, reqParams, "action");
+		if (throttleParams) setThrottler(dispatchParams, reqParams, throttleParams);
+
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);
 	}

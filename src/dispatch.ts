@@ -1,55 +1,36 @@
-/*
-    Listends to DOM event.
-    Reviews composed elements, the chain of elements in an event path.
-    Dispatches correlated superchunk events:
-	
-    #action
-    #html
-    #esmodule
-    #json
-*/
+import type { DispatchParams } from "./type_flyweight.js";
 
-import { getActionEvent, getFallbackAction } from "./action_event.js";
+import { dispatchActionEvent } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchModuleEvent } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 
-export function dispatch(e: Event) {
-	let { type } = e;
+export function dispatch(sourceEvent: Event) {
+	let { type, currentTarget, target } = sourceEvent;
 
-	for (let node of e.composedPath()) {
+	let formData: FormData | undefined;
+	if (target instanceof HTMLFormElement) formData = new FormData(target);
+
+	for (let node of sourceEvent.composedPath()) {
 		if (node instanceof Element) {
-			// also get source node?
-			if (node.hasAttribute(`${type}:prevent-default`)) e.preventDefault();
+			if (node.hasAttribute(`${type}:prevent-default`))
+				sourceEvent.preventDefault();
 
-			dispatchEvent(e, node, type);
+			dispatchEvent({ el: node, currentTarget, sourceEvent, formData });
 
 			if (node.hasAttribute(`${type}:stop-propagation`)) return;
 		}
 	}
 }
 
-function dispatchEvent(sourceEvent: Event, el: Element, type: string) {
-	let attr = el.getAttribute(`${type}:`);
+function dispatchEvent(params: DispatchParams) {
+	let { el, sourceEvent } = params;
 
-	// load html fragments
-	if ("#html" === attr) {
-		return dispatchHtmlEvent(sourceEvent, el, type);
-	}
+	let attr = el.getAttribute(`${sourceEvent.type}:`);
 
-	if ("#esmodule" === attr) {
-		return dispatchModuleEvent(el, type);
-	}
+	if ("esmodule" === attr) return dispatchModuleEvent(params);
+	if ("html" === attr) return dispatchHtmlEvent(params);
+	if ("json" === attr) return dispatchJsonEvent(params);
 
-	// these two the user reacts to
-	if ("#json" === attr) {
-		return dispatchJsonEvent(sourceEvent, el, type);
-	}
-
-	// action events
-	if ("#action" === attr) {
-		return getActionEvent(sourceEvent, el, type);
-	}
-
-	getFallbackAction(sourceEvent, el, attr);
+	return dispatchActionEvent(params);
 }

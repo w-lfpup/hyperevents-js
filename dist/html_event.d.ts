@@ -1,5 +1,6 @@
+import type { DispatchParams } from "./type_flyweight.js";
 export interface HtmlEventParamsInterface {
-    sourceEvent: Event;
+    response: Response;
     html: string;
     target?: Element;
     destination?: Element;
@@ -8,4 +9,9 @@ export interface HtmlEventParamsInterface {
 export interface HtmlEventInterface {
     readonly htmlParams: HtmlEventParamsInterface;
 }
-export declare function dispatchHtmlEvent(sourceEvent: Event, el: Element, kind: string): void;
+export declare class HtmlEvent extends Event implements HtmlEventInterface {
+    #private;
+    constructor(params: HtmlEventParamsInterface, eventInit?: EventInit);
+    get htmlParams(): HtmlEventParamsInterface;
+}
+export declare function dispatchHtmlEvent(dispatchParams: DispatchParams): void;

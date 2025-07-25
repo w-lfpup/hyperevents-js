@@ -6,13 +6,12 @@ A hypertext extension for the browser.
 
 `Superchunk` enables a browser to declaratively:
 
-- fetch html fragments
-- fetch esmodules
 - query JSON APIs
-- dispatch actions
-- move elements around DOM elements
-- throttle requests
-- queue requests
+- fetch html fragments
+- lazy-load esmodules
+- dispatch action events
+
+I got tired of using weighty frameworks just to fetch some JSON or HTML on a click.
 
 ## Install
 
@@ -20,14 +19,34 @@ A hypertext extension for the browser.
 npm install https://github.com/wolfpup-software/superfetch-js
 ```
 
+## Setup
+
+Add a `host` and some `eventNames` on instantiation.
+
+```ts
+let bang = new Bang({
+	host: document,
+	connected: true,
+	eventNames: ["click", "pointerover"],
+});
+```
+
 ## Actions
 
-Superchunk dispatches action events using the following syntax:
+Dispatches action events using the following syntax:
+
+```html
+<button click:="update_something"></button>
+```
+
+## ES Modules
+
+Super chunk can fetch esmodules using the following syntax:
 
 ```html
 <button
-	click:="action"
-	click:action="update_something"
+	pointerover:="esmodule"
+	pointerover:url="/components/yet-another-button.js"
 ></button>
 ```
 
@@ -37,8 +56,8 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 
 ```html
 <button
-	click:="json"
-	click:json="/api/fetch_some.json"
+	pointerdown:="json"
+	pointerdown:json="/fetch/some.json"
 ></button>
 ```
 
@@ -49,18 +68,7 @@ Super chunk can fetch html using the following syntax:
 ```html
 <button
 	click:="html"
-	click:url="/api/fetch_some.html"
-></button>
-```
-
-## ES Modules
-
-Super chunk can fetch esmodules using the following syntax:
-
-```html
-<button
-	click:="esmodule"
-	click:url="/components/button.js"
+	click:url="/fetch/some.html"
 ></button>
 ```
 

@@ -1,4 +1,4 @@
-// dont get queued, not asynchronous
+import { getThrottleParams, setThrottler } from "./throttle.js";
 export class ActionEvent extends Event {
     #params;
     constructor(params, eventInit) {
@@ -9,15 +9,18 @@ export class ActionEvent extends Event {
         return this.#params;
     }
 }
-export function getActionEvent(sourceEvent, el, kind) {
-    let action = el.getAttribute(`${kind}:action`);
-    if (action) {
-        let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
-        el.dispatchEvent(event);
+export function dispatchActionEvent(dispatchParams) {
+    let { el, sourceEvent } = dispatchParams;
+    let { type } = sourceEvent;
+    let action = el.getAttribute(`${type}:`);
+    if ("action" === action) {
+        action = el.getAttribute(`${type}:action`);
     }
-}
-export function getFallbackAction(sourceEvent, el, action) {
+    let reqParams = { action };
     if (action) {
+        let throttleParams = getThrottleParams(dispatchParams, reqParams, "action");
+        if (throttleParams)
+            setThrottler(dispatchParams, reqParams, throttleParams);
         let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
         el.dispatchEvent(event);
     }

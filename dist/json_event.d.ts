@@ -1,7 +1,8 @@
+import type { DispatchParams } from "./type_flyweight.js";
 export interface JsonEventParamsInterface {
-    sourceEvent: Event;
+    response: Response;
     jsonStr: string;
-    action: string | null;
+    action?: string | null;
 }
 export interface JsonEventInterface {
     readonly jsonParams: JsonEventParamsInterface;
@@ -11,4 +12,4 @@ export declare class JsonEvent extends Event implements JsonEventInterface {
     constructor(params: JsonEventParamsInterface, eventInit?: EventInit);
     get jsonParams(): JsonEventParamsInterface;
 }
-export declare function dispatchJsonEvent(sourceEvent: Event, el: Element, kind: string): void;
+export declare function dispatchJsonEvent(dispatchParams: DispatchParams): void;

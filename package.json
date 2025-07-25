@@ -1,8 +1,5 @@
 {
 	"name": "superfetch",
-	"workspaces": [
-		"actions"
-	],
 	"version": "0.1.0",
 	"description": "declarative HTML projections",
 	"scripts": {

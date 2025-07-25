@@ -1,6 +1,7 @@
-import { dispatch } from "./dispatch.js";
 export { ActionEvent } from "./action_event.js";
 export { JsonEvent } from "./json_event.js";
+export { HtmlEvent } from "./html_event.js";
+import { dispatch } from "./dispatch.js";
 export class SuperChunk {
     #params;
     constructor(params) {

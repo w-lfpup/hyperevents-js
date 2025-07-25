@@ -13,11 +13,17 @@ export class HtmlEvent extends Event {
         return this.#params;
     }
 }
+// projection="swap"
+// projection-target="match | querySelector | querySelectorAll"
+// projection-selector="ul"
+// status-target="match | querySelector | querySelectorAll" | default is querySelector
+// status-selector="selector" pending | completed
 export function dispatchHtmlEvent(dispatchParams) {
     let reqParams = getRequestParams(dispatchParams);
     if (!reqParams)
         return;
-    let throttleParams = getThrottleParams(dispatchParams, reqParams, "json");
+    // get request params
+    let throttleParams = getThrottleParams(dispatchParams, reqParams, "html");
     let abortController = new AbortController();
     if (throttleParams)
         setThrottler(dispatchParams, reqParams, throttleParams, abortController);
@@ -43,13 +49,12 @@ class QueueableHtml {
 }
 function fetchHtml(params, requestParams, abortController, queueNextCallback) {
     let { el, formData } = params;
-    let { url, action, timeoutMs, method } = requestParams;
+    let { url, timeoutMs, method } = requestParams;
     if (!abortController.signal.aborted && url) {
         // if timeout add to queue
         let abortSignals = [abortController.signal];
-        if (timeoutMs) {
+        if (timeoutMs)
             abortSignals.push(AbortSignal.timeout(timeoutMs));
-        }
         let req = new Request(url, {
             signal: AbortSignal.any(abortSignals),
             method: method ?? "GET",
@@ -58,6 +63,7 @@ function fetchHtml(params, requestParams, abortController, queueNextCallback) {
         return fetch(req)
             .then(resolveResponseBody)
             .then(function ([response, html]) {
+            // do projection here
             let event = new HtmlEvent({ response, html }, { bubbles: true });
             el.dispatchEvent(event);
         })

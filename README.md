@@ -6,12 +6,12 @@ A hypertext extension for the browser.
 
 `Superchunk` enables a browser to declaratively:
 
-- fetch esmodules
 - query JSON APIs
 - fetch html fragments
-- dispatch actions
-- throttle requests
-- queue requests
+- lazy-load esmodules
+- dispatch action events
+
+I got tired of using weighty frameworks just to fetch some JSON or HTML on a click.
 
 ## Install
 
@@ -19,14 +19,24 @@ A hypertext extension for the browser.
 npm install https://github.com/wolfpup-software/superfetch-js
 ```
 
+## Setup
+
+Add a `host` and some `eventNames` on instantiation.
+
+```ts
+let bang = new Bang({
+	host: document,
+	connected: true,
+	eventNames: ["click", "pointerover"],
+});
+```
+
 ## Actions
 
-Superchunk dispatches action events using the following syntax:
+Dispatches action events using the following syntax:
 
 ```html
-<button
-	click:="update_something"
-></button>
+<button click:="update_something"></button>
 ```
 
 ## ES Modules
@@ -48,8 +58,6 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 <button
 	pointerdown:="json"
 	pointerdown:json="/fetch/some.json"
-	pointerdown:throttle="document"
-	pointerdown:throttle-ms="100"
 ></button>
 ```
 

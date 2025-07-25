@@ -1,6 +1,6 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-import { setThrottler, getThrottleParams } from "./throttle.js";
+import { getThrottleParams, setThrottler } from "./throttle.js";
 
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;

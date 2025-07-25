@@ -92,9 +92,7 @@ function fetchJson(
 	if (!abortController.signal.aborted && url) {
 		// if timeout add to queue
 		let abortSignals = [abortController.signal];
-		if (timeoutMs) {
-			abortSignals.push(AbortSignal.timeout(timeoutMs));
-		}
+		if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
 
 		let req = new Request(url, {
 			signal: AbortSignal.any(abortSignals),

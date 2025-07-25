@@ -1,4 +1,4 @@
-import { setThrottler, getThrottleParams } from "./throttle.js";
+import { getThrottleParams, setThrottler } from "./throttle.js";
 export class ActionEvent extends Event {
     #params;
     constructor(params, eventInit) {

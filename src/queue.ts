@@ -14,15 +14,10 @@ interface Queue {
 	outgoing: Queuable[];
 }
 
-export interface ShouldQueueParams {
-	prefix: string;
-	action?: ReturnType<Element["getAttribute"]>;
-	url?: ReturnType<Element["getAttribute"]>;
-}
+let queueMap = new WeakMap<EventTarget, Queue>();
 
-let queueMap = new WeakMap<Element, Queue>();
-
-export function enqueue(el: Element, queueEntry: Queuable) {
+// can combine these
+export function enqueue(el: EventTarget, queueEntry: Queuable) {
 	// add function to queue
 	let queue = queueMap.get(el);
 	if ("enqueued" === queue?.status) {
@@ -42,30 +37,29 @@ export function enqueue(el: Element, queueEntry: Queuable) {
 
 function queueNext(el: Element) {
 	let queue = queueMap.get(el);
-	if (queue) {
-		if (!queue.outgoing.length) {
-			while (queue.incoming.length) {
-				let entry = queue.incoming.pop();
-				if (entry) queue.outgoing.push(entry);
-			}
-		}
+	if (!queue) return;
 
-		let entry = queue.outgoing.pop();
-		if (entry) entry.dispatch(queueNext);
+	if (!queue.outgoing.length) {
+		while (queue.incoming.length) {
+			let entry = queue.incoming.pop();
+			if (entry) queue.outgoing.push(entry);
+		}
 	}
+
+	let entry = queue.outgoing.pop();
+	if (entry) entry.dispatch(queueNext);
 }
 
 export function shouldQueue(
 	dispatchParams: DispatchParams,
-	params: ShouldQueueParams,
-): string | undefined {
-	let { el, sourceEvent } = dispatchParams;
+): EventTarget | undefined {
+	let { el, currentTarget, sourceEvent } = dispatchParams;
 
 	let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
 	if (queueTarget) {
 		// throttle by element
-		if ("target" === queueTarget) return queueTarget;
+		if ("_target" === queueTarget) return el;
 
-		if ("currentTarget" === queueTarget) return queueTarget;
+		if (currentTarget && "_currentTarget" === queueTarget) return currentTarget;
 	}
 }

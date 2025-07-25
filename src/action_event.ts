@@ -5,7 +5,6 @@ import { setThrottler, getThrottleParams } from "./throttle.js";
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
 	action: string;
-	// target?: Element | null;
 }
 
 export interface ActionEventInterface {
@@ -25,7 +24,7 @@ export class ActionEvent extends Event implements ActionEventInterface {
 	}
 }
 
-export function getActionEvent(dispatchParams: DispatchParams) {
+export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
@@ -34,12 +33,11 @@ export function getActionEvent(dispatchParams: DispatchParams) {
 		action = el.getAttribute(`${type}:action`);
 	}
 
+	let reqParams = { action };
+
 	if (action) {
-		let throttleParams = getThrottleParams(dispatchParams, {
-			prefix: "action",
-			action,
-		});
-		if (throttleParams) setThrottler(dispatchParams, throttleParams);
+		let throttleParams = getThrottleParams(dispatchParams, reqParams, "action");
+		if (throttleParams) setThrottler(dispatchParams, reqParams, throttleParams);
 
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);

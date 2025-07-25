@@ -1,6 +1,8 @@
 // asynchronous
 // queue-able
+import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams } from "./throttle.js";
+import { shouldQueue, enqueue } from "./queue.js";
 export class HtmlEvent extends Event {
     #params;
     constructor(params, eventInit) {
@@ -12,60 +14,64 @@ export class HtmlEvent extends Event {
     }
 }
 export function dispatchHtmlEvent(dispatchParams) {
-    let { el, sourceEvent } = dispatchParams;
-    let { type } = sourceEvent;
-    let url = el.getAttribute(`${type}:url`);
-    if (url) {
-        let throttleParams = getThrottleParams(dispatchParams, {
-            prefix: "html",
-            url,
-        });
-        let abortController = new AbortController();
-        if (throttleParams)
-            setThrottler(dispatchParams, throttleParams, abortController);
-        // if (shouldQueue(params)) {
-        // 	let entry = new QueueableHtml(params, abortController);
-        // 	return enqueue(el, entry);
-        // 	// enqueue(el, getQueuable(params, abortController));
-        // }
-        // fetchHtml(params, abortController);
+    let reqParams = getRequestParams(dispatchParams);
+    if (!reqParams)
+        return;
+    let throttleParams = getThrottleParams(dispatchParams, reqParams, "json");
+    let abortController = new AbortController();
+    if (throttleParams)
+        setThrottler(dispatchParams, reqParams, throttleParams, abortController);
+    let queueTarget = shouldQueue(dispatchParams);
+    if (queueTarget) {
+        let entry = new QueueableHtml(dispatchParams, reqParams, abortController);
+        return enqueue(queueTarget, entry);
+    }
+    fetchHtml(dispatchParams, reqParams, abortController);
+}
+class QueueableHtml {
+    #dispatchParams;
+    #requestParams;
+    #abortController;
+    constructor(dispatchParams, requestParams, abortController) {
+        this.#dispatchParams = dispatchParams;
+        this.#requestParams = requestParams;
+        this.#abortController = abortController;
+    }
+    dispatch(queueNextCallback) {
+        fetchHtml(this.#dispatchParams, this.#requestParams, this.#abortController, queueNextCallback);
     }
 }
-// class QueueableHtml implements Queuable {
-// 	#params: ShouldQueueParams;
-// 	#abortController: AbortController;
-// 	constructor(params: ShouldQueueParams, abortController: AbortController) {
-// 		this.#params = params;
-// 		this.#abortController = abortController;
-// 	}
-// 	dispatch(queueNextCallback: QueueNextCallback) {
-// 		fetchHtml(this.#params, this.#abortController, queueNextCallback);
-// 	}
-// }
-// function fetchHtml(
-// 	params: ShouldQueueParams,
-// 	abortController: AbortController,
-// 	queueNextCallback?: QueueNextCallback,
-// ) {
-// 	if (abortController.signal.aborted) return;
-// 	let { url, action, el } = params;
-// 	if (!url) return;
-// 	// if timeout add to queue
-// 	let req = new Request(url, {
-// 		signal: AbortSignal.any([AbortSignal.timeout(500), abortController.signal]),
-// 	});
-// 	fetch(req)
-// 		.then(function (response: Response) {
-// 			return Promise.all([response, response.text()]);
-// 		})
-// 		.then(function ([response, html]) {
-// 			let event = new HtmlEvent({ response, html }, { bubbles: true });
-// 			el.dispatchEvent(event);
-// 		})
-// 		.catch(function () {
-// 			console.log("#html error!");
-// 		})
-// 		.finally(function () {
-// 			if (queueNextCallback) queueNextCallback(el);
-// 		});
-// }
+function fetchHtml(params, requestParams, abortController, queueNextCallback) {
+    let { el, formData } = params;
+    let { url, action, timeoutMs, method } = requestParams;
+    if (!abortController.signal.aborted && url) {
+        // if timeout add to queue
+        let abortSignals = [abortController.signal];
+        if (timeoutMs) {
+            abortSignals.push(AbortSignal.timeout(timeoutMs));
+        }
+        let req = new Request(url, {
+            signal: AbortSignal.any(abortSignals),
+            method: method ?? "GET",
+            body: formData,
+        });
+        return fetch(req)
+            .then(resolveResponseBody)
+            .then(function ([response, html]) {
+            let event = new HtmlEvent({ response, html }, { bubbles: true });
+            el.dispatchEvent(event);
+        })
+            .catch(function (_reason) {
+            console.log("#json error!");
+        })
+            .finally(function () {
+            if (queueNextCallback)
+                queueNextCallback(el);
+        });
+    }
+    if (queueNextCallback)
+        queueNextCallback(el);
+}
+function resolveResponseBody(response) {
+    return Promise.all([response, response.text()]);
+}

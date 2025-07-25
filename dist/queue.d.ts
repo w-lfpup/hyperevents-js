@@ -5,10 +5,5 @@ export interface QueueNextCallback {
 export interface Queuable {
     dispatch(cb: QueueNextCallback): void;
 }
-export interface ShouldQueueParams {
-    prefix: string;
-    action?: ReturnType<Element["getAttribute"]>;
-    url?: ReturnType<Element["getAttribute"]>;
-}
-export declare function enqueue(el: Element, queueEntry: Queuable): void;
-export declare function shouldQueue(dispatchParams: DispatchParams, params: ShouldQueueParams): string | undefined;
+export declare function enqueue(el: EventTarget, queueEntry: Queuable): void;
+export declare function shouldQueue(dispatchParams: DispatchParams): EventTarget | undefined;

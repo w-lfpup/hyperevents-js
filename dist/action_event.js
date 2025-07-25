@@ -9,20 +9,18 @@ export class ActionEvent extends Event {
         return this.#params;
     }
 }
-export function getActionEvent(dispatchParams) {
+export function dispatchActionEvent(dispatchParams) {
     let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
     let action = el.getAttribute(`${type}:`);
     if ("action" === action) {
         action = el.getAttribute(`${type}:action`);
     }
+    let reqParams = { action };
     if (action) {
-        let throttleParams = getThrottleParams(dispatchParams, {
-            prefix: "action",
-            action,
-        });
+        let throttleParams = getThrottleParams(dispatchParams, reqParams, "action");
         if (throttleParams)
-            setThrottler(dispatchParams, throttleParams);
+            setThrottler(dispatchParams, reqParams, throttleParams);
         let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
         el.dispatchEvent(event);
     }

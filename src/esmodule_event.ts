@@ -10,6 +10,7 @@ export function dispatchModuleEvent(params: DispatchParams) {
 	if (urlAttr) {
 		let url = new URL(urlAttr, location.href).toString();
 		if (set.has(url)) return;
+
 		set.add(url);
 
 		import(url).catch(function () {

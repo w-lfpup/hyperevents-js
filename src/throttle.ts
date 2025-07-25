@@ -1,4 +1,4 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, RequestParams } from "./type_flyweight.js";
 
 interface Throttler {
 	abortController?: AbortController;
@@ -9,14 +9,6 @@ interface ThrottleParams {
 	prefix: string;
 	throttle: string;
 	timeoutMs: number;
-	action?: ReturnType<Element["getAttribute"]>;
-	url?: ReturnType<Element["getAttribute"]>;
-}
-
-interface GetThrottleParams {
-	prefix: string;
-	action?: ReturnType<Element["getAttribute"]>;
-	url?: ReturnType<Element["getAttribute"]>;
 }
 
 // throttle by _url _action
@@ -28,44 +20,47 @@ let elementMap = new WeakMap<EventTarget, Throttler>();
 
 export function getThrottleParams(
 	dispatchParams: DispatchParams,
-	params: GetThrottleParams,
+	requestParams: RequestParams,
+	prefix: string,
 ): ThrottleParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
 	let throttle = el.getAttribute(`${type}:throttle`);
-	let throttleMsAttr = el.getAttribute(`${type}:throttle-ms`) ?? "";
-	let timeoutMs = parseInt(throttleMsAttr);
+	let throttleMsAttr = el.getAttribute(`${type}:throttle-ms`);
+	let timeoutMs = parseInt(throttleMsAttr ?? "");
 
 	if (!throttle || Number.isNaN(timeoutMs)) return;
 
 	let throttleParams: ThrottleParams = {
+		prefix,
 		throttle,
 		timeoutMs,
-		...params,
 	};
 
-	if (shouldThrottle(dispatchParams, throttleParams)) {
+	if (shouldThrottle(dispatchParams, requestParams, throttleParams)) {
 		return throttleParams;
 	}
 }
 
 function shouldThrottle(
 	dispatchParams: DispatchParams,
+	requestParams: RequestParams,
 	throttleParams: ThrottleParams,
 ): boolean {
 	let { currentTarget, el } = dispatchParams;
-	let { action, prefix, throttle, timeoutMs, url } = throttleParams;
+	let { action, url } = requestParams;
+	let { prefix, throttle, timeoutMs } = throttleParams;
 
 	if ("_target" === throttle) return shouldThrottleByElement(el, timeoutMs);
 
 	if ("_currentTarget" === throttle)
 		return shouldThrottleByElement(currentTarget, timeoutMs);
 
-	if (url && "url" === throttle)
+	if (url && "_url" === throttle)
 		return shouldThrottleByString(`${prefix}:${throttle}:${url}`, timeoutMs);
 
-	if (action && "action" === throttle)
+	if (action && "_action" === throttle)
 		return shouldThrottleByString(`${prefix}:${throttle}:${action}`, timeoutMs);
 
 	return false;
@@ -106,21 +101,23 @@ function shouldThrottleByElement(
 
 export function setThrottler(
 	params: DispatchParams,
+	requestParams: RequestParams,
 	throttleParams: ThrottleParams,
 	abortController?: AbortController,
 ) {
 	let { el, currentTarget } = params;
-	let { throttle } = throttleParams;
+	let { throttle, prefix } = throttleParams;
 
 	if (throttle) {
-		let { url, prefix, action } = throttleParams;
+		let { url, action } = requestParams;
+
 		let timestamp = performance.now();
 		let throttler = { timestamp, abortController };
 
 		// throttle by string
-		if (url && "url" === throttle)
+		if (url && "_url" === throttle)
 			stringMap.set(`${prefix}:${throttle}:${url}`, throttler);
-		if (action && "action" === throttle)
+		if (action && "_action" === throttle)
 			stringMap.set(`${prefix}:${throttle}:${action}`, throttler);
 
 		// throttle by element

@@ -8,7 +8,7 @@ import type { DispatchParams, RequestParams } from "./type_flyweight.js";
 import type { Queuable, QueueNextCallback } from "./queue.js";
 
 import { getRequestParams } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams } from "./throttle.js";
+import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 
 export interface JsonEventParamsInterface {
@@ -36,23 +36,27 @@ export class JsonEvent extends Event implements JsonEventInterface {
 
 export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	// get request params
-	let reqParams = getRequestParams(dispatchParams);
-	if (!reqParams) return;
+	let requestParams = getRequestParams(dispatchParams);
+	if (!requestParams) return;
 
-	let throttleParams = getThrottleParams(dispatchParams, reqParams, "json");
+	let throttleParams = getThrottleParams(dispatchParams, "json");
+	if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
 
 	let abortController = new AbortController();
 
-	if (throttleParams)
-		setThrottler(dispatchParams, reqParams, throttleParams, abortController);
+	setThrottler(dispatchParams, requestParams, throttleParams, abortController);
 
 	let queueTarget = shouldQueue(dispatchParams);
 	if (queueTarget) {
-		let entry = new QueueableJson(dispatchParams, reqParams, abortController);
+		let entry = new QueueableJson(
+			dispatchParams,
+			requestParams,
+			abortController,
+		);
 		return enqueue(queueTarget, entry);
 	}
 
-	fetchJson(dispatchParams, reqParams, abortController);
+	fetchJson(dispatchParams, requestParams, abortController);
 }
 
 class QueueableJson implements Queuable {

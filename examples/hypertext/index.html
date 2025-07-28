@@ -29,7 +29,9 @@
 					<button
 						click:="json"
 						click:action="foxy_json"
-						click:url="./json/hey_foxy.json">
+						click:url="./json/hey_foxy.json"
+						click:throttle="_currentTarget"
+						click:throttle-ms="1000">
 						fox
 					</button>
 				</li>

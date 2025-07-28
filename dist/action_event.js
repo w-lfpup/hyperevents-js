@@ -18,7 +18,7 @@ export function dispatchActionEvent(dispatchParams) {
     }
     let reqParams = { action };
     if (action) {
-        let throttleParams = getThrottleParams(dispatchParams, reqParams, "action");
+        let throttleParams = getThrottleParams(dispatchParams, "action");
         if (throttleParams)
             setThrottler(dispatchParams, reqParams, throttleParams);
         let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });

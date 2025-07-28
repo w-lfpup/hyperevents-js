@@ -51,7 +51,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 
 	// get request params
 
-	let throttleParams = getThrottleParams(dispatchParams, reqParams, "html");
+	let throttleParams = getThrottleParams(dispatchParams, "html");
 
 	let abortController = new AbortController();
 

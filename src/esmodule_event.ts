@@ -1,9 +1,28 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
 
 // this could explode so maybe blow up every 1024 elements or something
 let set = new Set();
 
-export function dispatchModuleEvent(params: DispatchParams) {
+class ESModuleEvent extends Event {
+	#url: string;
+	#status: RequestStatus;
+
+	constructor(url: string, status: RequestStatus, eventInitDict: EventInit) {
+		super("#esmodule", eventInitDict);
+		this.#url = url;
+		this.#status = status;
+	}
+
+	get urlStr(): string {
+		return this.#url;
+	}
+
+	get status(): RequestStatus {
+		return this.#status;
+	}
+}
+
+export function dispatchModuleImport(params: DispatchParams) {
 	let { el, sourceEvent } = params;
 
 	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
@@ -13,8 +32,20 @@ export function dispatchModuleEvent(params: DispatchParams) {
 
 		set.add(url);
 
-		import(url).catch(function () {
-			set.delete(url);
-		});
+		// need a memory address for weak maps
+		let event = new ESModuleEvent(url, "requested", { bubbles: true });
+		document.dispatchEvent(event);
+
+		import(url)
+			.then(function () {
+				let event = new ESModuleEvent(url, "resolved", { bubbles: true });
+				document.dispatchEvent(event);
+			})
+			.catch(function () {
+				set.delete(url);
+
+				let event = new ESModuleEvent(url, "rejected", { bubbles: true });
+				document.dispatchEvent(event);
+			});
 	}
 }

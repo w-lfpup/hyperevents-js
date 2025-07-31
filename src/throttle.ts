@@ -65,6 +65,10 @@ export function shouldThrottle(
 	return false;
 }
 
+function getKey(prefix: string, throttle: string, kind: string) {
+	return `${prefix}:${throttle}:${kind}`;
+}
+
 function shouldThrottleByString(action: string, timeoutMs: number): boolean {
 	let throttler = stringMap.get(action);
 	return compareThrottler(throttler, timeoutMs);
@@ -80,40 +84,6 @@ function shouldThrottleByElement(
 	return compareThrottler(throttler, timeoutMs);
 }
 
-export function setThrottler(
-	params: DispatchParams,
-	requestParams: RequestParams,
-	throttleParams?: ThrottleParams,
-	abortController?: AbortController,
-) {
-	if (!throttleParams) return;
-
-	let { el, currentTarget } = params;
-	let { throttle, prefix } = throttleParams;
-
-	if (throttle) {
-		let { url, action } = requestParams;
-
-		let timestamp = performance.now();
-		let throttler = { timestamp, abortController };
-
-		// throttle by element
-		if ("_target" === throttle) elementMap.set(el, throttler);
-		if ("_currentTarget" === throttle && currentTarget)
-			elementMap.set(currentTarget, throttler);
-
-		// throttle by string
-		if ("_url" === throttle && url)
-			stringMap.set(getKey(prefix, throttle, url), throttler);
-		if ("_action" === throttle && action)
-			stringMap.set(getKey(prefix, throttle, action), throttler);
-	}
-}
-
-function getKey(prefix: string, throttle: string, kind: string) {
-	return `${prefix}:${throttle}:${kind}`;
-}
-
 function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 	if (throttler) {
 		let delta = performance.now() - throttler.timestamp;
@@ -125,4 +95,34 @@ function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 	}
 
 	return false;
+}
+
+export function setThrottler(
+	params: DispatchParams,
+	requestParams: RequestParams,
+	throttleParams?: ThrottleParams,
+	abortController?: AbortController,
+) {
+	if (!throttleParams) return;
+
+	let { throttle, prefix } = throttleParams;
+
+	if (throttle) {
+		let { el, currentTarget } = params;
+		let { url, action } = requestParams;
+
+		let timestamp = performance.now();
+		let throttler = { timestamp, abortController };
+
+		// throttle by element
+		if ("_target" === throttle) elementMap.set(el, throttler);
+		if ("_currentTarget" === throttle && currentTarget)
+			elementMap.set(currentTarget, throttler);
+
+		// throttle by string
+		if ("_action" === throttle && action)
+			stringMap.set(getKey(prefix, throttle, action), throttler);
+		if ("_url" === throttle && url)
+			stringMap.set(getKey(prefix, throttle, url), throttler);
+	}
 }

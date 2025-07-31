@@ -4,17 +4,21 @@ import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 export class JsonEvent extends Event {
-    #params;
-    constructor(params, eventInit) {
+    // #params: JsonEventParamsInterface;
+    #status;
+    constructor(status, eventInit) {
         super("#json", eventInit);
-        this.#params = params;
+        // this.#params = params;
+        this.#status = status;
     }
-    get jsonParams() {
-        return this.#params;
+    // get jsonParams() {
+    // 	return this.#params;
+    // }
+    get status() {
+        return this.#status;
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
-    // get request params
     let requestParams = getRequestParams(dispatchParams);
     if (!requestParams)
         return;
@@ -46,8 +50,10 @@ class QueueableJson {
 function fetchJson(params, requestParams, abortController, queueNextCallback) {
     let { el, formData } = params;
     let { url, action, timeoutMs, method } = requestParams;
-    if (!abortController.signal.aborted && url) {
-        // if timeout add to queue
+    if (abortController.signal.aborted || !url) {
+        queueNextCallback?.(el);
+    }
+    else {
         let abortSignals = [abortController.signal];
         if (timeoutMs)
             abortSignals.push(AbortSignal.timeout(timeoutMs));
@@ -56,22 +62,30 @@ function fetchJson(params, requestParams, abortController, queueNextCallback) {
             method: method ?? "GET",
             body: formData,
         });
-        return fetch(req)
+        let event = new JsonEvent(
+        // { response, action, jsonStr },
+        "requested", { bubbles: true });
+        el.dispatchEvent(event);
+        // dispatch json request event
+        fetch(req)
             .then(resolveResponseBody)
             .then(function ([response, jsonStr]) {
-            let event = new JsonEvent({ response, action, jsonStr }, { bubbles: true });
+            let event = new JsonEvent(
+            // { response, action, jsonStr },
+            "resolved", { bubbles: true });
             el.dispatchEvent(event);
         })
             .catch(function (_reason) {
             console.log("#json error!");
+            let event = new JsonEvent(
+            // { response, action, jsonStr },
+            "rejected", { bubbles: true });
+            el.dispatchEvent(event);
         })
             .finally(function () {
-            if (queueNextCallback)
-                queueNextCallback(el);
+            queueNextCallback?.(el);
         });
     }
-    if (queueNextCallback)
-        queueNextCallback(el);
 }
 function resolveResponseBody(response) {
     return Promise.all([response, response.text()]);

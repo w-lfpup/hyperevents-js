@@ -1,16 +1,21 @@
 // asynchronous
 // queue-able
 import { getRequestParams } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams } from "./throttle.js";
+import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 export class HtmlEvent extends Event {
-    #params;
-    constructor(params, eventInit) {
+    // #params: HtmlEventParamsInterface;
+    #status;
+    constructor(status, eventInit) {
         super("#html", eventInit);
-        this.#params = params;
+        // this.#params = params;
+        this.#status = status;
     }
-    get htmlParams() {
-        return this.#params;
+    // get htmlParams() {
+    // 	return this.#params;
+    // }
+    get status() {
+        return this.#status;
     }
 }
 // projection="swap"
@@ -19,20 +24,21 @@ export class HtmlEvent extends Event {
 // status-target="match | querySelector | querySelectorAll" | default is querySelector
 // status-selector="selector" pending | completed
 export function dispatchHtmlEvent(dispatchParams) {
-    let reqParams = getRequestParams(dispatchParams);
-    if (!reqParams)
+    let requestParams = getRequestParams(dispatchParams);
+    if (!requestParams)
         return;
-    // get request params
     let throttleParams = getThrottleParams(dispatchParams, "html");
+    if (shouldThrottle(dispatchParams, requestParams, throttleParams))
+        return;
     let abortController = new AbortController();
     if (throttleParams)
-        setThrottler(dispatchParams, reqParams, throttleParams, abortController);
+        setThrottler(dispatchParams, requestParams, throttleParams, abortController);
     let queueTarget = shouldQueue(dispatchParams);
     if (queueTarget) {
-        let entry = new QueueableHtml(dispatchParams, reqParams, abortController);
+        let entry = new QueueableHtml(dispatchParams, requestParams, abortController);
         return enqueue(queueTarget, entry);
     }
-    fetchHtml(dispatchParams, reqParams, abortController);
+    fetchHtml(dispatchParams, requestParams, abortController);
 }
 class QueueableHtml {
     #dispatchParams;
@@ -50,7 +56,10 @@ class QueueableHtml {
 function fetchHtml(params, requestParams, abortController, queueNextCallback) {
     let { el, formData } = params;
     let { url, timeoutMs, method } = requestParams;
-    if (!abortController.signal.aborted && url) {
+    if (abortController.signal.aborted || !url) {
+        queueNextCallback?.(el);
+    }
+    else {
         // if timeout add to queue
         let abortSignals = [abortController.signal];
         if (timeoutMs)
@@ -60,23 +69,29 @@ function fetchHtml(params, requestParams, abortController, queueNextCallback) {
             method: method ?? "GET",
             body: formData,
         });
-        return fetch(req)
+        let event = new HtmlEvent(
+        // { response, action, jsonStr },
+        "requested", { bubbles: true });
+        fetch(req)
             .then(resolveResponseBody)
             .then(function ([response, html]) {
             // do projection here
-            let event = new HtmlEvent({ response, html }, { bubbles: true });
+            let event = new HtmlEvent(
+            // { response, action, jsonStr },
+            "resolved", { bubbles: true });
             el.dispatchEvent(event);
         })
             .catch(function (_reason) {
             console.log("#json error!");
+            let event = new HtmlEvent(
+            // { response, action, jsonStr },
+            "rejected", { bubbles: true });
+            el.dispatchEvent(event);
         })
             .finally(function () {
-            if (queueNextCallback)
-                queueNextCallback(el);
+            queueNextCallback?.(el);
         });
     }
-    if (queueNextCallback)
-        queueNextCallback(el);
 }
 function resolveResponseBody(response) {
     return Promise.all([response, response.text()]);

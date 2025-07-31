@@ -1,6 +1,6 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-import { getThrottleParams, setThrottler } from "./throttle.js";
+import { getThrottleParams, setThrottler, shouldThrottle } from "./throttle.js";
 
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
@@ -33,11 +33,13 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 		action = el.getAttribute(`${type}:action`);
 	}
 
-	let reqParams = { action };
+	let requestParams = { action };
 
 	if (action) {
 		let throttleParams = getThrottleParams(dispatchParams, "action");
-		if (throttleParams) setThrottler(dispatchParams, reqParams, throttleParams);
+		if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
+
+		setThrottler(dispatchParams, requestParams, throttleParams);
 
 		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
 		el.dispatchEvent(event);

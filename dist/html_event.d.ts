@@ -1,4 +1,4 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
 export interface HtmlEventParamsInterface {
     response: Response;
     html: string;
@@ -9,9 +9,9 @@ export interface HtmlEventParamsInterface {
 export interface HtmlEventInterface {
     readonly htmlParams: HtmlEventParamsInterface;
 }
-export declare class HtmlEvent extends Event implements HtmlEventInterface {
+export declare class HtmlEvent extends Event {
     #private;
-    constructor(params: HtmlEventParamsInterface, eventInit?: EventInit);
-    get htmlParams(): HtmlEventParamsInterface;
+    constructor(status: RequestStatus, eventInit?: EventInit);
+    get status(): RequestStatus;
 }
 export declare function dispatchHtmlEvent(dispatchParams: DispatchParams): void;

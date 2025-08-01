@@ -61,9 +61,9 @@ function compareThrottler(throttler, timeoutMs) {
 export function setThrottler(params, requestParams, throttleParams, abortController) {
     if (!throttleParams)
         return;
-    let { el, currentTarget } = params;
     let { throttle, prefix } = throttleParams;
     if (throttle) {
+        let { el, currentTarget } = params;
         let { url, action } = requestParams;
         let timestamp = performance.now();
         let throttler = { timestamp, abortController };

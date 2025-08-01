@@ -1,7 +1,8 @@
 import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
 
-// this could explode so maybe blow up every 1024 elements or something
 let set = new Set();
+
+const eventInitDict: EventInit = { bubbles: true, composed: true };
 
 class ESModuleEvent extends Event {
 	#url: string;
@@ -26,26 +27,26 @@ export function dispatchModuleImport(params: DispatchParams) {
 	let { el, sourceEvent } = params;
 
 	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
-	if (urlAttr) {
-		let url = new URL(urlAttr, location.href).toString();
-		if (set.has(url)) return;
+	if (null === urlAttr) return;
 
-		set.add(url);
+	let url = new URL(urlAttr, location.href).toString();
+	if (set.has(url)) return;
 
-		// need a memory address for weak maps
-		let event = new ESModuleEvent(url, "requested", { bubbles: true });
-		document.dispatchEvent(event);
+	set.add(url);
 
-		import(url)
-			.then(function () {
-				let event = new ESModuleEvent(url, "resolved", { bubbles: true });
-				document.dispatchEvent(event);
-			})
-			.catch(function () {
-				set.delete(url);
+	// need a memory address for weak maps
+	let event = new ESModuleEvent(url, "requested", eventInitDict);
+	document.dispatchEvent(event);
 
-				let event = new ESModuleEvent(url, "rejected", { bubbles: true });
-				document.dispatchEvent(event);
-			});
-	}
+	import(url)
+		.then(function () {
+			let event = new ESModuleEvent(url, "resolved", eventInitDict);
+			document.dispatchEvent(event);
+		})
+		.catch(function () {
+			set.delete(url);
+
+			let event = new ESModuleEvent(url, "rejected", eventInitDict);
+			document.dispatchEvent(event);
+		});
 }

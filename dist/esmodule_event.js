@@ -1,18 +1,16 @@
-let set = new Set();
+/*
+    Does ESModule need events?
+    There
+*/
+let urlSet = new Set();
 const eventInitDict = { bubbles: true, composed: true };
-class ESModuleEvent extends Event {
-    #url;
-    #status;
+export class ESModuleEvent extends Event {
+    url;
+    status;
     constructor(url, status, eventInitDict) {
         super("#esmodule", eventInitDict);
-        this.#url = url;
-        this.#status = status;
-    }
-    get urlStr() {
-        return this.#url;
-    }
-    get status() {
-        return this.#status;
+        this.url = url;
+        this.status = status;
     }
 }
 export function dispatchModuleImport(params) {
@@ -21,20 +19,20 @@ export function dispatchModuleImport(params) {
     if (null === urlAttr)
         return;
     let url = new URL(urlAttr, location.href).toString();
-    if (set.has(url))
+    if (urlSet.has(url))
         return;
-    set.add(url);
-    // need a memory address for weak maps
-    let event = new ESModuleEvent(url, "requested", eventInitDict);
-    document.dispatchEvent(event);
+    urlSet.add(url);
+    dispatchEvent(url, "requested");
     import(url)
         .then(function () {
-        let event = new ESModuleEvent(url, "resolved", eventInitDict);
-        document.dispatchEvent(event);
+        dispatchEvent(url, "resolved");
     })
         .catch(function () {
-        set.delete(url);
-        let event = new ESModuleEvent(url, "rejected", eventInitDict);
-        document.dispatchEvent(event);
+        urlSet.delete(url);
+        dispatchEvent(url, "rejected");
     });
+}
+function dispatchEvent(url, status) {
+    let event = new ESModuleEvent(url, status, eventInitDict);
+    document.dispatchEvent(event);
 }

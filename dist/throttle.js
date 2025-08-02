@@ -1,7 +1,5 @@
-// throttle by _url _action
 // Needs to blow up after a certain amount of keys.
 let stringMap = new Map();
-// throttle by _target _currentTarget
 let elementMap = new WeakMap();
 export function getThrottleParams(dispatchParams, prefix) {
     let { el, sourceEvent } = dispatchParams;

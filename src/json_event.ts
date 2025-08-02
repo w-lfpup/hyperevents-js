@@ -1,8 +1,6 @@
-// asynchronous
-// queue-able
+/*
 
-// AFAIK we can't use an AbortController on a dynamic import
-// but we can on a fetch
+*/
 
 import type {
 	DispatchParams,
@@ -15,10 +13,14 @@ import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 
+const eventInitDict: EventInit = { bubbles: true, composed: true };
+
 export interface JsonEventParamsInterface {
-	response: Response;
-	jsonStr: string;
+	request: Request;
+	response?: Response;
+	jsonStr?: string;
 	action?: string | null;
+	error?: any;
 }
 
 export interface JsonEventInterface {
@@ -26,21 +28,25 @@ export interface JsonEventInterface {
 }
 
 export class JsonEvent extends Event {
-	// #params: JsonEventParamsInterface;
+	#params: JsonEventParamsInterface | undefined;
 	#status: RequestStatus;
 
-	constructor(status: RequestStatus, eventInit?: EventInit) {
+	constructor(
+		params: JsonEventParamsInterface | undefined,
+		status: RequestStatus,
+		eventInit?: EventInit,
+	) {
 		super("#json", eventInit);
-		// this.#params = params;
+		this.#params = params;
 		this.#status = status;
 	}
 
-	// get jsonParams() {
-	// 	return this.#params;
-	// }
-
 	get status() {
 		return this.#status;
+	}
+
+	get jsonStr(): string | undefined {
+		return this.#params?.jsonStr;
 	}
 }
 
@@ -108,35 +114,30 @@ function fetchJson(
 		let abortSignals = [abortController.signal];
 		if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
 
-		let req = new Request(url, {
+		let request = new Request(url, {
 			signal: AbortSignal.any(abortSignals),
 			method: method ?? "GET",
 			body: formData,
 		});
 
-		let event = new JsonEvent(
-			// { response, action, jsonStr },
-			"requested",
-			{ bubbles: true },
-		);
+		let event = new JsonEvent({ action, request }, "requested", eventInitDict);
 		el.dispatchEvent(event);
-		// dispatch json request event
-		fetch(req)
+
+		fetch(request)
 			.then(resolveResponseBody)
 			.then(function ([response, jsonStr]) {
 				let event = new JsonEvent(
-					// { response, action, jsonStr },
+					{ request, action, response, jsonStr },
 					"resolved",
-					{ bubbles: true },
+					eventInitDict,
 				);
 				el.dispatchEvent(event);
 			})
-			.catch(function (_reason: any) {
-				console.log("#json error!");
+			.catch(function (error: any) {
 				let event = new JsonEvent(
-					// { response, action, jsonStr },
+					{ request, action, error },
 					"rejected",
-					{ bubbles: true },
+					eventInitDict,
 				);
 				el.dispatchEvent(event);
 			})

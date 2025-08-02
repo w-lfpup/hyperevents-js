@@ -57,7 +57,7 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 ```html
 <button
 	pointerdown:="json"
-	pointerdown:json="/fetch/some.json"
+	pointerdown:url="/fetch/some.json"
 ></button>
 ```
 

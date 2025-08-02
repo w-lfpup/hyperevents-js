@@ -29,8 +29,9 @@ export interface HtmlEventInterface {
 	readonly htmlParams: HtmlEventParamsInterface;
 }
 
+const eventInitDict: EventInit = { bubbles: true, composed: true };
+
 export class HtmlEvent extends Event {
-	// #params: HtmlEventParamsInterface;
 	#status: RequestStatus;
 
 	constructor(status: RequestStatus, eventInit?: EventInit) {
@@ -38,10 +39,6 @@ export class HtmlEvent extends Event {
 		// this.#params = params;
 		this.#status = status;
 	}
-
-	// get htmlParams() {
-	// 	return this.#params;
-	// }
 
 	get status() {
 		return this.#status;
@@ -132,30 +129,17 @@ function fetchHtml(
 			body: formData,
 		});
 
-		let event = new HtmlEvent(
-			// { response, action, jsonStr },
-			"requested",
-			{ bubbles: true },
-		);
+		let event = new HtmlEvent("requested", eventInitDict);
+		el.dispatchEvent(event);
 
 		fetch(req)
 			.then(resolveResponseBody)
 			.then(function ([response, html]) {
-				// do projection here
-				let event = new HtmlEvent(
-					// { response, action, jsonStr },
-					"resolved",
-					{ bubbles: true },
-				);
+				let event = new HtmlEvent("resolved", eventInitDict);
 				el.dispatchEvent(event);
 			})
 			.catch(function (_reason: any) {
-				console.log("#json error!");
-				let event = new HtmlEvent(
-					// { response, action, jsonStr },
-					"rejected",
-					{ bubbles: true },
-				);
+				let event = new HtmlEvent("rejected", eventInitDict);
 				el.dispatchEvent(event);
 			})
 			.finally(function () {

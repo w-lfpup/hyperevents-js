@@ -11,11 +11,8 @@ interface ThrottleParams {
 	timeoutMs: number;
 }
 
-// throttle by _url _action
 // Needs to blow up after a certain amount of keys.
 let stringMap = new Map<string, Throttler>();
-
-// throttle by _target _currentTarget
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
 export function getThrottleParams(

@@ -2,7 +2,7 @@ import type { DispatchParams } from "./type_flyweight.js";
 
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
-import { dispatchModuleEvent } from "./esmodule_event.js";
+import { dispatchModuleImport } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 
 export function dispatch(sourceEvent: Event) {
@@ -28,7 +28,7 @@ function dispatchEvent(params: DispatchParams) {
 
 	let attr = el.getAttribute(`${sourceEvent.type}:`);
 
-	if ("esmodule" === attr) return dispatchModuleEvent(params);
+	if ("esmodule" === attr) return dispatchModuleImport(params);
 	if ("html" === attr) return dispatchHtmlEvent(params);
 	if ("json" === attr) return dispatchJsonEvent(params);
 

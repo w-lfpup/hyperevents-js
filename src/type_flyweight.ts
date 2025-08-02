@@ -16,6 +16,8 @@ export interface RequestParams extends ActionParams {
 	timeoutMs?: number;
 }
 
+export type RequestStatus = "requested" | "resolved" | "rejected";
+
 export function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {

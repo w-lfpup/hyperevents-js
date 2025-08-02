@@ -1,58 +1,77 @@
-// asynchronous
-// queue-able
+/*
 
-// AFAIK we can't use an AbortController on a dynamic import
-// but we can on a fetch
+*/
 
-import type { DispatchParams, RequestParams } from "./type_flyweight.js";
+import type {
+	DispatchParams,
+	RequestParams,
+	RequestStatus,
+} from "./type_flyweight.js";
 import type { Queuable, QueueNextCallback } from "./queue.js";
 
 import { getRequestParams } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams } from "./throttle.js";
+import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 
+const eventInitDict: EventInit = { bubbles: true, composed: true };
+
 export interface JsonEventParamsInterface {
-	response: Response;
-	jsonStr: string;
+	request: Request;
+	response?: Response;
+	json?: any;
 	action?: string | null;
+	error?: any;
 }
 
 export interface JsonEventInterface {
 	readonly jsonParams: JsonEventParamsInterface;
 }
 
-export class JsonEvent extends Event implements JsonEventInterface {
-	#params: JsonEventParamsInterface;
+export class JsonEvent extends Event {
+	#params: JsonEventParamsInterface | undefined;
+	#status: RequestStatus;
 
-	constructor(params: JsonEventParamsInterface, eventInit?: EventInit) {
+	constructor(
+		params: JsonEventParamsInterface | undefined,
+		status: RequestStatus,
+		eventInit?: EventInit,
+	) {
 		super("#json", eventInit);
 		this.#params = params;
+		this.#status = status;
 	}
 
-	get jsonParams() {
-		return this.#params;
+	get status() {
+		return this.#status;
+	}
+
+	get json(): any | undefined {
+		return this.#params?.json;
 	}
 }
 
 export function dispatchJsonEvent(dispatchParams: DispatchParams) {
-	// get request params
-	let reqParams = getRequestParams(dispatchParams);
-	if (!reqParams) return;
+	let requestParams = getRequestParams(dispatchParams);
+	if (!requestParams) return;
 
-	let throttleParams = getThrottleParams(dispatchParams, reqParams, "json");
+	let throttleParams = getThrottleParams(dispatchParams, "json");
+	if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
 
 	let abortController = new AbortController();
 
-	if (throttleParams)
-		setThrottler(dispatchParams, reqParams, throttleParams, abortController);
+	setThrottler(dispatchParams, requestParams, throttleParams, abortController);
 
 	let queueTarget = shouldQueue(dispatchParams);
 	if (queueTarget) {
-		let entry = new QueueableJson(dispatchParams, reqParams, abortController);
+		let entry = new QueueableJson(
+			dispatchParams,
+			requestParams,
+			abortController,
+		);
 		return enqueue(queueTarget, entry);
 	}
 
-	fetchJson(dispatchParams, reqParams, abortController);
+	fetchJson(dispatchParams, requestParams, abortController);
 }
 
 class QueueableJson implements Queuable {
@@ -89,37 +108,45 @@ function fetchJson(
 	let { el, formData } = params;
 	let { url, action, timeoutMs, method } = requestParams;
 
-	if (!abortController.signal.aborted && url) {
-		// if timeout add to queue
+	if (abortController.signal.aborted || !url) {
+		queueNextCallback?.(el);
+	} else {
 		let abortSignals = [abortController.signal];
 		if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
 
-		let req = new Request(url, {
+		let request = new Request(url, {
 			signal: AbortSignal.any(abortSignals),
 			method: method ?? "GET",
 			body: formData,
 		});
 
-		return fetch(req)
+		let event = new JsonEvent({ action, request }, "requested", eventInitDict);
+		el.dispatchEvent(event);
+
+		fetch(request)
 			.then(resolveResponseBody)
-			.then(function ([response, jsonStr]) {
+			.then(function ([response, json]) {
 				let event = new JsonEvent(
-					{ response, action, jsonStr },
-					{ bubbles: true },
+					{ request, action, response, json },
+					"resolved",
+					eventInitDict,
 				);
 				el.dispatchEvent(event);
 			})
-			.catch(function (_reason: any) {
-				console.log("#json error!");
+			.catch(function (error: any) {
+				let event = new JsonEvent(
+					{ request, action, error },
+					"rejected",
+					eventInitDict,
+				);
+				el.dispatchEvent(event);
 			})
 			.finally(function () {
-				if (queueNextCallback) queueNextCallback(el);
+				queueNextCallback?.(el);
 			});
 	}
-
-	if (queueNextCallback) queueNextCallback(el);
 }
 
 function resolveResponseBody(response: Response): Promise<[Response, string]> {
-	return Promise.all([response, response.text()]);
+	return Promise.all([response, response.json()]);
 }

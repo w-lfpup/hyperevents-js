@@ -21,14 +21,12 @@ function queueNext(el) {
         return;
     if (!queue.outgoing.length) {
         while (queue.incoming.length) {
-            let entry = queue.incoming.pop();
-            if (entry)
-                queue.outgoing.push(entry);
+            let pip = queue.incoming.pop();
+            if (pip)
+                queue.outgoing.push(pip);
         }
     }
-    let entry = queue.outgoing.pop();
-    if (entry)
-        entry.dispatch(queueNext);
+    queue.outgoing.pop()?.dispatch(queueNext);
 }
 export function shouldQueue(dispatchParams) {
     let { el, currentTarget, sourceEvent } = dispatchParams;

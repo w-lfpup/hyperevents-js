@@ -1,6 +1,6 @@
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
-import { dispatchModuleEvent } from "./esmodule_event.js";
+import { dispatchModuleImport } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 export function dispatch(sourceEvent) {
     let { type, currentTarget, target } = sourceEvent;
@@ -21,7 +21,7 @@ function dispatchEvent(params) {
     let { el, sourceEvent } = params;
     let attr = el.getAttribute(`${sourceEvent.type}:`);
     if ("esmodule" === attr)
-        return dispatchModuleEvent(params);
+        return dispatchModuleImport(params);
     if ("html" === attr)
         return dispatchHtmlEvent(params);
     if ("json" === attr)

@@ -1,33 +1,40 @@
-// asynchronous
-// queue-able
+/*
+
+*/
 import { getRequestParams } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams } from "./throttle.js";
+import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
+const eventInitDict = { bubbles: true, composed: true };
 export class JsonEvent extends Event {
     #params;
-    constructor(params, eventInit) {
+    #status;
+    constructor(params, status, eventInit) {
         super("#json", eventInit);
         this.#params = params;
+        this.#status = status;
     }
-    get jsonParams() {
-        return this.#params;
+    get status() {
+        return this.#status;
+    }
+    get json() {
+        return this.#params?.json;
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
-    // get request params
-    let reqParams = getRequestParams(dispatchParams);
-    if (!reqParams)
+    let requestParams = getRequestParams(dispatchParams);
+    if (!requestParams)
         return;
-    let throttleParams = getThrottleParams(dispatchParams, reqParams, "json");
+    let throttleParams = getThrottleParams(dispatchParams, "json");
+    if (shouldThrottle(dispatchParams, requestParams, throttleParams))
+        return;
     let abortController = new AbortController();
-    if (throttleParams)
-        setThrottler(dispatchParams, reqParams, throttleParams, abortController);
+    setThrottler(dispatchParams, requestParams, throttleParams, abortController);
     let queueTarget = shouldQueue(dispatchParams);
     if (queueTarget) {
-        let entry = new QueueableJson(dispatchParams, reqParams, abortController);
+        let entry = new QueueableJson(dispatchParams, requestParams, abortController);
         return enqueue(queueTarget, entry);
     }
-    fetchJson(dispatchParams, reqParams, abortController);
+    fetchJson(dispatchParams, requestParams, abortController);
 }
 class QueueableJson {
     #dispatchParams;
@@ -45,33 +52,35 @@ class QueueableJson {
 function fetchJson(params, requestParams, abortController, queueNextCallback) {
     let { el, formData } = params;
     let { url, action, timeoutMs, method } = requestParams;
-    if (!abortController.signal.aborted && url) {
-        // if timeout add to queue
+    if (abortController.signal.aborted || !url) {
+        queueNextCallback?.(el);
+    }
+    else {
         let abortSignals = [abortController.signal];
         if (timeoutMs)
             abortSignals.push(AbortSignal.timeout(timeoutMs));
-        let req = new Request(url, {
+        let request = new Request(url, {
             signal: AbortSignal.any(abortSignals),
             method: method ?? "GET",
             body: formData,
         });
-        return fetch(req)
+        let event = new JsonEvent({ action, request }, "requested", eventInitDict);
+        el.dispatchEvent(event);
+        fetch(request)
             .then(resolveResponseBody)
-            .then(function ([response, jsonStr]) {
-            let event = new JsonEvent({ response, action, jsonStr }, { bubbles: true });
+            .then(function ([response, json]) {
+            let event = new JsonEvent({ request, action, response, json }, "resolved", eventInitDict);
             el.dispatchEvent(event);
         })
-            .catch(function (_reason) {
-            console.log("#json error!");
+            .catch(function (error) {
+            let event = new JsonEvent({ request, action, error }, "rejected", eventInitDict);
+            el.dispatchEvent(event);
         })
             .finally(function () {
-            if (queueNextCallback)
-                queueNextCallback(el);
+            queueNextCallback?.(el);
         });
     }
-    if (queueNextCallback)
-        queueNextCallback(el);
 }
 function resolveResponseBody(response) {
-    return Promise.all([response, response.text()]);
+    return Promise.all([response, response.json()]);
 }

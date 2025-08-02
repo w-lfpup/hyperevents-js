@@ -1,7 +1,3 @@
-/*
-    Does ESModule need events?
-    There
-*/
 let urlSet = new Set();
 const eventInitDict = { bubbles: true, composed: true };
 export class ESModuleEvent extends Event {

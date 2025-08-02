@@ -1,4 +1,4 @@
-import { SuperChunk, ActionEvent, HtmlEvent, JsonEvent, ESModuleEvent } from "superchunk";
+import { SuperChunk, ActionEvent, HtmlEvent, JsonEvent, ESModuleEvent, } from "superchunk";
 const _superChunk = new SuperChunk({
     host: document,
     connected: true,

@@ -18,7 +18,7 @@ const eventInitDict: EventInit = { bubbles: true, composed: true };
 export interface JsonEventParamsInterface {
 	request: Request;
 	response?: Response;
-	jsonStr?: string;
+	json?: any;
 	action?: string | null;
 	error?: any;
 }
@@ -45,8 +45,8 @@ export class JsonEvent extends Event {
 		return this.#status;
 	}
 
-	get jsonStr(): string | undefined {
-		return this.#params?.jsonStr;
+	get json(): any | undefined {
+		return this.#params?.json;
 	}
 }
 
@@ -125,9 +125,9 @@ function fetchJson(
 
 		fetch(request)
 			.then(resolveResponseBody)
-			.then(function ([response, jsonStr]) {
+			.then(function ([response, json]) {
 				let event = new JsonEvent(
-					{ request, action, response, jsonStr },
+					{ request, action, response, json },
 					"resolved",
 					eventInitDict,
 				);
@@ -148,5 +148,5 @@ function fetchJson(
 }
 
 function resolveResponseBody(response: Response): Promise<[Response, string]> {
-	return Promise.all([response, response.text()]);
+	return Promise.all([response, response.json()]);
 }

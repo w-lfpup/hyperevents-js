@@ -17,7 +17,7 @@ export class JsonEvent extends Event {
         return this.#status;
     }
     get jsonStr() {
-        return this.#params?.jsonStr;
+        return this.#params?.json;
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
@@ -68,8 +68,8 @@ function fetchJson(params, requestParams, abortController, queueNextCallback) {
         el.dispatchEvent(event);
         fetch(request)
             .then(resolveResponseBody)
-            .then(function ([response, jsonStr]) {
-            let event = new JsonEvent({ request, action, response, jsonStr }, "resolved", eventInitDict);
+            .then(function ([response, json]) {
+            let event = new JsonEvent({ request, action, response, json }, "resolved", eventInitDict);
             el.dispatchEvent(event);
         })
             .catch(function (error) {
@@ -82,5 +82,5 @@ function fetchJson(params, requestParams, abortController, queueNextCallback) {
     }
 }
 function resolveResponseBody(response) {
-    return Promise.all([response, response.text()]);
+    return Promise.all([response, response.json()]);
 }

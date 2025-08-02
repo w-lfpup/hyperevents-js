@@ -11,6 +11,11 @@ interface ThrottleParams {
 	timeoutMs: number;
 }
 
+interface ThrottleRequestParams {
+	url?: ReturnType<Element["getAttribute"]>;
+	action?: ReturnType<Element["getAttribute"]>;
+}
+
 // Needs to blow up after a certain amount of keys.
 let stringMap = new Map<string, Throttler>();
 let elementMap = new WeakMap<EventTarget, Throttler>();
@@ -39,7 +44,7 @@ export function getThrottleParams(
 
 export function shouldThrottle(
 	dispatchParams: DispatchParams,
-	requestParams: RequestParams,
+	requestParams: ThrottleRequestParams,
 	throttleParams?: ThrottleParams,
 ): boolean {
 	if (!throttleParams) return false;
@@ -96,7 +101,7 @@ function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 
 export function setThrottler(
 	params: DispatchParams,
-	requestParams: RequestParams,
+	requestParams: ThrottleRequestParams,
 	throttleParams?: ThrottleParams,
 	abortController?: AbortController,
 ) {

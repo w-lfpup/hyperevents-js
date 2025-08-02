@@ -16,7 +16,7 @@ export class JsonEvent extends Event {
     get status() {
         return this.#status;
     }
-    get jsonStr() {
+    get json() {
         return this.#params?.json;
     }
 }

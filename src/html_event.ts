@@ -20,6 +20,8 @@ import { shouldQueue, enqueue } from "./queue.js";
 export interface HtmlEventParamsInterface {
 	response: Response;
 	html: string;
+	disconnected?: Element[];
+	connected?: Element[];
 	target?: Element;
 	destination?: Element;
 	projection?: string;

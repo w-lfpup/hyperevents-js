@@ -2,6 +2,8 @@ import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
 export interface HtmlEventParamsInterface {
     response: Response;
     html: string;
+    disconnected?: Element[];
+    connected?: Element[];
     target?: Element;
     destination?: Element;
     projection?: string;

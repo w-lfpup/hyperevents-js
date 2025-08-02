@@ -69,6 +69,10 @@ Super chunk can fetch html using the following syntax:
 <button
 	click:="html"
 	click:url="/fetch/some.html"
+	click:projection="swap"
+	click:match="_parent"
+	click:querySelector="ul"
+	click:querySelectorAll="[profile=fri490r]"
 ></button>
 ```
 

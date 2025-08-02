@@ -13,6 +13,6 @@ export declare class JsonEvent extends Event {
     #private;
     constructor(params: JsonEventParamsInterface | undefined, status: RequestStatus, eventInit?: EventInit);
     get status(): RequestStatus;
-    get jsonStr(): any | undefined;
+    get json(): any | undefined;
 }
 export declare function dispatchJsonEvent(dispatchParams: DispatchParams): void;

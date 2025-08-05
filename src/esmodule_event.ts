@@ -16,10 +16,7 @@ export interface EsModuleEventInterface {
 export class ESModuleEvent extends Event implements EsModuleEventInterface {
 	results: EsModuleEventResultsInterface;
 
-	constructor(
-		results: EsModuleEventResultsInterface,
-		eventInitDict: EventInit,
-	) {
+	constructor(results: EsModuleEventResultsInterface, eventInitDict: EventInit) {
 		super("#esmodule", eventInitDict);
 		this.results = results;
 	}
@@ -35,14 +32,14 @@ export function dispatchModuleImport(params: DispatchParams) {
 	if (urlSet.has(url)) return;
 	urlSet.add(url);
 
-	dispatchEvent({ url, status: "requested" });
+	dispatchEvent({url, status: "requested"});
 	import(url)
 		.then(function () {
-			dispatchEvent({ url, status: "resolved" });
+			dispatchEvent({url, status: "resolved"});
 		})
 		.catch(function () {
 			urlSet.delete(url);
-			dispatchEvent({ url, status: "rejected" });
+			dispatchEvent({url, status: "rejected"});
 		});
 }
 

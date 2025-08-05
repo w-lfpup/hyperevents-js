@@ -4,14 +4,24 @@ let urlSet = new Set();
 
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
-export class ESModuleEvent extends Event {
+export interface EsModuleEventResultsInterface {
 	url: string;
 	status: RequestStatus;
+}
 
-	constructor(url: string, status: RequestStatus, eventInitDict: EventInit) {
+export interface EsModuleEventInterface {
+	results: EsModuleEventResultsInterface;
+}
+
+export class ESModuleEvent extends Event implements EsModuleEventInterface {
+	results: EsModuleEventResultsInterface;
+
+	constructor(
+		results: EsModuleEventResultsInterface,
+		eventInitDict: EventInit,
+	) {
 		super("#esmodule", eventInitDict);
-		this.url = url;
-		this.status = status;
+		this.results = results;
 	}
 }
 
@@ -25,18 +35,20 @@ export function dispatchModuleImport(params: DispatchParams) {
 	if (urlSet.has(url)) return;
 	urlSet.add(url);
 
-	dispatchEvent(url, "requested");
+	dispatchEvent({ url, status: "requested" });
 	import(url)
 		.then(function () {
-			dispatchEvent(url, "resolved");
+			dispatchEvent({ url, status: "resolved" });
 		})
 		.catch(function () {
 			urlSet.delete(url);
-			dispatchEvent(url, "rejected");
+			dispatchEvent({ url, status: "rejected" });
 		});
 }
 
-function dispatchEvent(url: string, status: RequestStatus) {
-	let event = new ESModuleEvent(url, status, eventInitDict);
+function dispatchEvent(results: EsModuleEventResultsInterface) {
+	let event = new ESModuleEvent(results, eventInitDict);
+
+	// only dispatch esmodule events from the document
 	document.dispatchEvent(event);
 }

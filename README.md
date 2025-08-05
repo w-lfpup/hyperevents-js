@@ -1,4 +1,4 @@
-# Shebang-js
+# Superfetch-js
 
 A hypertext extension for the browser.
 
@@ -24,7 +24,7 @@ npm install https://github.com/wolfpup-software/superfetch-js
 Add a `host` and some `eventNames` on instantiation.
 
 ```ts
-let bang = new Bang({
+let superfetch = new Superfetch({
 	host: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],
@@ -50,6 +50,14 @@ Super chunk can fetch esmodules using the following syntax:
 ></button>
 ```
 
+Then add an event listener for an `#esmodule` event
+
+```ts
+document.addEventListener("#esmodule", e: EsModuleEvent) {
+	console.log(e.results) // { url, status }
+}
+```
+
 ## JSON
 
 Super chunk can fetch and dispatch JSON using the following syntax:
@@ -70,9 +78,7 @@ Super chunk can fetch html using the following syntax:
 	click:="html"
 	click:url="/fetch/some.html"
 	click:projection="swap"
-	click:match="_parent"
 	click:querySelector="ul"
-	click:querySelectorAll="[profile=fri490r]"
 ></button>
 ```
 

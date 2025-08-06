@@ -8,9 +8,9 @@ export interface ActionParams {
     action?: ReturnType<Element["getAttribute"]>;
 }
 export interface RequestParams extends ActionParams {
-    action?: ReturnType<Element["getAttribute"]>;
-    url?: ReturnType<Element["getAttribute"]>;
-    method?: ReturnType<Element["getAttribute"]>;
+    action: ReturnType<Element["getAttribute"]>;
+    url: ReturnType<Element["getAttribute"]>;
+    method: ReturnType<Element["getAttribute"]>;
     timeoutMs?: number;
 }
 export type RequestStatus = "requested" | "resolved" | "rejected";

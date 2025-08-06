@@ -16,37 +16,28 @@ import { shouldQueue, enqueue } from "./queue.js";
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
 export interface JsonEventParamsInterface {
+	status: RequestStatus;
 	request: Request;
+	action: string | null;
 	response?: Response;
 	json?: any;
-	action?: string | null;
 	error?: any;
 }
 
-export interface JsonEventInterface {
-	readonly jsonParams: JsonEventParamsInterface;
+export interface EsModuleEventInterface {
+	results: JsonEventParamsInterface;
 }
 
-export class JsonEvent extends Event {
-	#params: JsonEventParamsInterface | undefined;
-	#status: RequestStatus;
+export class JsonEvent extends Event implements EsModuleEventInterface {
+	params: JsonEventParamsInterface;
 
-	constructor(
-		params: JsonEventParamsInterface | undefined,
-		status: RequestStatus,
-		eventInit?: EventInit,
-	) {
+	constructor(params: JsonEventParamsInterface, eventInit?: EventInit) {
 		super("#json", eventInit);
-		this.#params = params;
-		this.#status = status;
+		this.params = params;
 	}
 
-	get status() {
-		return this.#status;
-	}
-
-	get json(): any | undefined {
-		return this.#params?.json;
+	get results() {
+		return this.params;
 	}
 }
 
@@ -105,7 +96,7 @@ function fetchJson(
 	abortController: AbortController,
 	queueNextCallback?: QueueNextCallback,
 ) {
-	let { el, formData } = params;
+	let { el, currentTarget, formData } = params;
 	let { url, action, timeoutMs, method } = requestParams;
 
 	if (abortController.signal.aborted || !url) {
@@ -120,23 +111,24 @@ function fetchJson(
 			body: formData,
 		});
 
-		let event = new JsonEvent({ action, request }, "requested", eventInitDict);
+		let event = new JsonEvent(
+			{ status: "requested", action, request },
+			eventInitDict,
+		);
 		el.dispatchEvent(event);
 
 		fetch(request)
 			.then(resolveResponseBody)
 			.then(function ([response, json]) {
 				let event = new JsonEvent(
-					{ request, action, response, json },
-					"resolved",
+					{ status: "resolved", request, action, response, json },
 					eventInitDict,
 				);
 				el.dispatchEvent(event);
 			})
 			.catch(function (error: any) {
 				let event = new JsonEvent(
-					{ request, action, error },
-					"rejected",
+					{ status: "rejected", request, action, error },
 					eventInitDict,
 				);
 				el.dispatchEvent(event);

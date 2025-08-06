@@ -6,18 +6,13 @@ import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 const eventInitDict = { bubbles: true, composed: true };
 export class JsonEvent extends Event {
-    #params;
-    #status;
-    constructor(params, status, eventInit) {
+    params;
+    constructor(params, eventInit) {
         super("#json", eventInit);
-        this.#params = params;
-        this.#status = status;
+        this.params = params;
     }
-    get status() {
-        return this.#status;
-    }
-    get json() {
-        return this.#params?.json;
+    get results() {
+        return this.params;
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
@@ -50,7 +45,7 @@ class QueueableJson {
     }
 }
 function fetchJson(params, requestParams, abortController, queueNextCallback) {
-    let { el, formData } = params;
+    let { el, currentTarget, formData } = params;
     let { url, action, timeoutMs, method } = requestParams;
     if (abortController.signal.aborted || !url) {
         queueNextCallback?.(el);
@@ -64,16 +59,16 @@ function fetchJson(params, requestParams, abortController, queueNextCallback) {
             method: method ?? "GET",
             body: formData,
         });
-        let event = new JsonEvent({ action, request }, "requested", eventInitDict);
+        let event = new JsonEvent({ status: "requested", action, request }, eventInitDict);
         el.dispatchEvent(event);
         fetch(request)
             .then(resolveResponseBody)
             .then(function ([response, json]) {
-            let event = new JsonEvent({ request, action, response, json }, "resolved", eventInitDict);
+            let event = new JsonEvent({ status: "resolved", request, action, response, json }, eventInitDict);
             el.dispatchEvent(event);
         })
             .catch(function (error) {
-            let event = new JsonEvent({ request, action, error }, "rejected", eventInitDict);
+            let event = new JsonEvent({ status: "rejected", request, action, error }, eventInitDict);
             el.dispatchEvent(event);
         })
             .finally(function () {

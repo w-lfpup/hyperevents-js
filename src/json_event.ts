@@ -24,11 +24,11 @@ export interface JsonEventParamsInterface {
 	error?: any;
 }
 
-export interface EsModuleEventInterface {
+export interface JsonEventInterface {
 	results: JsonEventParamsInterface;
 }
 
-export class JsonEvent extends Event implements EsModuleEventInterface {
+export class JsonEvent extends Event implements JsonEventInterface {
 	results: JsonEventParamsInterface;
 
 	constructor(results: JsonEventParamsInterface, eventInit?: EventInit) {

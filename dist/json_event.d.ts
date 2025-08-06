@@ -7,10 +7,10 @@ export interface JsonEventParamsInterface {
     json?: any;
     error?: any;
 }
-export interface EsModuleEventInterface {
+export interface JsonEventInterface {
     results: JsonEventParamsInterface;
 }
-export declare class JsonEvent extends Event implements EsModuleEventInterface {
+export declare class JsonEvent extends Event implements JsonEventInterface {
     results: JsonEventParamsInterface;
     constructor(results: JsonEventParamsInterface, eventInit?: EventInit);
 }

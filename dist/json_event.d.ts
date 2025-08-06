@@ -11,8 +11,7 @@ export interface EsModuleEventInterface {
     results: JsonEventParamsInterface;
 }
 export declare class JsonEvent extends Event implements EsModuleEventInterface {
-    params: JsonEventParamsInterface;
-    constructor(params: JsonEventParamsInterface, eventInit?: EventInit);
-    get results(): JsonEventParamsInterface;
+    results: JsonEventParamsInterface;
+    constructor(results: JsonEventParamsInterface, eventInit?: EventInit);
 }
 export declare function dispatchJsonEvent(dispatchParams: DispatchParams): void;

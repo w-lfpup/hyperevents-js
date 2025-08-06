@@ -6,13 +6,10 @@ import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 const eventInitDict = { bubbles: true, composed: true };
 export class JsonEvent extends Event {
-    params;
-    constructor(params, eventInit) {
+    results;
+    constructor(results, eventInit) {
         super("#json", eventInit);
-        this.params = params;
-    }
-    get results() {
-        return this.params;
+        this.results = results;
     }
 }
 export function dispatchJsonEvent(dispatchParams) {

@@ -29,15 +29,11 @@ export interface EsModuleEventInterface {
 }
 
 export class JsonEvent extends Event implements EsModuleEventInterface {
-	params: JsonEventParamsInterface;
+	results: JsonEventParamsInterface;
 
-	constructor(params: JsonEventParamsInterface, eventInit?: EventInit) {
+	constructor(results: JsonEventParamsInterface, eventInit?: EventInit) {
 		super("#json", eventInit);
-		this.params = params;
-	}
-
-	get results() {
-		return this.params;
+		this.results = results;
 	}
 }
 

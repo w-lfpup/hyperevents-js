@@ -22,9 +22,9 @@ function dispatchEvent(params) {
     let attr = el.getAttribute(`${sourceEvent.type}:`);
     if ("esmodule" === attr)
         return dispatchModuleImport(params);
-    if ("html" === attr)
-        return dispatchHtmlEvent(params);
     if ("json" === attr)
         return dispatchJsonEvent(params);
+    if ("html" === attr)
+        return dispatchHtmlEvent(params);
     return dispatchActionEvent(params);
 }

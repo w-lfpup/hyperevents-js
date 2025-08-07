@@ -4,7 +4,7 @@ interface ThrottleParams {
     throttle: string;
     timeoutMs: number;
 }
-interface ThrottleRequestParams {
+export interface ThrottleRequestParams {
     url?: ReturnType<Element["getAttribute"]>;
     action?: ReturnType<Element["getAttribute"]>;
 }

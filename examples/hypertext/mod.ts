@@ -7,13 +7,13 @@ import {
 } from "superchunk";
 
 const _superChunk = new SuperChunk({
-	host: document,
+	target: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],
 });
 
 document.addEventListener("#esmodule", function (e: Event) {
-	if (e instanceof ESModuleEvent) console.log("#esmodule", e, e.status);
+	if (e instanceof ESModuleEvent) console.log("#esmodule", e, e.requestStatus);
 });
 
 document.addEventListener("#action", function (e: Event) {
@@ -21,7 +21,7 @@ document.addEventListener("#action", function (e: Event) {
 });
 
 document.addEventListener("#json", function (e: Event) {
-	if (e instanceof JsonEvent) console.log("#json", e, e.status);
+	if (e instanceof JsonEvent) console.log("#json", e, e.results);
 });
 
 document.addEventListener("#html", function (e: Event) {

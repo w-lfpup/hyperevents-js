@@ -1,14 +1,11 @@
-/*
-
-*/
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 const eventInitDict = { bubbles: true, composed: true };
 export class JsonEvent extends Event {
     results;
-    constructor(results, eventInit) {
-        super("#json", eventInit);
+    constructor(results, eventInitDict) {
+        super("#json", eventInitDict);
         this.results = results;
     }
 }
@@ -42,9 +39,10 @@ class QueueableJson {
     }
 }
 function fetchJson(params, requestParams, abortController, queueNextCallback) {
+    // el needs to be the designated queue target element?
     let { el, currentTarget, formData } = params;
     let { url, action, timeoutMs, method } = requestParams;
-    if (abortController.signal.aborted || !url) {
+    if (abortController.signal.aborted || !url || !currentTarget) {
         queueNextCallback?.(el);
     }
     else {
@@ -56,17 +54,18 @@ function fetchJson(params, requestParams, abortController, queueNextCallback) {
             method: method ?? "GET",
             body: formData,
         });
-        let event = new JsonEvent({ status: "requested", action, request }, eventInitDict);
-        el.dispatchEvent(event);
+        let actionParams = { action, request, url };
+        let event = new JsonEvent({ status: "requested", ...actionParams }, eventInitDict);
+        currentTarget.dispatchEvent(event);
         fetch(request)
             .then(resolveResponseBody)
             .then(function ([response, json]) {
-            let event = new JsonEvent({ status: "resolved", request, action, response, json }, eventInitDict);
-            el.dispatchEvent(event);
+            let event = new JsonEvent({ status: "resolved", response, json, ...actionParams }, eventInitDict);
+            currentTarget.dispatchEvent(event);
         })
             .catch(function (error) {
-            let event = new JsonEvent({ status: "rejected", request, action, error }, eventInitDict);
-            el.dispatchEvent(event);
+            let event = new JsonEvent({ status: "rejected", error, ...actionParams }, eventInitDict);
+            currentTarget.dispatchEvent(event);
         })
             .finally(function () {
             queueNextCallback?.(el);

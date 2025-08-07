@@ -17,17 +17,17 @@ interface JsonEventParamsInterface {
 	action: string | null;
 }
 
-interface JsonEventRequestedInterface {
+interface JsonEventRequestedInterface extends JsonEventParamsInterface {
 	status: "requested";
 }
 
-interface JsonEventResolvedInterface {
+interface JsonEventResolvedInterface extends JsonEventParamsInterface {
 	status: "resolved";
 	response: Response;
 	json: any;
 }
 
-interface JsonEventRejectedInterface {
+interface JsonEventRejectedInterface extends JsonEventParamsInterface {
 	status: "rejected";
 	error: any;
 }
@@ -42,16 +42,10 @@ export interface JsonEventInterface {
 }
 
 export class JsonEvent extends Event implements JsonEventInterface {
-	params: JsonEventParamsInterface;
 	results: JsonEventStates;
 
-	constructor(
-		params: JsonEventParamsInterface,
-		results: JsonEventStates,
-		eventInitDict?: EventInit,
-	) {
+	constructor(results: JsonEventStates, eventInitDict?: EventInit) {
 		super("#json", eventInitDict);
-		this.params = params;
 		this.results = results;
 	}
 }
@@ -111,6 +105,7 @@ function fetchJson(
 	abortController: AbortController,
 	queueNextCallback?: QueueNextCallback,
 ) {
+	// el needs to be the designated queue target element?
 	let { el, currentTarget, formData } = params;
 	let { url, action, timeoutMs, method } = requestParams;
 
@@ -128,8 +123,7 @@ function fetchJson(
 
 		let actionParams = { action, request, url };
 		let event = new JsonEvent(
-			actionParams,
-			{ status: "requested" },
+			{ status: "requested", ...actionParams },
 			eventInitDict,
 		);
 		currentTarget.dispatchEvent(event);
@@ -138,16 +132,14 @@ function fetchJson(
 			.then(resolveResponseBody)
 			.then(function ([response, json]) {
 				let event = new JsonEvent(
-					actionParams,
-					{ status: "resolved", response, json },
+					{ status: "resolved", response, json, ...actionParams },
 					eventInitDict,
 				);
 				currentTarget.dispatchEvent(event);
 			})
 			.catch(function (error: any) {
 				let event = new JsonEvent(
-					actionParams,
-					{ status: "rejected", error },
+					{ status: "rejected", error, ...actionParams },
 					eventInitDict,
 				);
 				currentTarget.dispatchEvent(event);

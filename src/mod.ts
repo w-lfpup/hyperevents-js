@@ -6,7 +6,7 @@ export { HtmlEvent } from "./html_event.js";
 import { dispatch } from "./dispatch.js";
 
 export interface SuperChunkParamsInterface {
-	host: ParentNode;
+	target: ParentNode;
 	eventNames: string[];
 	connected?: boolean;
 }
@@ -25,18 +25,18 @@ export class SuperChunk {
 	}
 
 	connect() {
-		let { host, eventNames } = this.#params;
+		let { target, eventNames } = this.#params;
 
 		for (let name of eventNames) {
-			host.addEventListener(name, dispatch);
+			target.addEventListener(name, dispatch);
 		}
 	}
 
 	disconnect() {
-		let { host, eventNames } = this.#params;
+		let { target, eventNames } = this.#params;
 
 		for (let name of eventNames) {
-			host.removeEventListener(name, dispatch);
+			target.removeEventListener(name, dispatch);
 		}
 	}
 }

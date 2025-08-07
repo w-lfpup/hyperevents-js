@@ -6,13 +6,13 @@ const eventInitDict: EventInit = { bubbles: true, composed: true };
 
 // no union type needed
 
-export interface EsModuleEventErrorStatusInterface {
+interface EsModuleEventErrorStatusInterface {
 	status: "rejected";
 	url: string;
 	error: any;
 }
 
-export interface EsModuleEventResultsInterface {
+interface EsModuleEventResultsInterface {
 	status: "requested" | "resolved";
 	url: string;
 }
@@ -45,9 +45,10 @@ export function dispatchModuleImport(params: DispatchParams) {
 
 	let url = new URL(urlAttr, location.href).toString();
 	if (urlSet.has(url)) return;
-	urlSet.add(url);
 
+	urlSet.add(url);
 	dispatchEvent({ status: "requested", url });
+
 	import(url)
 		.then(function () {
 			dispatchEvent({ status: "resolved", url });

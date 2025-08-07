@@ -2,6 +2,7 @@ import type { DispatchParams } from "./type_flyweight.js";
 export interface ActionEventParamsInterface {
     sourceEvent: Event;
     action: string;
+    formData?: FormData;
 }
 export interface ActionEventInterface {
     readonly actionParams: ActionEventParamsInterface;

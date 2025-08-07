@@ -20,6 +20,16 @@ export class HtmlEvent extends Event {
 // projection-selector="ul"
 // status-target="match | querySelector | querySelectorAll" | default is querySelector
 // status-selector="selector" pending | completed
+// get html params implements throttle params
+/*
+    {
+        html as text,
+        fragment as DomFragment,
+        targetElements: Element[],
+        projection: "swap",
+        disconnected: [],
+    }
+*/
 export function dispatchHtmlEvent(dispatchParams) {
     let requestParams = getRequestParams(dispatchParams);
     if (!requestParams)

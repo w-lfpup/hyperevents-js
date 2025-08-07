@@ -32,21 +32,21 @@ interface JsonEventRejectedInterface extends JsonEventParamsInterface {
 	error: any;
 }
 
-type JsonEventStates =
+type JsonEventState =
 	| JsonEventRejectedInterface
 	| JsonEventRequestedInterface
 	| JsonEventResolvedInterface;
 
 export interface JsonEventInterface {
-	results: JsonEventStates;
+	requestState: JsonEventState;
 }
 
 export class JsonEvent extends Event implements JsonEventInterface {
-	results: JsonEventStates;
+	requestState: JsonEventState;
 
-	constructor(results: JsonEventStates, eventInitDict?: EventInit) {
+	constructor(requestState: JsonEventState, eventInitDict?: EventInit) {
 		super("#json", eventInitDict);
-		this.results = results;
+		this.requestState = requestState;
 	}
 }
 

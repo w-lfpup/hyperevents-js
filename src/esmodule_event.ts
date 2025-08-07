@@ -4,36 +4,40 @@ let urlSet = new Set();
 
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
-// no union type needed
-
-interface EsModuleEventErrorStatusInterface {
+interface EsModuleEventErrorStateInterface {
 	status: "rejected";
 	url: string;
 	error: any;
 }
 
-interface EsModuleEventResultsInterface {
-	status: "requested" | "resolved";
+interface EsModuleEventRequestedInterface {
+	status: "requested";
 	url: string;
 }
 
-export type EsModuleRequestStatusInterface =
-	| EsModuleEventResultsInterface
-	| EsModuleEventErrorStatusInterface;
+interface EsModuleEventResolvedInterface {
+	status: "resolved";
+	url: string;
+}
+
+export type EsModuleRequestState =
+	| EsModuleEventRequestedInterface
+	| EsModuleEventResolvedInterface
+	| EsModuleEventErrorStateInterface;
 
 export interface EsModuleEventInterface {
-	requestStatus: EsModuleRequestStatusInterface;
+	requestState: EsModuleRequestState;
 }
 
 export class ESModuleEvent extends Event implements EsModuleEventInterface {
-	requestStatus: EsModuleRequestStatusInterface;
+	requestState: EsModuleRequestState;
 
 	constructor(
-		requestStatus: EsModuleRequestStatusInterface,
+		requestState: EsModuleRequestState,
 		eventInitDict: EventInit,
 	) {
 		super("#esmodule", eventInitDict);
-		this.requestStatus = requestStatus;
+		this.requestState = requestState;
 	}
 }
 
@@ -59,7 +63,7 @@ export function dispatchModuleImport(params: DispatchParams) {
 		});
 }
 
-function dispatchEvent(status: EsModuleRequestStatusInterface) {
+function dispatchEvent(status: EsModuleRequestState) {
 	let event = new ESModuleEvent(status, eventInitDict);
 	document.dispatchEvent(event);
 }

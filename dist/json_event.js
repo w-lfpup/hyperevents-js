@@ -3,10 +3,10 @@ import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { shouldQueue, enqueue } from "./queue.js";
 const eventInitDict = { bubbles: true, composed: true };
 export class JsonEvent extends Event {
-    results;
-    constructor(results, eventInitDict) {
+    requestState;
+    constructor(requestState, eventInitDict) {
         super("#json", eventInitDict);
-        this.results = results;
+        this.requestState = requestState;
     }
 }
 export function dispatchJsonEvent(dispatchParams) {

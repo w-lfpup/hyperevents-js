@@ -1,10 +1,10 @@
 let urlSet = new Set();
 const eventInitDict = { bubbles: true, composed: true };
 export class ESModuleEvent extends Event {
-    requestStatus;
-    constructor(requestStatus, eventInitDict) {
+    requestState;
+    constructor(requestState, eventInitDict) {
         super("#esmodule", eventInitDict);
-        this.requestStatus = requestStatus;
+        this.requestState = requestState;
     }
 }
 export function dispatchModuleImport(params) {

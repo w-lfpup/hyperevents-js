@@ -6,7 +6,7 @@ const _superChunk = new SuperChunk({
 });
 document.addEventListener("#esmodule", function (e) {
     if (e instanceof ESModuleEvent)
-        console.log("#esmodule", e, e.requestStatus);
+        console.log("#esmodule", e, e.requestState);
 });
 document.addEventListener("#action", function (e) {
     if (e instanceof ActionEvent)
@@ -14,7 +14,7 @@ document.addEventListener("#action", function (e) {
 });
 document.addEventListener("#json", function (e) {
     if (e instanceof JsonEvent)
-        console.log("#json", e, e.results);
+        console.log("#json", e, e.requestState);
 });
 document.addEventListener("#html", function (e) {
     if (e instanceof HtmlEvent)

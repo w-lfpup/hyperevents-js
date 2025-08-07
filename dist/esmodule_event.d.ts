@@ -1,20 +1,24 @@
 import type { DispatchParams } from "./type_flyweight.js";
-interface EsModuleEventErrorStatusInterface {
+interface EsModuleEventErrorStateInterface {
     status: "rejected";
     url: string;
     error: any;
 }
-interface EsModuleEventResultsInterface {
-    status: "requested" | "resolved";
+interface EsModuleEventRequestedInterface {
+    status: "requested";
     url: string;
 }
-export type EsModuleRequestStatusInterface = EsModuleEventResultsInterface | EsModuleEventErrorStatusInterface;
+interface EsModuleEventResolvedInterface {
+    status: "resolved";
+    url: string;
+}
+export type EsModuleRequestState = EsModuleEventRequestedInterface | EsModuleEventResolvedInterface | EsModuleEventErrorStateInterface;
 export interface EsModuleEventInterface {
-    requestStatus: EsModuleRequestStatusInterface;
+    requestState: EsModuleRequestState;
 }
 export declare class ESModuleEvent extends Event implements EsModuleEventInterface {
-    requestStatus: EsModuleRequestStatusInterface;
-    constructor(requestStatus: EsModuleRequestStatusInterface, eventInitDict: EventInit);
+    requestState: EsModuleRequestState;
+    constructor(requestState: EsModuleRequestState, eventInitDict: EventInit);
 }
 export declare function dispatchModuleImport(params: DispatchParams): void;
 export {};

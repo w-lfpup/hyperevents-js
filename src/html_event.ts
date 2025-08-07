@@ -22,9 +22,6 @@ export interface HtmlEventParamsInterface {
 	html: string;
 	disconnected?: Element[];
 	connected?: Element[];
-	target?: Element;
-	destination?: Element;
-	projection?: string;
 }
 
 export interface HtmlEventInterface {
@@ -53,6 +50,18 @@ export class HtmlEvent extends Event {
 
 // status-target="match | querySelector | querySelectorAll" | default is querySelector
 // status-selector="selector" pending | completed
+
+// get html params implements throttle params
+
+/*
+	{
+		html as text,
+		fragment as DomFragment,
+		targetElements: Element[],
+		projection: "swap",
+		disconnected: [],
+	}
+*/
 
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	let requestParams = getRequestParams(dispatchParams);

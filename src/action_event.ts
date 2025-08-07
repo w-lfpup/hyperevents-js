@@ -5,6 +5,7 @@ import { getThrottleParams, setThrottler, shouldThrottle } from "./throttle.js";
 export interface ActionEventParamsInterface {
 	sourceEvent: Event;
 	action: string;
+	formData?: FormData;
 }
 
 export interface ActionEventInterface {
@@ -25,7 +26,25 @@ export class ActionEvent extends Event implements ActionEventInterface {
 }
 
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
-	let { el, sourceEvent } = dispatchParams;
+	let actionParams = getActionParams(dispatchParams);
+	if (actionParams) {
+		let throttleParams = getThrottleParams(dispatchParams, "action");
+		if (shouldThrottle(dispatchParams, actionParams, throttleParams)) return;
+
+		let abortController: AbortController | undefined = undefined;
+		if (throttleParams) abortController = new AbortController();
+
+		setThrottler(dispatchParams, actionParams, throttleParams, abortController);
+
+		let event = new ActionEvent(actionParams, { bubbles: true });
+		dispatchParams.el.dispatchEvent(event);
+	}
+}
+
+function getActionParams(
+	dispatchParams: DispatchParams,
+): ActionEventParamsInterface | undefined {
+	let { el, sourceEvent, formData } = dispatchParams;
 	let { type } = sourceEvent;
 
 	let action = el.getAttribute(`${type}:`);
@@ -33,15 +52,5 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 		action = el.getAttribute(`${type}:action`);
 	}
 
-	let requestParams = { action };
-
-	if (action) {
-		let throttleParams = getThrottleParams(dispatchParams, "action");
-		if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
-
-		setThrottler(dispatchParams, requestParams, throttleParams);
-
-		let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
-		el.dispatchEvent(event);
-	}
+	if (action) return { action, sourceEvent, formData };
 }

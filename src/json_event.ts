@@ -1,13 +1,13 @@
+import type { DispatchParams, RequestParams } from "./type_flyweight.js";
 import type {
-	DispatchParams,
-	RequestParams,
-	RequestStatus,
-} from "./type_flyweight.js";
-import type { Queuable, QueueNextCallback } from "./queue.js";
+	Queuable,
+	QueueNextCallback,
+	QueueParamsInterface,
+} from "./queue.js";
 
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { shouldQueue, enqueue } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
@@ -61,14 +61,15 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 
 	setThrottler(dispatchParams, requestParams, throttleParams, abortController);
 
-	let queueTarget = shouldQueue(dispatchParams);
-	if (queueTarget) {
+	let queueParams = getQueueParams(dispatchParams);
+	if (queueParams) {
 		let entry = new QueueableJson(
 			dispatchParams,
 			requestParams,
+			queueParams,
 			abortController,
 		);
-		return enqueue(queueTarget, entry);
+		return enqueue(queueParams, entry);
 	}
 
 	fetchJson(dispatchParams, requestParams, abortController);
@@ -77,25 +78,35 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 class QueueableJson implements Queuable {
 	#dispatchParams: DispatchParams;
 	#requestParams: RequestParams;
+	#queueParams: QueueParamsInterface;
 	#abortController: AbortController;
 
 	constructor(
 		dispatchParams: DispatchParams,
 		requestParams: RequestParams,
+		queueParams: QueueParamsInterface,
 		abortController: AbortController,
 	) {
 		this.#dispatchParams = dispatchParams;
 		this.#requestParams = requestParams;
+		this.#queueParams = queueParams;
 		this.#abortController = abortController;
 	}
 
 	dispatch(queueNextCallback: QueueNextCallback) {
-		fetchJson(
+		let { queueTarget } = this.#queueParams;
+
+		let promisedJson = fetchJson(
 			this.#dispatchParams,
 			this.#requestParams,
 			this.#abortController,
-			queueNextCallback,
-		);
+		)?.finally(function () {
+			queueNextCallback(queueTarget);
+		});
+
+		if (!promisedJson) {
+			queueNextCallback(queueTarget);
+		}
 	}
 }
 
@@ -103,51 +114,44 @@ function fetchJson(
 	params: DispatchParams,
 	requestParams: RequestParams,
 	abortController: AbortController,
-	queueNextCallback?: QueueNextCallback,
-) {
-	// el needs to be the designated queue target element?
-	let { el, currentTarget, formData } = params;
+): Promise<void> | undefined {
+	let { currentTarget, formData } = params;
 	let { url, action, timeoutMs, method } = requestParams;
 
-	if (abortController.signal.aborted || !url || !currentTarget) {
-		queueNextCallback?.(el);
-	} else {
-		let abortSignals = [abortController.signal];
-		if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
+	if (abortController.signal.aborted || !url || !currentTarget) return;
 
-		let request = new Request(url, {
-			signal: AbortSignal.any(abortSignals),
-			method: method ?? "GET",
-			body: formData,
+	let abortSignals = [abortController.signal];
+	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
+
+	let request = new Request(url, {
+		signal: AbortSignal.any(abortSignals),
+		method: method ?? "GET",
+		body: formData,
+	});
+
+	let actionParams = { action, request, url };
+	let event = new JsonEvent(
+		{ status: "requested", ...actionParams },
+		eventInitDict,
+	);
+	currentTarget.dispatchEvent(event);
+
+	return fetch(request)
+		.then(resolveResponseBody)
+		.then(function ([response, json]) {
+			let event = new JsonEvent(
+				{ status: "resolved", response, json, ...actionParams },
+				eventInitDict,
+			);
+			currentTarget.dispatchEvent(event);
+		})
+		.catch(function (error: any) {
+			let event = new JsonEvent(
+				{ status: "rejected", error, ...actionParams },
+				eventInitDict,
+			);
+			currentTarget.dispatchEvent(event);
 		});
-
-		let actionParams = { action, request, url };
-		let event = new JsonEvent(
-			{ status: "requested", ...actionParams },
-			eventInitDict,
-		);
-		currentTarget.dispatchEvent(event);
-
-		fetch(request)
-			.then(resolveResponseBody)
-			.then(function ([response, json]) {
-				let event = new JsonEvent(
-					{ status: "resolved", response, json, ...actionParams },
-					eventInitDict,
-				);
-				currentTarget.dispatchEvent(event);
-			})
-			.catch(function (error: any) {
-				let event = new JsonEvent(
-					{ status: "rejected", error, ...actionParams },
-					eventInitDict,
-				);
-				currentTarget.dispatchEvent(event);
-			})
-			.finally(function () {
-				queueNextCallback?.(el);
-			});
-	}
 }
 
 function resolveResponseBody(response: Response): Promise<[Response, string]> {

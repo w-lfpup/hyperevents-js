@@ -1,5 +1,7 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
+import { getQueueParams } from "./queue.js";
+
 import { getThrottleParams, setThrottler, shouldThrottle } from "./throttle.js";
 
 export interface ActionEventParamsInterface {

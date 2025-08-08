@@ -1,14 +1,4 @@
-import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
-
-let urlSet = new Set();
-
-const eventInitDict: EventInit = { bubbles: true, composed: true };
-
-interface EsModuleEventErrorStateInterface {
-	status: "rejected";
-	url: string;
-	error: any;
-}
+import type { DispatchParams } from "./type_flyweight.js";
 
 interface EsModuleEventRequestedInterface {
 	status: "requested";
@@ -20,6 +10,12 @@ interface EsModuleEventResolvedInterface {
 	url: string;
 }
 
+interface EsModuleEventErrorStateInterface {
+	status: "rejected";
+	url: string;
+	error: any;
+}
+
 export type EsModuleRequestState =
 	| EsModuleEventRequestedInterface
 	| EsModuleEventResolvedInterface
@@ -29,13 +25,14 @@ export interface EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 }
 
+let urlSet = new Set();
+
+const eventInitDict: EventInit = { bubbles: true, composed: true };
+
 export class ESModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 
-	constructor(
-		requestState: EsModuleRequestState,
-		eventInitDict: EventInit,
-	) {
+	constructor(requestState: EsModuleRequestState, eventInitDict: EventInit) {
 		super("#esmodule", eventInitDict);
 		this.requestState = requestState;
 	}

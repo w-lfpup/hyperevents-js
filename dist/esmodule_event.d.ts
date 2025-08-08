@@ -1,9 +1,4 @@
 import type { DispatchParams } from "./type_flyweight.js";
-interface EsModuleEventErrorStateInterface {
-    status: "rejected";
-    url: string;
-    error: any;
-}
 interface EsModuleEventRequestedInterface {
     status: "requested";
     url: string;
@@ -11,6 +6,11 @@ interface EsModuleEventRequestedInterface {
 interface EsModuleEventResolvedInterface {
     status: "resolved";
     url: string;
+}
+interface EsModuleEventErrorStateInterface {
+    status: "rejected";
+    url: string;
+    error: any;
 }
 export type EsModuleRequestState = EsModuleEventRequestedInterface | EsModuleEventResolvedInterface | EsModuleEventErrorStateInterface;
 export interface EsModuleEventInterface {

@@ -15,7 +15,7 @@ import type { Queuable, QueueNextCallback } from "./queue.js";
 
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { shouldQueue, enqueue } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 
 export interface HtmlEventParamsInterface {
 	response: Response;
@@ -80,7 +80,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 			abortController,
 		);
 
-	let queueTarget = shouldQueue(dispatchParams);
+	let queueTarget = getQueueParams(dispatchParams);
 	if (queueTarget) {
 		let entry = new QueueableHtml(
 			dispatchParams,

@@ -2,7 +2,7 @@
 // queue-able
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { shouldQueue, enqueue } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 const eventInitDict = { bubbles: true, composed: true };
 export class HtmlEvent extends Event {
     #status;
@@ -40,7 +40,7 @@ export function dispatchHtmlEvent(dispatchParams) {
     let abortController = new AbortController();
     if (throttleParams)
         setThrottler(dispatchParams, requestParams, throttleParams, abortController);
-    let queueTarget = shouldQueue(dispatchParams);
+    let queueTarget = getQueueParams(dispatchParams);
     if (queueTarget) {
         let entry = new QueueableHtml(dispatchParams, requestParams, abortController);
         return enqueue(queueTarget, entry);

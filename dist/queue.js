@@ -1,8 +1,9 @@
 let queueMap = new WeakMap();
 // can combine these
-export function enqueue(el, queueEntry) {
+export function enqueue(params, queueEntry) {
+    let { queueTarget } = params;
     // add function to queue
-    let queue = queueMap.get(el);
+    let queue = queueMap.get(queueTarget);
     if ("enqueued" === queue?.status) {
         queue.incoming.push(queueEntry);
         return;
@@ -12,7 +13,7 @@ export function enqueue(el, queueEntry) {
         incoming: [],
         outgoing: [],
     };
-    queueMap.set(el, freshQueue);
+    queueMap.set(queueTarget, freshQueue);
     queueEntry.dispatch(queueNext);
 }
 function queueNext(el) {
@@ -28,14 +29,14 @@ function queueNext(el) {
     }
     queue.outgoing.pop()?.dispatch(queueNext);
 }
-export function shouldQueue(dispatchParams) {
+export function getQueueParams(dispatchParams) {
     let { el, currentTarget, sourceEvent } = dispatchParams;
     let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
     if (queueTarget) {
         // throttle by element
         if ("_target" === queueTarget)
-            return el;
-        if (currentTarget && "_currentTarget" === queueTarget)
-            return currentTarget;
+            return { queueTarget: el };
+        if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
+            return { queueTarget: currentTarget };
     }
 }

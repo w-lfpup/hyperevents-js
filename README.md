@@ -1,17 +1,15 @@
-# Superfetch-js
+# Shebang-js
 
 A hypertext extension for the browser.
 
 ## About
 
-`Superchunk` enables a browser to declaratively:
+Superchunk is a alternative to bulky frontend frameworks and enables a browser to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
-- dispatch action events
-
-I got tired of using weighty frameworks just to fetch some JSON or HTML on a click.
+- dispatch action events (think redux actions)
 
 ## Install
 
@@ -24,7 +22,7 @@ npm install https://github.com/wolfpup-software/superfetch-js
 Add a `host` and some `eventNames` on instantiation.
 
 ```ts
-let superfetch = new Superfetch({
+let bang = new Superfetch({
 	host: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],
@@ -50,14 +48,6 @@ Super chunk can fetch esmodules using the following syntax:
 ></button>
 ```
 
-Then add an event listener for an `#esmodule` event
-
-```ts
-document.addEventListener("#esmodule", e: EsModuleEvent) {
-	console.log(e.results) // { url, status }
-}
-```
-
 ## JSON
 
 Super chunk can fetch and dispatch JSON using the following syntax:
@@ -77,8 +67,10 @@ Super chunk can fetch html using the following syntax:
 <button
 	click:="html"
 	click:url="/fetch/some.html"
-	click:projection="swap"
+	click:projection="replace"
+	click:match="_parent"
 	click:querySelector="ul"
+	click:querySelectorAll="[profile=fri490r]"
 ></button>
 ```
 

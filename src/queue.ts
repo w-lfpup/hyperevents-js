@@ -1,5 +1,9 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
+export interface QueueParamsInterface {
+	queueTarget: Element;
+}
+
 export interface QueueNextCallback {
 	(el: Element): void;
 }
@@ -17,9 +21,10 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 // can combine these
-export function enqueue(el: EventTarget, queueEntry: Queuable) {
+export function enqueue(params: QueueParamsInterface, queueEntry: Queuable) {
+	let { queueTarget } = params;
 	// add function to queue
-	let queue = queueMap.get(el);
+	let queue = queueMap.get(queueTarget);
 	if ("enqueued" === queue?.status) {
 		queue.incoming.push(queueEntry);
 		return;
@@ -31,7 +36,7 @@ export function enqueue(el: EventTarget, queueEntry: Queuable) {
 		outgoing: [],
 	};
 
-	queueMap.set(el, freshQueue);
+	queueMap.set(queueTarget, freshQueue);
 	queueEntry.dispatch(queueNext);
 }
 
@@ -49,16 +54,17 @@ function queueNext(el: Element) {
 	queue.outgoing.pop()?.dispatch(queueNext);
 }
 
-export function shouldQueue(
+export function getQueueParams(
 	dispatchParams: DispatchParams,
-): EventTarget | undefined {
+): QueueParamsInterface | undefined {
 	let { el, currentTarget, sourceEvent } = dispatchParams;
 
 	let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
 	if (queueTarget) {
 		// throttle by element
-		if ("_target" === queueTarget) return el;
+		if ("_target" === queueTarget) return { queueTarget: el };
 
-		if (currentTarget && "_currentTarget" === queueTarget) return currentTarget;
+		if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
+			return { queueTarget: currentTarget };
 	}
 }

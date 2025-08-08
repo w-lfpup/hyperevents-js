@@ -10,19 +10,26 @@ export class ActionEvent extends Event {
     }
 }
 export function dispatchActionEvent(dispatchParams) {
-    let { el, sourceEvent } = dispatchParams;
+    let actionParams = getActionParams(dispatchParams);
+    if (actionParams) {
+        let throttleParams = getThrottleParams(dispatchParams, "action");
+        if (shouldThrottle(dispatchParams, actionParams, throttleParams))
+            return;
+        let abortController = undefined;
+        if (throttleParams)
+            abortController = new AbortController();
+        setThrottler(dispatchParams, actionParams, throttleParams, abortController);
+        let event = new ActionEvent(actionParams, { bubbles: true });
+        dispatchParams.el.dispatchEvent(event);
+    }
+}
+function getActionParams(dispatchParams) {
+    let { el, sourceEvent, formData } = dispatchParams;
     let { type } = sourceEvent;
     let action = el.getAttribute(`${type}:`);
     if ("action" === action) {
         action = el.getAttribute(`${type}:action`);
     }
-    let requestParams = { action };
-    if (action) {
-        let throttleParams = getThrottleParams(dispatchParams, "action");
-        if (shouldThrottle(dispatchParams, requestParams, throttleParams))
-            return;
-        setThrottler(dispatchParams, requestParams, throttleParams);
-        let event = new ActionEvent({ action, sourceEvent }, { bubbles: true });
-        el.dispatchEvent(event);
-    }
+    if (action)
+        return { action, sourceEvent, formData };
 }

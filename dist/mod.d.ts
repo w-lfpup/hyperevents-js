@@ -3,7 +3,7 @@ export { ESModuleEvent } from "./esmodule_event.js";
 export { JsonEvent } from "./json_event.js";
 export { HtmlEvent } from "./html_event.js";
 export interface SuperChunkParamsInterface {
-    host: ParentNode;
+    target: ParentNode;
     eventNames: string[];
     connected?: boolean;
 }

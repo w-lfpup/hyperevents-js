@@ -15,16 +15,13 @@ import type { Queuable, QueueNextCallback } from "./queue.js";
 
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { shouldQueue, enqueue } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 
 export interface HtmlEventParamsInterface {
 	response: Response;
 	html: string;
 	disconnected?: Element[];
 	connected?: Element[];
-	target?: Element;
-	destination?: Element;
-	projection?: string;
 }
 
 export interface HtmlEventInterface {
@@ -54,6 +51,18 @@ export class HtmlEvent extends Event {
 // status-target="match | querySelector | querySelectorAll" | default is querySelector
 // status-selector="selector" pending | completed
 
+// get html params implements throttle params
+
+/*
+	{
+		html as text,
+		fragment as DomFragment,
+		targetElements: Element[],
+		projection: "swap",
+		disconnected: [],
+	}
+*/
+
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	let requestParams = getRequestParams(dispatchParams);
 	if (!requestParams) return;
@@ -71,7 +80,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 			abortController,
 		);
 
-	let queueTarget = shouldQueue(dispatchParams);
+	let queueTarget = getQueueParams(dispatchParams);
 	if (queueTarget) {
 		let entry = new QueueableHtml(
 			dispatchParams,

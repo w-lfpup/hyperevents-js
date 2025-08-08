@@ -4,9 +4,6 @@ export interface HtmlEventParamsInterface {
     html: string;
     disconnected?: Element[];
     connected?: Element[];
-    target?: Element;
-    destination?: Element;
-    projection?: string;
 }
 export interface HtmlEventInterface {
     readonly htmlParams: HtmlEventParamsInterface;

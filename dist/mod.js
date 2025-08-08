@@ -11,15 +11,15 @@ export class SuperChunk {
             this.connect();
     }
     connect() {
-        let { host, eventNames } = this.#params;
+        let { target, eventNames } = this.#params;
         for (let name of eventNames) {
-            host.addEventListener(name, dispatch);
+            target.addEventListener(name, dispatch);
         }
     }
     disconnect() {
-        let { host, eventNames } = this.#params;
+        let { target, eventNames } = this.#params;
         for (let name of eventNames) {
-            host.removeEventListener(name, dispatch);
+            target.removeEventListener(name, dispatch);
         }
     }
 }

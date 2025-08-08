@@ -10,9 +10,9 @@ export interface ActionParams {
 }
 
 export interface RequestParams extends ActionParams {
-	action?: ReturnType<Element["getAttribute"]>;
-	url?: ReturnType<Element["getAttribute"]>;
-	method?: ReturnType<Element["getAttribute"]>;
+	action: ReturnType<Element["getAttribute"]>;
+	url: ReturnType<Element["getAttribute"]>;
+	method: ReturnType<Element["getAttribute"]>;
 	timeoutMs?: number;
 }
 

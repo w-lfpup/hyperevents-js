@@ -1,27 +1,40 @@
-import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
+import type { DispatchParams } from "./type_flyweight.js";
+
+interface EsModuleEventRequestedInterface {
+	status: "requested";
+	url: string;
+}
+
+interface EsModuleEventResolvedInterface {
+	status: "resolved";
+	url: string;
+}
+
+interface EsModuleEventErrorStateInterface {
+	status: "rejected";
+	url: string;
+	error: any;
+}
+
+export type EsModuleRequestState =
+	| EsModuleEventRequestedInterface
+	| EsModuleEventResolvedInterface
+	| EsModuleEventErrorStateInterface;
+
+export interface EsModuleEventInterface {
+	requestState: EsModuleRequestState;
+}
 
 let urlSet = new Set();
 
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
-export interface EsModuleEventResultsInterface {
-	url: string;
-	status: RequestStatus;
-}
-
-export interface EsModuleEventInterface {
-	results: EsModuleEventResultsInterface;
-}
-
 export class ESModuleEvent extends Event implements EsModuleEventInterface {
-	results: EsModuleEventResultsInterface;
+	requestState: EsModuleRequestState;
 
-	constructor(
-		results: EsModuleEventResultsInterface,
-		eventInitDict: EventInit,
-	) {
+	constructor(requestState: EsModuleRequestState, eventInitDict: EventInit) {
 		super("#esmodule", eventInitDict);
-		this.results = results;
+		this.requestState = requestState;
 	}
 }
 
@@ -33,22 +46,21 @@ export function dispatchModuleImport(params: DispatchParams) {
 
 	let url = new URL(urlAttr, location.href).toString();
 	if (urlSet.has(url)) return;
-	urlSet.add(url);
 
-	dispatchEvent({ url, status: "requested" });
+	urlSet.add(url);
+	dispatchEvent({ status: "requested", url });
+
 	import(url)
 		.then(function () {
-			dispatchEvent({ url, status: "resolved" });
+			dispatchEvent({ status: "resolved", url });
 		})
-		.catch(function () {
+		.catch(function (error: any) {
 			urlSet.delete(url);
-			dispatchEvent({ url, status: "rejected" });
+			dispatchEvent({ status: "rejected", url, error });
 		});
 }
 
-function dispatchEvent(results: EsModuleEventResultsInterface) {
-	let event = new ESModuleEvent(results, eventInitDict);
-
-	// only dispatch esmodule events from the document
+function dispatchEvent(status: EsModuleRequestState) {
+	let event = new ESModuleEvent(status, eventInitDict);
 	document.dispatchEvent(event);
 }

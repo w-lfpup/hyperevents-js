@@ -1,18 +1,28 @@
-import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
-export interface JsonEventParamsInterface {
+import type { DispatchParams } from "./type_flyweight.js";
+interface JsonEventParamsInterface {
     request: Request;
-    response?: Response;
-    json?: any;
-    action?: string | null;
-    error?: any;
+    url: string;
+    action: string | null;
 }
+interface JsonEventRequestedInterface extends JsonEventParamsInterface {
+    status: "requested";
+}
+interface JsonEventResolvedInterface extends JsonEventParamsInterface {
+    status: "resolved";
+    response: Response;
+    json: any;
+}
+interface JsonEventRejectedInterface extends JsonEventParamsInterface {
+    status: "rejected";
+    error: any;
+}
+type JsonEventState = JsonEventRejectedInterface | JsonEventRequestedInterface | JsonEventResolvedInterface;
 export interface JsonEventInterface {
-    readonly jsonParams: JsonEventParamsInterface;
+    requestState: JsonEventState;
 }
-export declare class JsonEvent extends Event {
-    #private;
-    constructor(params: JsonEventParamsInterface | undefined, status: RequestStatus, eventInit?: EventInit);
-    get status(): RequestStatus;
-    get json(): any | undefined;
+export declare class JsonEvent extends Event implements JsonEventInterface {
+    requestState: JsonEventState;
+    constructor(requestState: JsonEventState, eventInitDict?: EventInit);
 }
 export declare function dispatchJsonEvent(dispatchParams: DispatchParams): void;
+export {};

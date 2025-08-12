@@ -5,14 +5,14 @@ import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 const eventInitDict = { bubbles: true, composed: true };
 export class HtmlEvent extends Event {
-    #status;
-    constructor(status, eventInit) {
+    #requestState;
+    constructor(requestState, eventInit) {
         super("#html", eventInit);
         // this.#params = params;
-        this.#status = status;
+        this.#requestState = requestState;
     }
-    get status() {
-        return this.#status;
+    get requestState() {
+        return this.#requestState;
     }
 }
 // projection="swap"
@@ -40,6 +40,11 @@ export function dispatchHtmlEvent(dispatchParams) {
     let abortController = new AbortController();
     if (throttleParams)
         setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+    // get target nodes
+    // match or querySelector or querySelectorAll or _document _currentTarget _target
+    // match walks up the parent nodes and matches the selector against the element, stops at currentTarget
+    // querySelector does it's thing
+    // querySelectorAll likewise
     let queueTarget = getQueueParams(dispatchParams);
     if (queueTarget) {
         let entry = new QueueableHtml(dispatchParams, requestParams, abortController);

@@ -13,8 +13,18 @@ const eventInitDict: EventInit = { bubbles: true, composed: true };
 
 interface JsonEventParamsInterface {
 	request: Request;
-	url: string;
 	action: string | null;
+}
+
+// queued event
+interface JsonEventThrottledInterface extends JsonEventParamsInterface {
+	queueTarget: EventTarget;
+	status: "throttled";
+}
+
+interface JsonEventQueuedInterface extends JsonEventParamsInterface {
+	queueTarget: EventTarget;
+	status: "queued";
 }
 
 interface JsonEventRequestedInterface extends JsonEventParamsInterface {
@@ -33,9 +43,11 @@ interface JsonEventRejectedInterface extends JsonEventParamsInterface {
 }
 
 type JsonEventState =
-	| JsonEventRejectedInterface
+	| JsonEventThrottledInterface
+	| JsonEventQueuedInterface
 	| JsonEventRequestedInterface
-	| JsonEventResolvedInterface;
+	| JsonEventResolvedInterface
+	| JsonEventRejectedInterface;
 
 export interface JsonEventInterface {
 	requestState: JsonEventState;
@@ -61,45 +73,58 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 
 	setThrottler(dispatchParams, requestParams, throttleParams, abortController);
 
+	let request = createRequest(dispatchParams, requestParams, abortController);
+	if (!request) return;
+
+	let { action } = requestParams;
+	let actionParams: JsonEventParamsInterface = { action, request };
+
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {
-		let entry = new QueueableJson(
+		// separate function
+		let { queueTarget } = queueParams;
+		let { currentTarget } = dispatchParams;
+
+		currentTarget.dispatchEvent(
+			new JsonEvent({ status: "queued", queueTarget, ...actionParams }),
+		);
+
+		let entry = new QueueableJson({
+			actionParams,
 			dispatchParams,
-			requestParams,
 			queueParams,
 			abortController,
-		);
+		});
 		return enqueue(queueParams, entry);
 	}
 
-	fetchJson(dispatchParams, requestParams, abortController);
+	fetchJson(dispatchParams, actionParams, abortController);
 }
 
-class QueueableJson implements Queuable {
-	#dispatchParams: DispatchParams;
-	#requestParams: RequestParams;
-	#queueParams: QueueParamsInterface;
-	#abortController: AbortController;
+interface QueuableParams {
+	actionParams: JsonEventParamsInterface;
+	dispatchParams: DispatchParams;
+	queueParams: QueueParamsInterface;
+	abortController: AbortController;
+}
 
-	constructor(
-		dispatchParams: DispatchParams,
-		requestParams: RequestParams,
-		queueParams: QueueParamsInterface,
-		abortController: AbortController,
-	) {
-		this.#dispatchParams = dispatchParams;
-		this.#requestParams = requestParams;
-		this.#queueParams = queueParams;
-		this.#abortController = abortController;
+// this could be smaller just as an old school function returns function
+class QueueableJson implements Queuable {
+	#params: QueuableParams;
+
+	constructor(params: QueuableParams) {
+		this.#params = params;
 	}
 
 	dispatch(queueNextCallback: QueueNextCallback) {
-		let { queueTarget } = this.#queueParams;
+		let { actionParams, dispatchParams, queueParams, abortController } =
+			this.#params;
+		let { queueTarget } = queueParams;
 
 		let promisedJson = fetchJson(
-			this.#dispatchParams,
-			this.#requestParams,
-			this.#abortController,
+			dispatchParams,
+			actionParams,
+			abortController,
 		)?.finally(function () {
 			queueNextCallback(queueTarget);
 		});
@@ -110,33 +135,42 @@ class QueueableJson implements Queuable {
 	}
 }
 
-function fetchJson(
-	params: DispatchParams,
+function createRequest(
+	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
 	abortController: AbortController,
-): Promise<void> | undefined {
-	let { currentTarget, formData } = params;
-	let { url, action, timeoutMs, method } = requestParams;
-
-	if (abortController.signal.aborted || !url || !currentTarget) return;
+): Request | undefined {
+	let { formData } = dispatchParams;
+	let { url, timeoutMs, method } = requestParams;
 
 	let abortSignals = [abortController.signal];
 	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
 
-	let request = new Request(url, {
-		signal: AbortSignal.any(abortSignals),
-		method: method ?? "GET",
-		body: formData,
-	});
+	if (url) {
+		return new Request(url, {
+			signal: AbortSignal.any(abortSignals),
+			method: method ?? "GET",
+			body: formData,
+		});
+	}
+}
 
-	let actionParams = { action, request, url };
+function fetchJson(
+	params: DispatchParams,
+	actionParams: JsonEventParamsInterface,
+	abortController: AbortController,
+): Promise<void> | undefined {
+	if (abortController.signal.aborted) return;
+
+	let { currentTarget } = params;
+
 	let event = new JsonEvent(
 		{ status: "requested", ...actionParams },
 		eventInitDict,
 	);
 	currentTarget.dispatchEvent(event);
 
-	return fetch(request)
+	return fetch(actionParams.request)
 		.then(resolveResponseBody)
 		.then(function ([response, json]) {
 			let event = new JsonEvent(

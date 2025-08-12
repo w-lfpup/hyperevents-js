@@ -1,16 +1,30 @@
 import type { DispatchParams, RequestStatus } from "./type_flyweight.js";
-export interface HtmlEventParamsInterface {
+interface HtmlEventParamsInterface {
+    request: Request;
+    url: string;
+    action: string | null;
+    targeted: Element[];
+}
+interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
+    status: "requested";
+}
+interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
+    status: "resolved";
     response: Response;
     html: string;
-    disconnected?: Element[];
-    connected?: Element[];
 }
+interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
+    status: "rejected";
+    error: any;
+}
+export type HtmlEventState = HtmlEventRejectedInterface | HtmlEventRequestedInterface | HtmlEventResolvedInterface;
 export interface HtmlEventInterface {
     readonly htmlParams: HtmlEventParamsInterface;
 }
 export declare class HtmlEvent extends Event {
     #private;
-    constructor(status: RequestStatus, eventInit?: EventInit);
-    get status(): RequestStatus;
+    constructor(requestState: RequestStatus, eventInit?: EventInit);
+    get requestState(): RequestStatus;
 }
 export declare function dispatchHtmlEvent(dispatchParams: DispatchParams): void;
+export {};

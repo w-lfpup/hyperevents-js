@@ -4,6 +4,8 @@ import { dispatchModuleImport } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 export function dispatch(sourceEvent) {
     let { type, currentTarget, target } = sourceEvent;
+    if (!currentTarget)
+        return;
     let formData;
     if (target instanceof HTMLFormElement)
         formData = new FormData(target);

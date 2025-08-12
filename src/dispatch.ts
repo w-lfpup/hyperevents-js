@@ -7,6 +7,7 @@ import { dispatchHtmlEvent } from "./html_event.js";
 
 export function dispatch(sourceEvent: Event) {
 	let { type, currentTarget, target } = sourceEvent;
+	if (!currentTarget) return;
 
 	let formData: FormData | undefined;
 	if (target instanceof HTMLFormElement) formData = new FormData(target);

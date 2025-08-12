@@ -1,11 +1,11 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
 export interface QueueParamsInterface {
-	queueTarget: Element;
+	queueTarget: EventTarget;
 }
 
 export interface QueueNextCallback {
-	(el: Element): void;
+	(el: EventTarget): void;
 }
 
 export interface Queuable {
@@ -40,7 +40,7 @@ export function enqueue(params: QueueParamsInterface, queueEntry: Queuable) {
 	queueEntry.dispatch(queueNext);
 }
 
-function queueNext(el: Element) {
+function queueNext(el: EventTarget) {
 	let queue = queueMap.get(el);
 	if (!queue) return;
 
@@ -63,6 +63,8 @@ export function getQueueParams(
 	if (queueTarget) {
 		// throttle by element
 		if ("_target" === queueTarget) return { queueTarget: el };
+
+		if ("_document" === queueTarget) return { queueTarget: document };
 
 		if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
 			return { queueTarget: currentTarget };

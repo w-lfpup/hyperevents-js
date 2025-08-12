@@ -1,15 +1,21 @@
-# Shebang-js
+# HyperEvents-js
 
 A hypertext extension for the browser.
 
 ## About
 
-Superchunk is a alternative to bulky frontend frameworks and enables a browser to declaratively:
+Superchunk is a alternative to bulky frontend frameworks
+
+A handful of kbs enables a browser to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
 - dispatch action events (think redux actions)
+- throttle any action (except esmodules)
+- queue any action (except esmodules)
+
+And with those core features, Superchunk skips over all the imperative event bindings required in JSX or tagged templates.
 
 ## Install
 
@@ -23,7 +29,7 @@ Add a `host` and some `eventNames` on instantiation.
 
 ```ts
 let bang = new Superfetch({
-	host: document,
+	target: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],
 });
@@ -56,6 +62,8 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 <button
 	pointerdown:="json"
 	pointerdown:url="/fetch/some.json"
+	pointerdown:throttle=""
+	pointerdoin:queued=""
 ></button>
 ```
 

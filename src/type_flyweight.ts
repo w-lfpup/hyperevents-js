@@ -1,7 +1,7 @@
 export interface DispatchParams {
 	sourceEvent: Event;
 	el: Element;
-	currentTarget: Event["currentTarget"];
+	currentTarget: EventTarget;
 	formData?: FormData;
 }
 
@@ -29,7 +29,7 @@ export function getRequestParams(
 	let method = el.getAttribute(`${type}:method`);
 
 	let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
-	let timeoutMs = parseInt(timeoutAttr ?? "");
+	let timeoutMs = parseInt(timeoutAttr ?? "0");
 
 	return {
 		timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,

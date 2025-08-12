@@ -1,9 +1,9 @@
 import type { DispatchParams } from "./type_flyweight.js";
 export interface QueueParamsInterface {
-    queueTarget: Element;
+    queueTarget: EventTarget;
 }
 export interface QueueNextCallback {
-    (el: Element): void;
+    (el: EventTarget): void;
 }
 export interface Queuable {
     dispatch(cb: QueueNextCallback): void;

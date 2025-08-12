@@ -18,27 +18,37 @@ export function dispatchJsonEvent(dispatchParams) {
         return;
     let abortController = new AbortController();
     setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+    let request = createRequest(dispatchParams, requestParams, abortController);
+    if (!request)
+        return;
+    let { action } = requestParams;
+    let actionParams = { action, request };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
-        let entry = new QueueableJson(dispatchParams, requestParams, queueParams, abortController);
+        // separate function
+        let { queueTarget } = queueParams;
+        let { currentTarget } = dispatchParams;
+        currentTarget.dispatchEvent(new JsonEvent({ status: "queued", queueTarget, ...actionParams }));
+        let entry = new QueueableJson({
+            actionParams,
+            dispatchParams,
+            queueParams,
+            abortController,
+        });
         return enqueue(queueParams, entry);
     }
-    fetchJson(dispatchParams, requestParams, abortController);
+    fetchJson(dispatchParams, actionParams, abortController);
 }
+// this could be smaller just as an old school function returns function
 class QueueableJson {
-    #dispatchParams;
-    #requestParams;
-    #queueParams;
-    #abortController;
-    constructor(dispatchParams, requestParams, queueParams, abortController) {
-        this.#dispatchParams = dispatchParams;
-        this.#requestParams = requestParams;
-        this.#queueParams = queueParams;
-        this.#abortController = abortController;
+    #params;
+    constructor(params) {
+        this.#params = params;
     }
     dispatch(queueNextCallback) {
-        let { queueTarget } = this.#queueParams;
-        let promisedJson = fetchJson(this.#dispatchParams, this.#requestParams, this.#abortController)?.finally(function () {
+        let { actionParams, dispatchParams, queueParams, abortController } = this.#params;
+        let { queueTarget } = queueParams;
+        let promisedJson = fetchJson(dispatchParams, actionParams, abortController)?.finally(function () {
             queueNextCallback(queueTarget);
         });
         if (!promisedJson) {
@@ -46,23 +56,27 @@ class QueueableJson {
         }
     }
 }
-function fetchJson(params, requestParams, abortController) {
-    let { currentTarget, formData } = params;
-    let { url, action, timeoutMs, method } = requestParams;
-    if (abortController.signal.aborted || !url || !currentTarget)
-        return;
+function createRequest(dispatchParams, requestParams, abortController) {
+    let { formData } = dispatchParams;
+    let { url, timeoutMs, method } = requestParams;
     let abortSignals = [abortController.signal];
     if (timeoutMs)
         abortSignals.push(AbortSignal.timeout(timeoutMs));
-    let request = new Request(url, {
-        signal: AbortSignal.any(abortSignals),
-        method: method ?? "GET",
-        body: formData,
-    });
-    let actionParams = { action, request, url };
+    if (url) {
+        return new Request(url, {
+            signal: AbortSignal.any(abortSignals),
+            method: method ?? "GET",
+            body: formData,
+        });
+    }
+}
+function fetchJson(params, actionParams, abortController) {
+    if (abortController.signal.aborted)
+        return;
+    let { currentTarget } = params;
     let event = new JsonEvent({ status: "requested", ...actionParams }, eventInitDict);
     currentTarget.dispatchEvent(event);
-    return fetch(request)
+    return fetch(actionParams.request)
         .then(resolveResponseBody)
         .then(function ([response, json]) {
         let event = new JsonEvent({ status: "resolved", response, json, ...actionParams }, eventInitDict);

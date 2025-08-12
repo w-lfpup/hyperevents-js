@@ -58,6 +58,9 @@ export function shouldThrottle(
 	if ("_currentTarget" === throttle)
 		return shouldThrottleByElement(currentTarget, timeoutMs);
 
+	if ("_document" === throttle)
+		return shouldThrottleByElement(document, timeoutMs);
+
 	if ("_action" === throttle && action)
 		return shouldThrottleByString(getKey(prefix, throttle, action), timeoutMs);
 
@@ -120,6 +123,7 @@ export function setThrottler(
 		if ("_target" === throttle) elementMap.set(el, throttler);
 		if ("_currentTarget" === throttle && currentTarget)
 			elementMap.set(currentTarget, throttler);
+		if ("_document" === throttle) elementMap.set(document, throttler);
 
 		// throttle by string
 		if ("_action" === throttle && action)

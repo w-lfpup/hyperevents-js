@@ -5,7 +5,7 @@ export function getRequestParams(dispatchParams) {
     let url = el.getAttribute(`${type}:url`);
     let method = el.getAttribute(`${type}:method`);
     let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
-    let timeoutMs = parseInt(timeoutAttr ?? "");
+    let timeoutMs = parseInt(timeoutAttr ?? "0");
     return {
         timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
         action,

@@ -1,7 +1,7 @@
 export interface DispatchParams {
     sourceEvent: Event;
     el: Element;
-    currentTarget: Event["currentTarget"];
+    currentTarget: EventTarget;
     formData?: FormData;
 }
 export interface ActionParams {

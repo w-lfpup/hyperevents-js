@@ -17,12 +17,37 @@ import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 
-export interface HtmlEventParamsInterface {
+// queued event
+// interface JsonEventQueuedInterface extends JsonEventParamsInterface {
+// 	status: "queued";
+// }
+
+interface HtmlEventParamsInterface {
+	request: Request;
+	url: string;
+	action: string | null;
+	targeted: Element[];
+}
+
+interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
+	status: "requested";
+}
+
+interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
+	status: "resolved";
 	response: Response;
 	html: string;
-	disconnected?: Element[];
-	connected?: Element[];
 }
+
+interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
+	status: "rejected";
+	error: any;
+}
+
+export type HtmlEventState =
+	| HtmlEventRejectedInterface
+	| HtmlEventRequestedInterface
+	| HtmlEventResolvedInterface;
 
 export interface HtmlEventInterface {
 	readonly htmlParams: HtmlEventParamsInterface;
@@ -31,16 +56,16 @@ export interface HtmlEventInterface {
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
 export class HtmlEvent extends Event {
-	#status: RequestStatus;
+	#requestState: RequestStatus;
 
-	constructor(status: RequestStatus, eventInit?: EventInit) {
+	constructor(requestState: RequestStatus, eventInit?: EventInit) {
 		super("#html", eventInit);
 		// this.#params = params;
-		this.#status = status;
+		this.#requestState = requestState;
 	}
 
-	get status() {
-		return this.#status;
+	get requestState() {
+		return this.#requestState;
 	}
 }
 
@@ -79,6 +104,12 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 			throttleParams,
 			abortController,
 		);
+
+	// get target nodes
+	// match or querySelector or querySelectorAll or _document _currentTarget _target
+	// match walks up the parent nodes and matches the selector against the element, stops at currentTarget
+	// querySelector does it's thing
+	// querySelectorAll likewise
 
 	let queueTarget = getQueueParams(dispatchParams);
 	if (queueTarget) {

@@ -27,6 +27,8 @@ export function shouldThrottle(dispatchParams, requestParams, throttleParams) {
         return shouldThrottleByElement(el, timeoutMs);
     if ("_currentTarget" === throttle)
         return shouldThrottleByElement(currentTarget, timeoutMs);
+    if ("_document" === throttle)
+        return shouldThrottleByElement(document, timeoutMs);
     if ("_action" === throttle && action)
         return shouldThrottleByString(getKey(prefix, throttle, action), timeoutMs);
     if ("_url" === throttle && url)
@@ -70,6 +72,8 @@ export function setThrottler(params, requestParams, throttleParams, abortControl
             elementMap.set(el, throttler);
         if ("_currentTarget" === throttle && currentTarget)
             elementMap.set(currentTarget, throttler);
+        if ("_document" === throttle)
+            elementMap.set(document, throttler);
         // throttle by string
         if ("_action" === throttle && action)
             stringMap.set(getKey(prefix, throttle, action), throttler);

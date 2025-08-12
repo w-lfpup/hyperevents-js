@@ -36,6 +36,8 @@ export function getQueueParams(dispatchParams) {
         // throttle by element
         if ("_target" === queueTarget)
             return { queueTarget: el };
+        if ("_document" === queueTarget)
+            return { queueTarget: document };
         if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
             return { queueTarget: currentTarget };
     }

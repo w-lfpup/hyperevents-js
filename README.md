@@ -25,7 +25,7 @@ npm install https://github.com/wolfpup-software/superfetch-js
 
 ## Setup
 
-Add a `host` and some `eventNames` on instantiation.
+Add a `target` and some `eventNames` on instantiation.
 
 ```ts
 let bang = new Superfetch({
@@ -37,10 +37,20 @@ let bang = new Superfetch({
 
 ## Actions
 
-Dispatches action events using the following syntax:
+Action events connect DOM Events to local state.
+
+Actions are declared in html with the following syntax:
 
 ```html
 <button click:="update_something"></button>
+```
+
+Then listen for `#action` events in javascript-land.
+
+```ts
+document.addEventListener("#action", function (e: ActionEvent) {
+	let { action, sourceEvent } = e.actionParams;
+});
 ```
 
 ## ES Modules
@@ -54,6 +64,14 @@ Super chunk can fetch esmodules using the following syntax:
 ></button>
 ```
 
+Then listen for request state with `#esmodule` events in javascript-land.
+
+```ts
+document.addEventListener("#esmodule", function (e: ActionEvent) {
+	let { status, url } = e.actionParams;
+});
+```
+
 ## JSON
 
 Super chunk can fetch and dispatch JSON using the following syntax:
@@ -62,7 +80,8 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 <button
 	pointerdown:="json"
 	pointerdown:url="/fetch/some.json"
-	pointerdown:throttle=""
+	pointerdown:throttle
+	pointerdown:throttle-ms=""
 	pointerdoin:queued=""
 ></button>
 ```
@@ -75,10 +94,6 @@ Super chunk can fetch html using the following syntax:
 <button
 	click:="html"
 	click:url="/fetch/some.html"
-	click:projection="replace"
-	click:match="_parent"
-	click:querySelector="ul"
-	click:querySelectorAll="[profile=fri490r]"
 ></button>
 ```
 

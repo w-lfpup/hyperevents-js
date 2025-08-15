@@ -8,8 +8,8 @@ export class ESModuleEvent extends Event {
     }
 }
 export function dispatchModuleImport(params) {
-    let { el, sourceEvent } = params;
-    let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
+    let { el } = params;
+    let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
     if (null === urlAttr)
         return;
     let url = new URL(urlAttr, location.href).toString();

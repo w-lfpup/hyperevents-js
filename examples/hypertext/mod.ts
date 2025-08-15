@@ -25,5 +25,5 @@ document.addEventListener("#json", function (e: Event) {
 });
 
 document.addEventListener("#html", function (e: Event) {
-	if (e instanceof HtmlEvent) console.log("#html", e, e.status);
+	if (e instanceof HtmlEvent) console.log("#html", e, e.requestState);
 });

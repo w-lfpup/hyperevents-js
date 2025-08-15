@@ -39,9 +39,9 @@ export class ESModuleEvent extends Event implements EsModuleEventInterface {
 }
 
 export function dispatchModuleImport(params: DispatchParams) {
-	let { el, sourceEvent } = params;
+	let { el } = params;
 
-	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
+	let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();

@@ -4,18 +4,14 @@ A hypertext extension for the browser.
 
 ## About
 
-Superchunk is a alternative to bulky frontend frameworks
+HyperEvents is an alternative to bulky frontend frameworks. Rather than bind and remove specific callbacks on specific elements, HyperEvents utilizes DOM events to create a "hyper" event derived from a UI event and an elements corresponding attributes.
 
-A handful of kbs enables a browser to declaratively:
+Effectively HyperEvents enable a browser to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
 - dispatch action events (think redux actions)
-- throttle any action (except esmodules)
-- queue any action (except esmodules)
-
-And with those core features, Superchunk skips over all the imperative event bindings required in JSX or tagged templates.
 
 ## Install
 
@@ -82,7 +78,7 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 	pointerdown:url="/fetch/some.json"
 	pointerdown:throttle
 	pointerdown:throttle-ms=""
-	pointerdoin:queued=""
+	pointerdown:queued=""
 ></button>
 ```
 
@@ -99,4 +95,4 @@ Super chunk can fetch html using the following syntax:
 
 ## License
 
-`Superchunk-js` is released under the BSD 3-Clause License.
+`HyperEvents-js` is released under the BSD 3-Clause License.

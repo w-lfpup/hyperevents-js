@@ -6,15 +6,25 @@ import { dispatchModuleImport } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 
 export function dispatch(sourceEvent: Event) {
-	let { type, currentTarget } = sourceEvent;
+	let { type, currentTarget, target } = sourceEvent;
 	if (!currentTarget) return;
+
+	let formData: FormData | undefined;
+	if (target instanceof HTMLFormElement) formData = new FormData(target);
 
 	for (let node of sourceEvent.composedPath()) {
 		if (node instanceof Element) {
 			if (node.hasAttribute(`${type}:prevent-default`))
 				sourceEvent.preventDefault();
 
-			dispatchEvent({ el: node, currentTarget, sourceEvent });
+			let composed = node.hasAttribute(`${type}:composed`);
+			dispatchEvent({
+				el: node,
+				currentTarget,
+				sourceEvent,
+				composed,
+				formData,
+			});
 
 			if (node.hasAttribute(`${type}:stop-propagation`)) return;
 		}

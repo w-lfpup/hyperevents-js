@@ -6,27 +6,25 @@
 // AFAIK we can't use an AbortController on a dynamic import
 // but we can on a fetch
 
+import type { DispatchParams, RequestParams } from "./type_flyweight.js";
 import type {
-	DispatchParams,
-	RequestParams,
-	RequestStatus,
-} from "./type_flyweight.js";
-import type { Queuable, QueueNextCallback } from "./queue.js";
+	Queuable,
+	QueueNextCallback,
+	QueueParamsInterface,
+} from "./queue.js";
 
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 
-// queued event
-// interface JsonEventQueuedInterface extends JsonEventParamsInterface {
-// 	status: "queued";
-// }
-
 interface HtmlEventParamsInterface {
 	request: Request;
-	url: string;
-	action: string | null;
-	targeted: Element[];
+	action: ReturnType<Element["getAttribute"]>;
+}
+
+interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
+	queueTarget: EventTarget;
+	status: "queued";
 }
 
 interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
@@ -45,6 +43,7 @@ interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
 }
 
 export type HtmlEventState =
+	| HtmlEventQueuedInterface
 	| HtmlEventRejectedInterface
 	| HtmlEventRequestedInterface
 	| HtmlEventResolvedInterface;
@@ -53,40 +52,49 @@ export interface HtmlEventInterface {
 	readonly htmlParams: HtmlEventParamsInterface;
 }
 
+interface QueuableParams {
+	htmlParams: HtmlEventParamsInterface;
+	dispatchParams: DispatchParams;
+	queueParams: QueueParamsInterface;
+	abortController: AbortController;
+}
+
 const eventInitDict: EventInit = { bubbles: true, composed: true };
 
 export class HtmlEvent extends Event {
-	#requestState: RequestStatus;
+	requestState: HtmlEventState;
 
-	constructor(requestState: RequestStatus, eventInit?: EventInit) {
+	constructor(requestState: HtmlEventState, eventInit?: EventInit) {
 		super("#html", eventInit);
-		// this.#params = params;
-		this.#requestState = requestState;
-	}
-
-	get requestState() {
-		return this.#requestState;
+		this.requestState = requestState;
 	}
 }
 
-// projection="swap"
-// projection-target="match | querySelector | querySelectorAll"
-// projection-selector="ul"
+class QueueableHtml implements Queuable {
+	#params: QueuableParams;
 
-// status-target="match | querySelector | querySelectorAll" | default is querySelector
-// status-selector="selector" pending | completed
-
-// get html params implements throttle params
-
-/*
-	{
-		html as text,
-		fragment as DomFragment,
-		targetElements: Element[],
-		projection: "swap",
-		disconnected: [],
+	constructor(params: QueuableParams) {
+		this.#params = params;
 	}
-*/
+
+	dispatch(queueNextCallback: QueueNextCallback) {
+		let { htmlParams, dispatchParams, queueParams, abortController } =
+			this.#params;
+		let { queueTarget } = queueParams;
+
+		let promisedJson = fetchHtml(
+			dispatchParams,
+			htmlParams,
+			abortController,
+		)?.finally(function () {
+			queueNextCallback(queueTarget);
+		});
+
+		if (!promisedJson) {
+			queueNextCallback(queueTarget);
+		}
+	}
+}
 
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	let requestParams = getRequestParams(dispatchParams);
@@ -104,90 +112,76 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 			throttleParams,
 			abortController,
 		);
+	let request = createRequest(dispatchParams, requestParams, abortController);
+	if (!request) return;
 
-	// get target nodes
-	// match or querySelector or querySelectorAll or _document _currentTarget _target
-	// match walks up the parent nodes and matches the selector against the element, stops at currentTarget
-	// querySelector does it's thing
-	// querySelectorAll likewise
+	let { action } = requestParams;
+	let htmlParams: HtmlEventParamsInterface = { action, request };
 
-	let queueTarget = getQueueParams(dispatchParams);
-	if (queueTarget) {
-		let entry = new QueueableHtml(
+	let queueParams = getQueueParams(dispatchParams);
+	if (queueParams) {
+		let entry = new QueueableHtml({
 			dispatchParams,
-			requestParams,
+			queueParams,
+			htmlParams,
 			abortController,
-		);
-		return enqueue(queueTarget, entry);
+		});
+		return enqueue(queueParams, entry);
 	}
 
-	fetchHtml(dispatchParams, requestParams, abortController);
+	fetchHtml(dispatchParams, htmlParams, abortController);
 }
 
-class QueueableHtml implements Queuable {
-	#dispatchParams: DispatchParams;
-	#requestParams: RequestParams;
-	#abortController: AbortController;
+// duplicate function
+function createRequest(
+	dispatchParams: DispatchParams,
+	requestParams: RequestParams,
+	abortController: AbortController,
+): Request | undefined {
+	let { url, timeoutMs, method } = requestParams;
+	if (!url) return;
 
-	constructor(
-		dispatchParams: DispatchParams,
-		requestParams: RequestParams,
-		abortController: AbortController,
-	) {
-		this.#dispatchParams = dispatchParams;
-		this.#requestParams = requestParams;
-		this.#abortController = abortController;
-	}
+	let abortSignals = [abortController.signal];
+	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
 
-	dispatch(queueNextCallback: QueueNextCallback) {
-		fetchHtml(
-			this.#dispatchParams,
-			this.#requestParams,
-			this.#abortController,
-			queueNextCallback,
-		);
-	}
+	return new Request(url, {
+		signal: AbortSignal.any(abortSignals),
+		method: method ?? "GET",
+		body: dispatchParams.formData,
+	});
 }
 
 function fetchHtml(
-	params: DispatchParams,
-	requestParams: RequestParams,
+	dispatchParams: DispatchParams,
+	actionParams: HtmlEventParamsInterface,
 	abortController: AbortController,
-	queueNextCallback?: QueueNextCallback,
-) {
-	let { el, formData } = params;
-	let { url, timeoutMs, method } = requestParams;
+): Promise<void> | undefined {
+	if (abortController.signal.aborted) return;
 
-	if (abortController.signal.aborted || !url) {
-		queueNextCallback?.(el);
-	} else {
-		// if timeout add to queue
-		let abortSignals = [abortController.signal];
-		if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
+	let { currentTarget } = dispatchParams;
 
-		let req = new Request(url, {
-			signal: AbortSignal.any(abortSignals),
-			method: method ?? "GET",
-			body: formData,
+	let event = new HtmlEvent(
+		{ status: "requested", ...actionParams },
+		eventInitDict,
+	);
+	currentTarget.dispatchEvent(event);
+
+	return fetch(actionParams.request)
+		.then(resolveResponseBody)
+		.then(function ([response, html]) {
+			let event = new HtmlEvent(
+				{ status: "resolved", response, html, ...actionParams },
+				eventInitDict,
+			);
+			currentTarget.dispatchEvent(event);
+		})
+		.catch(function (error: any) {
+			let event = new HtmlEvent(
+				{ status: "rejected", error, ...actionParams },
+				eventInitDict,
+			);
+			currentTarget.dispatchEvent(event);
 		});
-
-		let event = new HtmlEvent("requested", eventInitDict);
-		el.dispatchEvent(event);
-
-		fetch(req)
-			.then(resolveResponseBody)
-			.then(function ([response, html]) {
-				let event = new HtmlEvent("resolved", eventInitDict);
-				el.dispatchEvent(event);
-			})
-			.catch(function (_reason: any) {
-				let event = new HtmlEvent("rejected", eventInitDict);
-				el.dispatchEvent(event);
-			})
-			.finally(function () {
-				queueNextCallback?.(el);
-			});
-	}
 }
 
 function resolveResponseBody(response: Response): Promise<[Response, string]> {

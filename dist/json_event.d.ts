@@ -3,10 +3,6 @@ interface JsonEventParamsInterface {
     request: Request;
     action: string | null;
 }
-interface JsonEventThrottledInterface extends JsonEventParamsInterface {
-    queueTarget: EventTarget;
-    status: "throttled";
-}
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
     queueTarget: EventTarget;
     status: "queued";
@@ -23,7 +19,7 @@ interface JsonEventRejectedInterface extends JsonEventParamsInterface {
     status: "rejected";
     error: any;
 }
-type JsonEventState = JsonEventThrottledInterface | JsonEventQueuedInterface | JsonEventRequestedInterface | JsonEventResolvedInterface | JsonEventRejectedInterface;
+export type JsonEventState = JsonEventQueuedInterface | JsonEventRequestedInterface | JsonEventResolvedInterface | JsonEventRejectedInterface;
 export interface JsonEventInterface {
     requestState: JsonEventState;
 }

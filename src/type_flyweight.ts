@@ -2,6 +2,7 @@ export interface DispatchParams {
 	sourceEvent: Event;
 	el: Element;
 	currentTarget: EventTarget;
+	composed: boolean;
 	formData?: FormData;
 }
 

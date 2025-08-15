@@ -1,5 +1,4 @@
 let urlSet = new Set();
-const eventInitDict = { bubbles: true, composed: true };
 export class ESModuleEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -8,7 +7,7 @@ export class ESModuleEvent extends Event {
     }
 }
 export function dispatchModuleImport(params) {
-    let { el } = params;
+    let { el, composed } = params;
     let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
     if (null === urlAttr)
         return;
@@ -16,17 +15,17 @@ export function dispatchModuleImport(params) {
     if (urlSet.has(url))
         return;
     urlSet.add(url);
-    dispatchEvent({ status: "requested", url });
+    dispatchEvent({ status: "requested", url }, composed);
     import(url)
         .then(function () {
-        dispatchEvent({ status: "resolved", url });
+        dispatchEvent({ status: "resolved", url }, composed);
     })
         .catch(function (error) {
         urlSet.delete(url);
-        dispatchEvent({ status: "rejected", url, error });
+        dispatchEvent({ status: "rejected", url, error }, composed);
     });
 }
-function dispatchEvent(status) {
-    let event = new ESModuleEvent(status, eventInitDict);
+function dispatchEvent(requestState, composed) {
+    let event = new ESModuleEvent(requestState, { bubbles: true, composed });
     document.dispatchEvent(event);
 }

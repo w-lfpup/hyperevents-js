@@ -14,7 +14,13 @@ export function dispatch(sourceEvent) {
             if (node.hasAttribute(`${type}:prevent-default`))
                 sourceEvent.preventDefault();
             let composed = node.hasAttribute(`${type}:composed`);
-            dispatchEvent({ el: node, currentTarget, sourceEvent, composed, formData });
+            dispatchEvent({
+                el: node,
+                currentTarget,
+                sourceEvent,
+                composed,
+                formData,
+            });
             if (node.hasAttribute(`${type}:stop-propagation`))
                 return;
         }

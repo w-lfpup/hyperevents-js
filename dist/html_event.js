@@ -3,7 +3,6 @@
 import { getRequestParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
-const eventInitDict = { bubbles: true, composed: true };
 export class HtmlEvent extends Event {
     requestState;
     constructor(requestState, eventInit) {
@@ -35,8 +34,7 @@ export function dispatchHtmlEvent(dispatchParams) {
     if (shouldThrottle(dispatchParams, requestParams, throttleParams))
         return;
     let abortController = new AbortController();
-    if (throttleParams)
-        setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+    setThrottler(dispatchParams, requestParams, throttleParams, abortController);
     let request = createRequest(dispatchParams, requestParams, abortController);
     if (!request)
         return;
@@ -71,17 +69,17 @@ function createRequest(dispatchParams, requestParams, abortController) {
 function fetchHtml(dispatchParams, actionParams, abortController) {
     if (abortController.signal.aborted)
         return;
-    let { currentTarget } = dispatchParams;
-    let event = new HtmlEvent({ status: "requested", ...actionParams }, eventInitDict);
+    let { currentTarget, composed } = dispatchParams;
+    let event = new HtmlEvent({ status: "requested", ...actionParams }, { bubbles: true, composed });
     currentTarget.dispatchEvent(event);
     return fetch(actionParams.request)
         .then(resolveResponseBody)
         .then(function ([response, html]) {
-        let event = new HtmlEvent({ status: "resolved", response, html, ...actionParams }, eventInitDict);
+        let event = new HtmlEvent({ status: "resolved", response, html, ...actionParams }, { bubbles: true, composed });
         currentTarget.dispatchEvent(event);
     })
         .catch(function (error) {
-        let event = new HtmlEvent({ status: "rejected", error, ...actionParams }, eventInitDict);
+        let event = new HtmlEvent({ status: "rejected", error, ...actionParams }, { bubbles: true, composed });
         currentTarget.dispatchEvent(event);
     });
 }

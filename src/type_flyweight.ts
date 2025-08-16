@@ -39,3 +39,21 @@ export function getRequestParams(
 		method,
 	};
 }
+
+export function createRequest(
+	dispatchParams: DispatchParams,
+	requestParams: RequestParams,
+	abortController: AbortController,
+): Request | undefined {
+	let { url, timeoutMs, method } = requestParams;
+	if (!url) return;
+
+	let abortSignals = [abortController.signal];
+	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
+
+	return new Request(url, {
+		signal: AbortSignal.any(abortSignals),
+		method: method ?? "GET",
+		body: dispatchParams.formData,
+	});
+}

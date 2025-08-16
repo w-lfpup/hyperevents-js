@@ -59,8 +59,6 @@ interface QueuableParams {
 	abortController: AbortController;
 }
 
-const eventInitDict: EventInit = { bubbles: true, composed: true };
-
 export class HtmlEvent extends Event {
 	requestState: HtmlEventState;
 
@@ -105,13 +103,8 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 
 	let abortController = new AbortController();
 
-	if (throttleParams)
-		setThrottler(
-			dispatchParams,
-			requestParams,
-			throttleParams,
-			abortController,
-		);
+	setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+
 	let request = createRequest(dispatchParams, requestParams, abortController);
 	if (!request) return;
 
@@ -158,11 +151,11 @@ function fetchHtml(
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
-	let { currentTarget } = dispatchParams;
+	let { currentTarget, composed } = dispatchParams;
 
 	let event = new HtmlEvent(
 		{ status: "requested", ...actionParams },
-		eventInitDict,
+		{ bubbles: true, composed },
 	);
 	currentTarget.dispatchEvent(event);
 
@@ -171,14 +164,14 @@ function fetchHtml(
 		.then(function ([response, html]) {
 			let event = new HtmlEvent(
 				{ status: "resolved", response, html, ...actionParams },
-				eventInitDict,
+				{ bubbles: true, composed },
 			);
 			currentTarget.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new HtmlEvent(
 				{ status: "rejected", error, ...actionParams },
-				eventInitDict,
+				{ bubbles: true, composed },
 			);
 			currentTarget.dispatchEvent(event);
 		});

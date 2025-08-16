@@ -13,3 +13,16 @@ export function getRequestParams(dispatchParams) {
         method,
     };
 }
+export function createRequest(dispatchParams, requestParams, abortController) {
+    let { url, timeoutMs, method } = requestParams;
+    if (!url)
+        return;
+    let abortSignals = [abortController.signal];
+    if (timeoutMs)
+        abortSignals.push(AbortSignal.timeout(timeoutMs));
+    return new Request(url, {
+        signal: AbortSignal.any(abortSignals),
+        method: method ?? "GET",
+        body: dispatchParams.formData,
+    });
+}

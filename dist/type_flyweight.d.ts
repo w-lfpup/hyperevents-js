@@ -16,3 +16,4 @@ export interface RequestParams extends ActionParams {
 }
 export type RequestStatus = "requested" | "resolved" | "rejected";
 export declare function getRequestParams(dispatchParams: DispatchParams): RequestParams | undefined;
+export declare function createRequest(dispatchParams: DispatchParams, requestParams: RequestParams, abortController: AbortController): Request | undefined;

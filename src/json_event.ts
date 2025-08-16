@@ -1,19 +1,17 @@
-import type { DispatchParams, RequestParams } from "./type_flyweight.js";
+import type { DispatchParams } from "./type_flyweight.js";
 import type {
 	Queuable,
 	QueueNextCallback,
 	QueueParamsInterface,
 } from "./queue.js";
 
-import { getRequestParams } from "./type_flyweight.js";
+import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 
-const eventInitDict: EventInit = { bubbles: true, composed: true };
-
 interface JsonEventParamsInterface {
 	request: Request;
-	action: string | null;
+	action: ReturnType<Element["getAttribute"]>;
 }
 
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
@@ -124,25 +122,6 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	}
 
 	fetchJson(dispatchParams, actionParams, abortController);
-}
-
-// duplicate function
-function createRequest(
-	dispatchParams: DispatchParams,
-	requestParams: RequestParams,
-	abortController: AbortController,
-): Request | undefined {
-	let { url, timeoutMs, method } = requestParams;
-	if (!url) return;
-
-	let abortSignals = [abortController.signal];
-	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
-
-	return new Request(url, {
-		signal: AbortSignal.any(abortSignals),
-		method: method ?? "GET",
-		body: dispatchParams.formData,
-	});
 }
 
 function fetchJson(

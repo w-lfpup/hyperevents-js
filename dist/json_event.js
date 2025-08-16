@@ -1,7 +1,6 @@
-import { getRequestParams } from "./type_flyweight.js";
+import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
-const eventInitDict = { bubbles: true, composed: true };
 export class JsonEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -53,20 +52,6 @@ export function dispatchJsonEvent(dispatchParams) {
         return enqueue(queueParams, entry);
     }
     fetchJson(dispatchParams, actionParams, abortController);
-}
-// duplicate function
-function createRequest(dispatchParams, requestParams, abortController) {
-    let { url, timeoutMs, method } = requestParams;
-    if (!url)
-        return;
-    let abortSignals = [abortController.signal];
-    if (timeoutMs)
-        abortSignals.push(AbortSignal.timeout(timeoutMs));
-    return new Request(url, {
-        signal: AbortSignal.any(abortSignals),
-        method: method ?? "GET",
-        body: dispatchParams.formData,
-    });
 }
 function fetchJson(dispatchParams, actionParams, abortController) {
     if (abortController.signal.aborted)

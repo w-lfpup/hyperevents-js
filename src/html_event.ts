@@ -13,7 +13,7 @@ import type {
 	QueueParamsInterface,
 } from "./queue.js";
 
-import { getRequestParams } from "./type_flyweight.js";
+import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 
@@ -123,25 +123,6 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	}
 
 	fetchHtml(dispatchParams, htmlParams, abortController);
-}
-
-// duplicate function
-function createRequest(
-	dispatchParams: DispatchParams,
-	requestParams: RequestParams,
-	abortController: AbortController,
-): Request | undefined {
-	let { url, timeoutMs, method } = requestParams;
-	if (!url) return;
-
-	let abortSignals = [abortController.signal];
-	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
-
-	return new Request(url, {
-		signal: AbortSignal.any(abortSignals),
-		method: method ?? "GET",
-		body: dispatchParams.formData,
-	});
 }
 
 function fetchHtml(

@@ -6,7 +6,7 @@ export class ESModuleEvent extends Event {
         this.requestState = requestState;
     }
 }
-export function dispatchModuleImport(params) {
+export function dispatchEsModuleEvent(params) {
     let { el, composed } = params;
     let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
     if (null === urlAttr)

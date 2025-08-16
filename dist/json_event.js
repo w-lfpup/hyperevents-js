@@ -1,28 +1,11 @@
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { getQueueParams, enqueue, Queueable } from "./queue.js";
 export class JsonEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
         super("#json", eventInitDict);
         this.requestState = requestState;
-    }
-}
-// this could be smaller just as an old school function returns function
-class QueueableJson {
-    #params;
-    constructor(params) {
-        this.#params = params;
-    }
-    dispatch(queueNextCallback) {
-        let { actionParams, dispatchParams, queueParams, abortController } = this.#params;
-        let { queueTarget } = queueParams;
-        let promisedJson = fetchJson(dispatchParams, abortController, actionParams)?.finally(function () {
-            queueNextCallback(queueTarget);
-        });
-        if (!promisedJson) {
-            queueNextCallback(queueTarget);
-        }
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
@@ -38,20 +21,21 @@ export function dispatchJsonEvent(dispatchParams) {
     if (!request)
         return;
     let { action } = requestParams;
-    let actionParams = { action, request };
+    let fetchParams = { action, request };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
         let { queueTarget } = queueParams;
-        dispatchParams.currentTarget.dispatchEvent(new JsonEvent({ status: "queued", queueTarget, ...actionParams }));
-        let entry = new QueueableJson({
-            actionParams,
+        dispatchParams.currentTarget.dispatchEvent(new JsonEvent({ status: "queued", queueTarget, ...fetchParams }));
+        let entry = new Queueable({
+            fetchCallback: fetchJson,
+            fetchParams,
             dispatchParams,
             queueParams,
             abortController,
         });
         return enqueue(queueParams, entry);
     }
-    fetchJson(dispatchParams, abortController, actionParams);
+    fetchJson(dispatchParams, abortController, fetchParams);
 }
 function fetchJson(dispatchParams, abortController, actionParams) {
     if (abortController.signal.aborted)

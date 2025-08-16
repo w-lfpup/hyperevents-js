@@ -9,7 +9,7 @@ export interface QueueNextCallback {
 }
 
 export interface QueuableInterface {
-	dispatch(cb: QueueNextCallback): void;
+	dispatch(): void;
 }
 
 interface Queue {
@@ -28,14 +28,14 @@ interface QueuableParams<A> {
 	abortController: AbortController;
 }
 
-class Queueable<A> implements QueuableInterface {
+export class Queueable<A> implements QueuableInterface {
 	#params: QueuableParams<A>;
 
 	constructor(params: QueuableParams<A>) {
 		this.#params = params;
 	}
 
-	dispatch(queueNextCallback: QueueNextCallback) {
+	dispatch() {
 		let {
 			fetchParams,
 			fetchCallback,
@@ -50,11 +50,11 @@ class Queueable<A> implements QueuableInterface {
 			abortController,
 			fetchParams,
 		)?.finally(function () {
-			queueNextCallback(queueTarget);
+			queueNext(queueTarget);
 		});
 
 		if (!promisedJson) {
-			queueNextCallback(queueTarget);
+			queueNext(queueTarget);
 		}
 	}
 }
@@ -79,7 +79,7 @@ export function enqueue(
 	};
 
 	queueMap.set(queueTarget, freshQueue);
-	queueEntry.dispatch(queueNext);
+	queueEntry.dispatch();
 }
 
 function queueNext(el: EventTarget) {
@@ -93,7 +93,7 @@ function queueNext(el: EventTarget) {
 		}
 	}
 
-	queue.outgoing.pop()?.dispatch(queueNext);
+	queue.outgoing.pop()?.dispatch();
 }
 
 export function getQueueParams(

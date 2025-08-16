@@ -1,17 +1,17 @@
 let queueMap = new WeakMap();
-class Queueable {
+export class Queueable {
     #params;
     constructor(params) {
         this.#params = params;
     }
-    dispatch(queueNextCallback) {
-        let { fetchParams, fetchCallback, dispatchParams, queueParams, abortController } = this.#params;
+    dispatch() {
+        let { fetchParams, fetchCallback, dispatchParams, queueParams, abortController, } = this.#params;
         let { queueTarget } = queueParams;
         let promisedJson = fetchCallback(dispatchParams, abortController, fetchParams)?.finally(function () {
-            queueNextCallback(queueTarget);
+            queueNext(queueTarget);
         });
         if (!promisedJson) {
-            queueNextCallback(queueTarget);
+            queueNext(queueTarget);
         }
     }
 }
@@ -30,7 +30,7 @@ export function enqueue(params, queueEntry) {
         outgoing: [],
     };
     queueMap.set(queueTarget, freshQueue);
-    queueEntry.dispatch(queueNext);
+    queueEntry.dispatch();
 }
 function queueNext(el) {
     let queue = queueMap.get(el);
@@ -43,7 +43,7 @@ function queueNext(el) {
                 queue.outgoing.push(pip);
         }
     }
-    queue.outgoing.pop()?.dispatch(queueNext);
+    queue.outgoing.pop()?.dispatch();
 }
 export function getQueueParams(dispatchParams) {
     let { el, currentTarget, sourceEvent } = dispatchParams;

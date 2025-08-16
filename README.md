@@ -4,7 +4,7 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperEvents is an alternative to bulky frontend frameworks. Rather than bind and remove specific callbacks on specific elements, HyperEvents utilizes DOM events to create a "hyper" event derived from a UI event and an elements corresponding attributes.
+HyperEvents is an alternative to bulky frontend frameworks. Rather than bind and remove specific callbacks on specific elements, HyperEvents utilizes DOM events to create a "hyper" events derived from a UI event and an elements corresponding attributes.
 
 Effectively HyperEvents enable a browser to declaratively:
 

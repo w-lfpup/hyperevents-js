@@ -7,15 +7,10 @@
 // but we can on a fetch
 
 import type { DispatchParams } from "./type_flyweight.js";
-import type {
-	QueuableInterface,
-	QueueNextCallback,
-	QueueParamsInterface,
-} from "./queue.js";
 
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
 interface HtmlEventParamsInterface {
 	request: Request;
@@ -52,45 +47,12 @@ export interface HtmlEventInterface {
 	readonly htmlParams: HtmlEventParamsInterface;
 }
 
-interface QueuableParams {
-	htmlParams: HtmlEventParamsInterface;
-	dispatchParams: DispatchParams;
-	queueParams: QueueParamsInterface;
-	abortController: AbortController;
-}
-
 export class HtmlEvent extends Event {
 	requestState: HtmlEventState;
 
 	constructor(requestState: HtmlEventState, eventInit?: EventInit) {
 		super("#html", eventInit);
 		this.requestState = requestState;
-	}
-}
-
-class QueueableHtml implements QueuableInterface {
-	#params: QueuableParams;
-
-	constructor(params: QueuableParams) {
-		this.#params = params;
-	}
-
-	dispatch(queueNextCallback: QueueNextCallback) {
-		let { htmlParams, dispatchParams, queueParams, abortController } =
-			this.#params;
-		let { queueTarget } = queueParams;
-
-		let promisedJson = fetchHtml(
-			dispatchParams,
-			abortController,
-			htmlParams,
-		)?.finally(function () {
-			queueNextCallback(queueTarget);
-		});
-
-		if (!promisedJson) {
-			queueNextCallback(queueTarget);
-		}
 	}
 }
 
@@ -109,20 +71,21 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	if (!request) return;
 
 	let { action } = requestParams;
-	let htmlParams: HtmlEventParamsInterface = { action, request };
+	let fetchParams: HtmlEventParamsInterface = { action, request };
 
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {
-		let entry = new QueueableHtml({
+		let entry = new Queueable({
+			fetchCallback: fetchHtml,
 			dispatchParams,
 			queueParams,
-			htmlParams,
+			fetchParams,
 			abortController,
 		});
 		return enqueue(queueParams, entry);
 	}
 
-	fetchHtml(dispatchParams, abortController, htmlParams);
+	fetchHtml(dispatchParams, abortController, fetchParams);
 }
 
 function fetchHtml(

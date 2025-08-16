@@ -1,8 +1,8 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
 import { dispatchActionEvent } from "./action_event.js";
+import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
-import { dispatchModuleImport } from "./esmodule_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 
 export function dispatch(sourceEvent: Event) {
@@ -16,6 +16,8 @@ export function dispatch(sourceEvent: Event) {
 		if (node instanceof Element) {
 			if (node.hasAttribute(`${type}:prevent-default`))
 				sourceEvent.preventDefault();
+
+			if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
 			let composed = node.hasAttribute(`${type}:composed`);
 			dispatchEvent({
@@ -36,7 +38,7 @@ function dispatchEvent(params: DispatchParams) {
 
 	let attr = el.getAttribute(`${sourceEvent.type}:`);
 
-	if ("esmodule" === attr) return dispatchModuleImport(params);
+	if ("esmodule" === attr) return dispatchEsModuleEvent(params);
 	if ("json" === attr) return dispatchJsonEvent(params);
 	if ("html" === attr) return dispatchHtmlEvent(params);
 

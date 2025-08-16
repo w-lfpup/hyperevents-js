@@ -20,5 +20,5 @@ export declare class ESModuleEvent extends Event implements EsModuleEventInterfa
     requestState: EsModuleRequestState;
     constructor(requestState: EsModuleRequestState, eventInitDict: EventInit);
 }
-export declare function dispatchModuleImport(params: DispatchParams): void;
+export declare function dispatchEsModuleEvent(params: DispatchParams): void;
 export {};

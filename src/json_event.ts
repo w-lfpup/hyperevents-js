@@ -1,13 +1,8 @@
 import type { DispatchParams } from "./type_flyweight.js";
-import type {
-	QueuableInterface,
-	QueueNextCallback,
-	QueueParamsInterface,
-} from "./queue.js";
 
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
 interface JsonEventParamsInterface {
 	request: Request;
@@ -44,46 +39,12 @@ export interface JsonEventInterface {
 	requestState: JsonEventState;
 }
 
-interface QueuableParams {
-	actionParams: JsonEventParamsInterface;
-	dispatchParams: DispatchParams;
-	queueParams: QueueParamsInterface;
-	abortController: AbortController;
-}
-
 export class JsonEvent extends Event implements JsonEventInterface {
 	requestState: JsonEventState;
 
 	constructor(requestState: JsonEventState, eventInitDict?: EventInit) {
 		super("#json", eventInitDict);
 		this.requestState = requestState;
-	}
-}
-
-// this could be smaller just as an old school function returns function
-class QueueableJson implements QueuableInterface {
-	#params: QueuableParams;
-
-	constructor(params: QueuableParams) {
-		this.#params = params;
-	}
-
-	dispatch(queueNextCallback: QueueNextCallback) {
-		let { actionParams, dispatchParams, queueParams, abortController } =
-			this.#params;
-		let { queueTarget } = queueParams;
-
-		let promisedJson = fetchJson(
-			dispatchParams,
-			abortController,
-			actionParams,
-		)?.finally(function () {
-			queueNextCallback(queueTarget);
-		});
-
-		if (!promisedJson) {
-			queueNextCallback(queueTarget);
-		}
 	}
 }
 
@@ -102,18 +63,19 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	if (!request) return;
 
 	let { action } = requestParams;
-	let actionParams: JsonEventParamsInterface = { action, request };
+	let fetchParams: JsonEventParamsInterface = { action, request };
 
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {
 		let { queueTarget } = queueParams;
 
 		dispatchParams.currentTarget.dispatchEvent(
-			new JsonEvent({ status: "queued", queueTarget, ...actionParams }),
+			new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
 		);
 
-		let entry = new QueueableJson({
-			actionParams,
+		let entry = new Queueable({
+			fetchCallback: fetchJson,
+			fetchParams,
 			dispatchParams,
 			queueParams,
 			abortController,
@@ -121,7 +83,7 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 		return enqueue(queueParams, entry);
 	}
 
-	fetchJson(dispatchParams, abortController, actionParams);
+	fetchJson(dispatchParams, abortController, fetchParams);
 }
 
 function fetchJson(

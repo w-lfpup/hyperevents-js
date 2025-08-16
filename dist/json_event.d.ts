@@ -1,7 +1,7 @@
 import type { DispatchParams } from "./type_flyweight.js";
 interface JsonEventParamsInterface {
     request: Request;
-    action: ReturnType<Element["getAttribute"]>;
+    action: string | null;
 }
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
     queueTarget: EventTarget;

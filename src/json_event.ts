@@ -1,4 +1,4 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, RequestParams } from "./type_flyweight.js";
 import type {
 	Queuable,
 	QueueNextCallback,
@@ -11,7 +11,7 @@ import { getQueueParams, enqueue } from "./queue.js";
 
 interface JsonEventParamsInterface {
 	request: Request;
-	action: ReturnType<Element["getAttribute"]>;
+	action: string | null;
 }
 
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {

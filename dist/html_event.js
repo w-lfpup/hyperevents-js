@@ -1,6 +1,6 @@
 // asynchronous
 // queue-able
-import { getRequestParams } from "./type_flyweight.js";
+import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 export class HtmlEvent extends Event {
@@ -51,20 +51,6 @@ export function dispatchHtmlEvent(dispatchParams) {
         return enqueue(queueParams, entry);
     }
     fetchHtml(dispatchParams, htmlParams, abortController);
-}
-// duplicate function
-function createRequest(dispatchParams, requestParams, abortController) {
-    let { url, timeoutMs, method } = requestParams;
-    if (!url)
-        return;
-    let abortSignals = [abortController.signal];
-    if (timeoutMs)
-        abortSignals.push(AbortSignal.timeout(timeoutMs));
-    return new Request(url, {
-        signal: AbortSignal.any(abortSignals),
-        method: method ?? "GET",
-        body: dispatchParams.formData,
-    });
 }
 function fetchHtml(dispatchParams, actionParams, abortController) {
     if (abortController.signal.aborted)

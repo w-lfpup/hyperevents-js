@@ -1,6 +1,6 @@
-import type { DispatchParams, RequestParams } from "./type_flyweight.js";
+import type { DispatchParams } from "./type_flyweight.js";
 import type {
-	Queuable,
+	QueuableInterface,
 	QueueNextCallback,
 	QueueParamsInterface,
 } from "./queue.js";
@@ -61,7 +61,7 @@ export class JsonEvent extends Event implements JsonEventInterface {
 }
 
 // this could be smaller just as an old school function returns function
-class QueueableJson implements Queuable {
+class QueueableJson implements QueuableInterface {
 	#params: QueuableParams;
 
 	constructor(params: QueuableParams) {
@@ -75,8 +75,8 @@ class QueueableJson implements Queuable {
 
 		let promisedJson = fetchJson(
 			dispatchParams,
-			actionParams,
 			abortController,
+			actionParams,
 		)?.finally(function () {
 			queueNextCallback(queueTarget);
 		});
@@ -121,13 +121,13 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 		return enqueue(queueParams, entry);
 	}
 
-	fetchJson(dispatchParams, actionParams, abortController);
+	fetchJson(dispatchParams, abortController, actionParams);
 }
 
 function fetchJson(
 	dispatchParams: DispatchParams,
-	actionParams: JsonEventParamsInterface,
 	abortController: AbortController,
+	actionParams: JsonEventParamsInterface,
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 

@@ -1,4 +1,20 @@
 let queueMap = new WeakMap();
+class Queueable {
+    #params;
+    constructor(params) {
+        this.#params = params;
+    }
+    dispatch(queueNextCallback) {
+        let { fetchParams, fetchCallback, dispatchParams, queueParams, abortController } = this.#params;
+        let { queueTarget } = queueParams;
+        let promisedJson = fetchCallback(dispatchParams, abortController, fetchParams)?.finally(function () {
+            queueNextCallback(queueTarget);
+        });
+        if (!promisedJson) {
+            queueNextCallback(queueTarget);
+        }
+    }
+}
 // can combine these
 export function enqueue(params, queueEntry) {
     let { queueTarget } = params;

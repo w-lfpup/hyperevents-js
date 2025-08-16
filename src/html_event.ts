@@ -6,9 +6,9 @@
 // AFAIK we can't use an AbortController on a dynamic import
 // but we can on a fetch
 
-import type { DispatchParams, RequestParams } from "./type_flyweight.js";
+import type { DispatchParams } from "./type_flyweight.js";
 import type {
-	Queuable,
+	QueuableInterface,
 	QueueNextCallback,
 	QueueParamsInterface,
 } from "./queue.js";
@@ -34,7 +34,7 @@ interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
 interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
 	status: "resolved";
 	response: Response;
-	html: string;
+	html: HTMLTemplateElement;
 }
 
 interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
@@ -68,7 +68,7 @@ export class HtmlEvent extends Event {
 	}
 }
 
-class QueueableHtml implements Queuable {
+class QueueableHtml implements QueuableInterface {
 	#params: QueuableParams;
 
 	constructor(params: QueuableParams) {
@@ -82,8 +82,8 @@ class QueueableHtml implements Queuable {
 
 		let promisedJson = fetchHtml(
 			dispatchParams,
-			htmlParams,
 			abortController,
+			htmlParams,
 		)?.finally(function () {
 			queueNextCallback(queueTarget);
 		});
@@ -122,13 +122,13 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 		return enqueue(queueParams, entry);
 	}
 
-	fetchHtml(dispatchParams, htmlParams, abortController);
+	fetchHtml(dispatchParams, abortController, htmlParams);
 }
 
 function fetchHtml(
 	dispatchParams: DispatchParams,
-	actionParams: HtmlEventParamsInterface,
 	abortController: AbortController,
+	actionParams: HtmlEventParamsInterface,
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
@@ -142,7 +142,10 @@ function fetchHtml(
 
 	return fetch(actionParams.request)
 		.then(resolveResponseBody)
-		.then(function ([response, html]) {
+		.then(function ([response, htmlStr]) {
+			let html = new HTMLTemplateElement();
+			html.innerHTML = htmlStr;
+
 			let event = new HtmlEvent(
 				{ status: "resolved", response, html, ...actionParams },
 				{ bubbles: true, composed },

@@ -17,7 +17,7 @@ class QueueableJson {
     dispatch(queueNextCallback) {
         let { actionParams, dispatchParams, queueParams, abortController } = this.#params;
         let { queueTarget } = queueParams;
-        let promisedJson = fetchJson(dispatchParams, actionParams, abortController)?.finally(function () {
+        let promisedJson = fetchJson(dispatchParams, abortController, actionParams)?.finally(function () {
             queueNextCallback(queueTarget);
         });
         if (!promisedJson) {
@@ -51,9 +51,9 @@ export function dispatchJsonEvent(dispatchParams) {
         });
         return enqueue(queueParams, entry);
     }
-    fetchJson(dispatchParams, actionParams, abortController);
+    fetchJson(dispatchParams, abortController, actionParams);
 }
-function fetchJson(dispatchParams, actionParams, abortController) {
+function fetchJson(dispatchParams, abortController, actionParams) {
     if (abortController.signal.aborted)
         return;
     let { currentTarget, composed } = dispatchParams;

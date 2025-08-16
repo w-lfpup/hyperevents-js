@@ -5,8 +5,8 @@ export interface QueueParamsInterface {
 export interface QueueNextCallback {
     (el: EventTarget): void;
 }
-export interface Queuable {
+export interface QueuableInterface {
     dispatch(cb: QueueNextCallback): void;
 }
-export declare function enqueue(params: QueueParamsInterface, queueEntry: Queuable): void;
+export declare function enqueue(params: QueueParamsInterface, queueEntry: QueuableInterface): void;
 export declare function getQueueParams(dispatchParams: DispatchParams): QueueParamsInterface | undefined;

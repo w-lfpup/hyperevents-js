@@ -8,20 +8,62 @@ export interface QueueNextCallback {
 	(el: EventTarget): void;
 }
 
-export interface Queuable {
+export interface QueuableInterface {
 	dispatch(cb: QueueNextCallback): void;
 }
 
 interface Queue {
 	status: "enqueued" | "completed";
-	incoming: Queuable[];
-	outgoing: Queuable[];
+	incoming: QueuableInterface[];
+	outgoing: QueuableInterface[];
 }
 
 let queueMap = new WeakMap<EventTarget, Queue>();
 
+interface QueuableParams<A> {
+	fetchParams: A;
+	fetchCallback: Function;
+	dispatchParams: DispatchParams;
+	queueParams: QueueParamsInterface;
+	abortController: AbortController;
+}
+
+class Queueable<A> implements QueuableInterface {
+	#params: QueuableParams<A>;
+
+	constructor(params: QueuableParams<A>) {
+		this.#params = params;
+	}
+
+	dispatch(queueNextCallback: QueueNextCallback) {
+		let {
+			fetchParams,
+			fetchCallback,
+			dispatchParams,
+			queueParams,
+			abortController,
+		} = this.#params;
+		let { queueTarget } = queueParams;
+
+		let promisedJson = fetchCallback(
+			dispatchParams,
+			abortController,
+			fetchParams,
+		)?.finally(function () {
+			queueNextCallback(queueTarget);
+		});
+
+		if (!promisedJson) {
+			queueNextCallback(queueTarget);
+		}
+	}
+}
+
 // can combine these
-export function enqueue(params: QueueParamsInterface, queueEntry: Queuable) {
+export function enqueue(
+	params: QueueParamsInterface,
+	queueEntry: QueuableInterface,
+) {
 	let { queueTarget } = params;
 	// add function to queue
 	let queue = queueMap.get(queueTarget);

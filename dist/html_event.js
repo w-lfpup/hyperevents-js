@@ -18,7 +18,7 @@ class QueueableHtml {
     dispatch(queueNextCallback) {
         let { htmlParams, dispatchParams, queueParams, abortController } = this.#params;
         let { queueTarget } = queueParams;
-        let promisedJson = fetchHtml(dispatchParams, htmlParams, abortController)?.finally(function () {
+        let promisedJson = fetchHtml(dispatchParams, abortController, htmlParams)?.finally(function () {
             queueNextCallback(queueTarget);
         });
         if (!promisedJson) {
@@ -50,9 +50,9 @@ export function dispatchHtmlEvent(dispatchParams) {
         });
         return enqueue(queueParams, entry);
     }
-    fetchHtml(dispatchParams, htmlParams, abortController);
+    fetchHtml(dispatchParams, abortController, htmlParams);
 }
-function fetchHtml(dispatchParams, actionParams, abortController) {
+function fetchHtml(dispatchParams, abortController, actionParams) {
     if (abortController.signal.aborted)
         return;
     let { currentTarget, composed } = dispatchParams;
@@ -60,7 +60,9 @@ function fetchHtml(dispatchParams, actionParams, abortController) {
     currentTarget.dispatchEvent(event);
     return fetch(actionParams.request)
         .then(resolveResponseBody)
-        .then(function ([response, html]) {
+        .then(function ([response, htmlStr]) {
+        let html = new HTMLTemplateElement();
+        html.innerHTML = htmlStr;
         let event = new HtmlEvent({ status: "resolved", response, html, ...actionParams }, { bubbles: true, composed });
         currentTarget.dispatchEvent(event);
     })

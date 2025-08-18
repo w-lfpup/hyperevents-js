@@ -21,7 +21,11 @@ export function dispatchJsonEvent(dispatchParams) {
     if (!request)
         return;
     let { action } = requestParams;
-    let fetchParams = { action, request, abortController };
+    let fetchParams = {
+        action,
+        request,
+        abortController,
+    };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
         let { queueTarget } = queueParams;
@@ -35,22 +39,22 @@ export function dispatchJsonEvent(dispatchParams) {
         });
         return enqueue(queueParams, entry);
     }
-    fetchJson(dispatchParams, abortController, fetchParams);
+    fetchJson(fetchParams, dispatchParams, abortController);
 }
-function fetchJson(dispatchParams, abortController, actionParams) {
+function fetchJson(fetchParams, dispatchParams, abortController) {
     if (abortController.signal.aborted)
         return;
     let { el, composed } = dispatchParams;
-    let event = new JsonEvent({ status: "requested", ...actionParams }, { bubbles: true, composed });
+    let event = new JsonEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });
     el.dispatchEvent(event);
-    return fetch(actionParams.request)
+    return fetch(fetchParams.request)
         .then(resolveResponseBody)
         .then(function ([response, json]) {
-        let event = new JsonEvent({ status: "resolved", response, json, ...actionParams }, { bubbles: true, composed });
+        let event = new JsonEvent({ status: "resolved", response, json, ...fetchParams }, { bubbles: true, composed });
         el.dispatchEvent(event);
     })
         .catch(function (error) {
-        let event = new JsonEvent({ status: "rejected", error, ...actionParams }, { bubbles: true, composed });
+        let event = new JsonEvent({ status: "rejected", error, ...fetchParams }, { bubbles: true, composed });
         el.dispatchEvent(event);
     });
 }

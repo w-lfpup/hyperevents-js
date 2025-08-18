@@ -11,8 +11,8 @@ interface HtmlEventParamsInterface {
 }
 
 interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
-	queueTarget: EventTarget;
 	status: "queued";
+	queueTarget: EventTarget;
 }
 
 interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
@@ -82,39 +82,39 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 		return enqueue(queueParams, entry);
 	}
 
-	fetchHtml(dispatchParams, abortController, fetchParams);
+	fetchHtml(fetchParams, dispatchParams, abortController);
 }
 
 function fetchHtml(
+	fetchParams: HtmlEventParamsInterface,
 	dispatchParams: DispatchParams,
 	abortController: AbortController,
-	actionParams: HtmlEventParamsInterface,
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
 	let { currentTarget, composed } = dispatchParams;
 
 	let event = new HtmlEvent(
-		{ status: "requested", ...actionParams },
+		{ status: "requested", ...fetchParams },
 		{ bubbles: true, composed },
 	);
 	currentTarget.dispatchEvent(event);
 
-	return fetch(actionParams.request)
+	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
 		.then(function ([response, htmlStr]) {
 			let html = new HTMLTemplateElement();
 			html.innerHTML = htmlStr;
 
 			let event = new HtmlEvent(
-				{ status: "resolved", response, html, ...actionParams },
+				{ status: "resolved", response, html, ...fetchParams },
 				{ bubbles: true, composed },
 			);
 			currentTarget.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new HtmlEvent(
-				{ status: "rejected", error, ...actionParams },
+				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true, composed },
 			);
 			currentTarget.dispatchEvent(event);

@@ -6,7 +6,7 @@ export interface QueuableInterface {
     dispatch(): void;
 }
 export interface FetchCallback<A> {
-    (dispatchParams: DispatchParams, abortController: AbortController, fetchParams: A): Promise<void> | undefined;
+    (fetchParams: A, dispatchParams: DispatchParams, abortController: AbortController): Promise<void> | undefined;
 }
 interface QueuableParams<A> {
     dispatchParams: DispatchParams;

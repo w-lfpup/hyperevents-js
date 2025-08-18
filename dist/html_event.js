@@ -21,7 +21,11 @@ export function dispatchHtmlEvent(dispatchParams) {
     if (!request)
         return;
     let { action } = requestParams;
-    let fetchParams = { action, request, abortController };
+    let fetchParams = {
+        action,
+        request,
+        abortController,
+    };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
         let entry = new Queueable({
@@ -33,24 +37,24 @@ export function dispatchHtmlEvent(dispatchParams) {
         });
         return enqueue(queueParams, entry);
     }
-    fetchHtml(dispatchParams, abortController, fetchParams);
+    fetchHtml(fetchParams, dispatchParams, abortController);
 }
-function fetchHtml(dispatchParams, abortController, actionParams) {
+function fetchHtml(fetchParams, dispatchParams, abortController) {
     if (abortController.signal.aborted)
         return;
     let { currentTarget, composed } = dispatchParams;
-    let event = new HtmlEvent({ status: "requested", ...actionParams }, { bubbles: true, composed });
+    let event = new HtmlEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });
     currentTarget.dispatchEvent(event);
-    return fetch(actionParams.request)
+    return fetch(fetchParams.request)
         .then(resolveResponseBody)
         .then(function ([response, htmlStr]) {
         let html = new HTMLTemplateElement();
         html.innerHTML = htmlStr;
-        let event = new HtmlEvent({ status: "resolved", response, html, ...actionParams }, { bubbles: true, composed });
+        let event = new HtmlEvent({ status: "resolved", response, html, ...fetchParams }, { bubbles: true, composed });
         currentTarget.dispatchEvent(event);
     })
         .catch(function (error) {
-        let event = new HtmlEvent({ status: "rejected", error, ...actionParams }, { bubbles: true, composed });
+        let event = new HtmlEvent({ status: "rejected", error, ...fetchParams }, { bubbles: true, composed });
         currentTarget.dispatchEvent(event);
     });
 }

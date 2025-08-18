@@ -5,8 +5,8 @@ interface JsonEventParamsInterface {
     abortController: AbortController;
 }
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
-    queueTarget: EventTarget;
     status: "queued";
+    queueTarget: EventTarget;
 }
 interface JsonEventRequestedInterface extends JsonEventParamsInterface {
     status: "requested";

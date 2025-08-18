@@ -10,9 +10,9 @@ export interface QueuableInterface {
 
 export interface FetchCallback<A> {
 	(
+		fetchParams: A,
 		dispatchParams: DispatchParams,
 		abortController: AbortController,
-		fetchParams: A,
 	): Promise<void> | undefined;
 }
 
@@ -50,9 +50,9 @@ export class Queueable<A> implements QueuableInterface {
 		let { queueTarget } = queueParams;
 
 		let promisedJson = fetchCallback(
+			fetchParams,
 			dispatchParams,
 			abortController,
-			fetchParams,
 		)?.finally(function () {
 			queueNext(queueTarget);
 		});

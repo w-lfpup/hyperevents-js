@@ -11,8 +11,8 @@ interface JsonEventParamsInterface {
 }
 
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
-	queueTarget: EventTarget;
 	status: "queued";
+	queueTarget: EventTarget;
 }
 
 interface JsonEventRequestedInterface extends JsonEventParamsInterface {
@@ -88,36 +88,36 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 		return enqueue(queueParams, entry);
 	}
 
-	fetchJson(dispatchParams, abortController, fetchParams);
+	fetchJson(fetchParams, dispatchParams, abortController);
 }
 
 function fetchJson(
+	fetchParams: JsonEventParamsInterface,
 	dispatchParams: DispatchParams,
 	abortController: AbortController,
-	actionParams: JsonEventParamsInterface,
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
 	let { el, composed } = dispatchParams;
 
 	let event = new JsonEvent(
-		{ status: "requested", ...actionParams },
+		{ status: "requested", ...fetchParams },
 		{ bubbles: true, composed },
 	);
 	el.dispatchEvent(event);
 
-	return fetch(actionParams.request)
+	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
 		.then(function ([response, json]) {
 			let event = new JsonEvent(
-				{ status: "resolved", response, json, ...actionParams },
+				{ status: "resolved", response, json, ...fetchParams },
 				{ bubbles: true, composed },
 			);
 			el.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new JsonEvent(
-				{ status: "rejected", error, ...actionParams },
+				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true, composed },
 			);
 			el.dispatchEvent(event);

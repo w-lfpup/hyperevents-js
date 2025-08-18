@@ -5,8 +5,8 @@ interface HtmlEventParamsInterface {
     abortController: AbortController;
 }
 interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
-    queueTarget: EventTarget;
     status: "queued";
+    queueTarget: EventTarget;
 }
 interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
     status: "requested";

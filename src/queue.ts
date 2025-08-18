@@ -4,10 +4,6 @@ export interface QueueParamsInterface {
 	queueTarget: EventTarget;
 }
 
-export interface QueueNextCallback {
-	(el: EventTarget): void;
-}
-
 export interface QueuableInterface {
 	dispatch(): void;
 }
@@ -29,11 +25,11 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 interface QueuableParams<A> {
-	fetchParams: A;
-	fetchCallback: FetchCallback<A>;
 	dispatchParams: DispatchParams;
 	queueParams: QueueParamsInterface;
 	abortController: AbortController;
+	fetchParams: A;
+	fetchCallback: FetchCallback<A>;
 }
 
 export class Queueable<A> implements QueuableInterface {
@@ -79,7 +75,6 @@ export function getQueueParams(
 
 	if ("_target" === queueTargetAttr) queueTarget = el;
 	if ("_document" === queueTargetAttr) queueTarget = document;
-	// if ("_currentTarget" === queueTargetAttr) queueTarget = currentTarget;
 
 	return { queueTarget };
 }

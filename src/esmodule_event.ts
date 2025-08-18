@@ -58,7 +58,11 @@ export function dispatchEsModuleEvent(params: DispatchParams) {
 		});
 }
 
-function dispatchEvent(requestState: EsModuleRequestState, target: EventTarget, composed: boolean) {
+function dispatchEvent(
+	requestState: EsModuleRequestState,
+	target: EventTarget,
+	composed: boolean,
+) {
 	let event = new ESModuleEvent(requestState, { bubbles: true, composed });
 	target.dispatchEvent(event);
 }

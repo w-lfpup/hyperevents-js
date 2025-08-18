@@ -1,11 +1,3 @@
-// asynchronous
-// queue-able
-
-// could leave a "status=pending|fulfilled|rejected status:code=200|400|500
-
-// AFAIK we can't use an AbortController on a dynamic import
-// but we can on a fetch
-
 import type { DispatchParams } from "./type_flyweight.js";
 
 import { getRequestParams, createRequest } from "./type_flyweight.js";
@@ -61,12 +53,10 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	if (!requestParams) return;
 
 	let throttleParams = getThrottleParams(dispatchParams, "html");
-	// if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
 	if (shouldThrottle(dispatchParams, throttleParams)) return;
 
 	let abortController = new AbortController();
 
-	// setThrottler(dispatchParams, requestParams, throttleParams, abortController);
 	setThrottler(dispatchParams, throttleParams, abortController);
 
 	let request = createRequest(dispatchParams, requestParams, abortController);

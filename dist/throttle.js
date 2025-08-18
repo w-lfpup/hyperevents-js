@@ -1,4 +1,3 @@
-let stringMap = new Map();
 let elementMap = new WeakMap();
 export function getThrottleParams(dispatchParams, prefix) {
     let { el, sourceEvent } = dispatchParams;
@@ -29,9 +28,6 @@ export function shouldThrottle(dispatchParams, throttleParams) {
         return shouldThrottleByElement(document, timeoutMs);
     return false;
 }
-function getKey(prefix, throttle, kind) {
-    return `${prefix}:${throttle}:${kind}`;
-}
 function shouldThrottleByElement(el, timeoutMs) {
     if (!el)
         return false;
@@ -40,7 +36,7 @@ function shouldThrottleByElement(el, timeoutMs) {
 }
 function compareThrottler(throttler, timeoutMs) {
     if (throttler) {
-        let delta = performance.now() - throttler.timestamp;
+        let delta = performance.now() - throttler.timeStamp;
         if (delta < timeoutMs) {
             return true;
         }
@@ -52,16 +48,16 @@ export function setThrottler(params, throttleParams, abortController) {
     if (!throttleParams)
         return;
     let { throttle, prefix } = throttleParams;
-    if (throttle) {
-        let { el, currentTarget, sourceEvent } = params;
-        let { timeStamp } = sourceEvent;
-        let timestamp = performance.now();
-        let throttler = { timestamp, abortController };
-        let throttleEl = currentTarget;
-        if ("_target" === throttle)
-            throttleEl = el;
-        if ("_document" === throttle)
-            throttleEl = document;
+    let { el, currentTarget, sourceEvent } = params;
+    let { timeStamp } = sourceEvent;
+    let throttler = { timeStamp, abortController };
+    let throttleEl = currentTarget;
+    if ("_target" === throttle)
+        throttleEl = el;
+    if ("_document" === throttle)
+        throttleEl = document;
+    if ("html" === prefix)
         elementMap.set(throttleEl, throttler);
-    }
+    if ("json" === prefix)
+        elementMap.set(throttleEl, throttler);
 }

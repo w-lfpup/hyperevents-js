@@ -53,13 +53,10 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	if (!requestParams) return;
 
 	let throttleParams = getThrottleParams(dispatchParams, "json");
-	// if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
 	if (shouldThrottle(dispatchParams, throttleParams)) return;
-
 
 	let abortController = new AbortController();
 
-	// setThrottler(dispatchParams, requestParams, throttleParams, abort Controller);
 	setThrottler(dispatchParams, throttleParams, abortController);
 
 	let request = createRequest(dispatchParams, requestParams, abortController);

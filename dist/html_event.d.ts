@@ -14,7 +14,7 @@ interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
 interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
     status: "resolved";
     response: Response;
-    html: HTMLTemplateElement;
+    html: string;
 }
 interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
     status: "rejected";

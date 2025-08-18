@@ -22,7 +22,7 @@ interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
 interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
 	status: "resolved";
 	response: Response;
-	html: HTMLTemplateElement;
+	html: string;
 }
 
 interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
@@ -102,10 +102,7 @@ function fetchHtml(
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
-		.then(function ([response, htmlStr]) {
-			let html = new HTMLTemplateElement();
-			html.innerHTML = htmlStr;
-
+		.then(function ([response, html]) {
 			let event = new HtmlEvent(
 				{ status: "resolved", response, html, ...fetchParams },
 				{ bubbles: true, composed },

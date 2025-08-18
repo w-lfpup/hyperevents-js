@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"declaration": false,
 		"paths": {
-			"superchunk": ["../dist/mod.d.ts"]
+			"hyperevents": ["../dist/mod.d.ts"]
 		}
 	}
 }

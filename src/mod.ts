@@ -5,21 +5,21 @@ export { HtmlEvent } from "./html_event.js";
 
 import { dispatch } from "./dispatch.js";
 
-export interface HyperActionsParamsInterface {
+export interface HyperEventsParamsInterface {
 	target: EventTarget;
 	connected: boolean | undefined;
 	eventNames: string[];
 }
 
-export interface HyperActionsInterface {
+export interface HyperEventsInterface {
 	connect(): void;
 	disconnect(): void;
 }
 
-export class HyperActions {
-	#params: HyperActionsParamsInterface;
+export class HyperEvents {
+	#params: HyperEventsParamsInterface;
 
-	constructor(params: HyperActionsParamsInterface) {
+	constructor(params: HyperEventsParamsInterface) {
 		this.#params = params;
 		if (this.#params.connected) this.connect();
 	}

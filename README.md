@@ -4,16 +4,16 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperActions enable HTML to declaratively:
+HyperEvents enable HTML to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
 - dispatch action events (think redux actions)
 
-HyperActions are an alternative to bulky frontend frameworks. Rather than bother with setup and teardown of specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
+HyperEvents are an alternative to bulky frontend frameworks. Rather than bother with setup and teardown of specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
 
-This makes HyperActions ideal for:
+This makes HyperEvents ideal for:
 
 - SSR
 - SSG
@@ -23,7 +23,7 @@ This makes HyperActions ideal for:
 ## Install
 
 ```html
-npm install https://github.com/wolfpup-software/hyperactions-js
+npm install https://github.com/wolfpup-software/hyperevents-js
 ```
 
 ## Setup
@@ -62,7 +62,7 @@ Super chunk can fetch esmodules using the following syntax:
 
 ```html
 <div
-	pointerover:="#esmodule"
+	pointerover:="_esmodule"
 	pointerover:url="/components/yet-another-button.js"
 ></div>
 ```
@@ -81,7 +81,7 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 
 ```html
 <span
-	pointerdown:="#json"
+	pointerdown:="_json"
 	pointerdown:action="ping_api"
 	pointerdown:url="/fetch/some.json"
 ></span>
@@ -91,7 +91,12 @@ Then listen for request state with `#json` events in javascript-land.
 
 ```ts
 document.addEventListener("#json", function (e: JsonEvent) {
-	let { status, url } = e.actionParams;
+	let { requestState } = e;
+	let { status } = requestState;
+
+	if ("resolved" === status) {
+		let { json } = requestState;
+	}
 });
 ```
 
@@ -101,7 +106,7 @@ Super chunk can fetch html using the following syntax:
 
 ```html
 <input
-	input:="#html"
+	input:="_html"
 	input:action="get_entries"
 	input:url="/fetch/some.html"
 >
@@ -111,8 +116,35 @@ Then listen for request state with `#html` events in javascript-land.
 
 ```ts
 document.addEventListener("#html", function (e: HtmlEvent) {
-	let { status, url } = e.actionParams;
+	let { requestState } = e;
+	let { status } = requestState;
+
+	if ("resolved" === status) {
+		let { html } = requestState;
+	}
 });
+```
+
+## Typescript
+
+For typed events, please add the following to your app somewhere thoughtful.
+
+```ts
+import type {
+	ActionEvent,
+	HtmlEvent,
+	JsonEvent,
+	ESModuleEvent,
+} from "hyperevents";
+
+declare global {
+	interface GlobalEventHandlersEventMap {
+		["#action"]: ActionEvent;
+		["#esmodule"]: ESModuleEvent;
+		["#json"]: JsonEvent;
+		["#html"]: HtmlEvent;
+	}
+}
 ```
 
 ## License

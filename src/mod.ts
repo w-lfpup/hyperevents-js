@@ -7,8 +7,8 @@ import { dispatch } from "./dispatch.js";
 
 export interface HyperEventsParamsInterface {
 	target: EventTarget;
-	connected: boolean | undefined;
 	eventNames: string[];
+	connected?: boolean;
 }
 
 export interface HyperEventsInterface {

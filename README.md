@@ -71,7 +71,7 @@ Then listen for request state with `#esmodule` events in javascript-land.
 
 ```ts
 document.addEventListener("#esmodule", function (e: EsModuleEvent) {
-	let { status, url } = e.actionParams;
+	let { status, url } = e.requestState;
 });
 ```
 
@@ -134,13 +134,13 @@ import type {
 	ActionEvent,
 	HtmlEvent,
 	JsonEvent,
-	ESModuleEvent,
+	EsModuleEvent,
 } from "hyperevents";
 
 declare global {
 	interface GlobalEventHandlersEventMap {
 		["#action"]: ActionEvent;
-		["#esmodule"]: ESModuleEvent;
+		["#esmodule"]: EsModuleEvent;
 		["#json"]: JsonEvent;
 		["#html"]: HtmlEvent;
 	}

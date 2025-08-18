@@ -27,7 +27,7 @@ export interface EsModuleEventInterface {
 
 let urlSet = new Set();
 
-export class ESModuleEvent extends Event implements EsModuleEventInterface {
+export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 
 	constructor(requestState: EsModuleRequestState, eventInitDict: EventInit) {
@@ -46,7 +46,7 @@ export function dispatchEsModuleEvent(params: DispatchParams) {
 	if (urlSet.has(url)) return;
 	urlSet.add(url);
 
-	let event = new ESModuleEvent(
+	let event = new EsModuleEvent(
 		{ status: "requested", url },
 		{ bubbles: true, composed },
 	);
@@ -54,7 +54,7 @@ export function dispatchEsModuleEvent(params: DispatchParams) {
 
 	import(url)
 		.then(function () {
-			let event = new ESModuleEvent(
+			let event = new EsModuleEvent(
 				{ status: "resolved", url },
 				{ bubbles: true, composed },
 			);
@@ -62,7 +62,7 @@ export function dispatchEsModuleEvent(params: DispatchParams) {
 		})
 		.catch(function (error: any) {
 			urlSet.delete(url);
-			let event = new ESModuleEvent(
+			let event = new EsModuleEvent(
 				{ status: "rejected", url, error },
 				{ bubbles: true, composed },
 			);

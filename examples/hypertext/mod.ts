@@ -2,7 +2,7 @@ import type {
 	ActionEvent,
 	HtmlEvent,
 	JsonEvent,
-	ESModuleEvent,
+	EsModuleEvent,
 } from "hyperevents";
 
 import { HyperEvents } from "hyperevents";
@@ -10,7 +10,7 @@ import { HyperEvents } from "hyperevents";
 declare global {
 	interface GlobalEventHandlersEventMap {
 		["#action"]: ActionEvent;
-		["#esmodule"]: ESModuleEvent;
+		["#esmodule"]: EsModuleEvent;
 		["#json"]: JsonEvent;
 		["#html"]: HtmlEvent;
 	}
@@ -22,18 +22,18 @@ const _hyperEvents = new HyperEvents({
 	eventNames: ["click", "pointerover"],
 });
 
-document.addEventListener("#action", function (e: ActionEvent) {
+document.addEventListener("#action", function (e) {
 	console.log("#action", e, e.actionParams);
 });
 
-document.addEventListener("#esmodule", function (e: ESModuleEvent) {
+document.addEventListener("#esmodule", function (e) {
 	console.log("#esmodule", e, e.requestState);
 });
 
-document.addEventListener("#json", function (e: JsonEvent) {
+document.addEventListener("#json", function (e) {
 	console.log("#json", e, e.requestState);
 });
 
-document.addEventListener("#html", function (e: HtmlEvent) {
+document.addEventListener("#html", function (e) {
 	console.log("#html", e, e.requestState);
 });

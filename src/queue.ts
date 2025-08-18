@@ -12,6 +12,14 @@ export interface QueuableInterface {
 	dispatch(): void;
 }
 
+export interface FetchCallback<A> {
+	(
+		dispatchParams: DispatchParams,
+		abortController: AbortController,
+		fetchParams: A,
+	): Promise<void> | undefined;
+}
+
 interface Queue {
 	status: "enqueued" | "completed";
 	incoming: QueuableInterface[];
@@ -22,7 +30,7 @@ let queueMap = new WeakMap<EventTarget, Queue>();
 
 interface QueuableParams<A> {
 	fetchParams: A;
-	fetchCallback: Function;
+	fetchCallback: FetchCallback<A>;
 	dispatchParams: DispatchParams;
 	queueParams: QueueParamsInterface;
 	abortController: AbortController;
@@ -57,6 +65,23 @@ export class Queueable<A> implements QueuableInterface {
 			queueNext(queueTarget);
 		}
 	}
+}
+
+export function getQueueParams(
+	dispatchParams: DispatchParams,
+): QueueParamsInterface | undefined {
+	let { el, currentTarget, sourceEvent } = dispatchParams;
+
+	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+	if (!queueTargetAttr) return;
+
+	let queueTarget: EventTarget = document;
+
+	if ("_target" === queueTargetAttr) queueTarget = el;
+	if ("_document" === queueTargetAttr) queueTarget = document;
+	if ("_currentTarget" === queueTargetAttr) queueTarget = currentTarget;
+
+	return { queueTarget };
 }
 
 // can combine these
@@ -94,21 +119,4 @@ function queueNext(el: EventTarget) {
 	}
 
 	queue.outgoing.pop()?.dispatch();
-}
-
-export function getQueueParams(
-	dispatchParams: DispatchParams,
-): QueueParamsInterface | undefined {
-	let { el, currentTarget, sourceEvent } = dispatchParams;
-
-	let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
-	if (queueTarget) {
-		// throttle by element
-		if ("_target" === queueTarget) return { queueTarget: el };
-
-		if ("_document" === queueTarget) return { queueTarget: document };
-
-		if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
-			return { queueTarget: currentTarget };
-	}
 }

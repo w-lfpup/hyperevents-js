@@ -15,10 +15,22 @@ export class Queueable {
         }
     }
 }
-// can combine these
+export function getQueueParams(dispatchParams) {
+    let { el, currentTarget, sourceEvent } = dispatchParams;
+    let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+    if (!queueTargetAttr)
+        return;
+    let queueTarget = document;
+    if ("_target" === queueTargetAttr)
+        queueTarget = el;
+    if ("_document" === queueTargetAttr)
+        queueTarget = document;
+    if ("_currentTarget" === queueTargetAttr)
+        queueTarget = currentTarget;
+    return { queueTarget };
+}
 export function enqueue(params, queueEntry) {
     let { queueTarget } = params;
-    // add function to queue
     let queue = queueMap.get(queueTarget);
     if ("enqueued" === queue?.status) {
         queue.incoming.push(queueEntry);
@@ -44,17 +56,4 @@ function queueNext(el) {
         }
     }
     queue.outgoing.pop()?.dispatch();
-}
-export function getQueueParams(dispatchParams) {
-    let { el, currentTarget, sourceEvent } = dispatchParams;
-    let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
-    if (queueTarget) {
-        // throttle by element
-        if ("_target" === queueTarget)
-            return { queueTarget: el };
-        if ("_document" === queueTarget)
-            return { queueTarget: document };
-        if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
-            return { queueTarget: currentTarget };
-    }
 }

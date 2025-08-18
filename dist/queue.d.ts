@@ -8,9 +8,12 @@ export interface QueueNextCallback {
 export interface QueuableInterface {
     dispatch(): void;
 }
+export interface FetchCallback<A> {
+    (dispatchParams: DispatchParams, abortController: AbortController, fetchParams: A): Promise<void> | undefined;
+}
 interface QueuableParams<A> {
     fetchParams: A;
-    fetchCallback: Function;
+    fetchCallback: FetchCallback<A>;
     dispatchParams: DispatchParams;
     queueParams: QueueParamsInterface;
     abortController: AbortController;
@@ -20,6 +23,6 @@ export declare class Queueable<A> implements QueuableInterface {
     constructor(params: QueuableParams<A>);
     dispatch(): void;
 }
-export declare function enqueue(params: QueueParamsInterface, queueEntry: QueuableInterface): void;
 export declare function getQueueParams(dispatchParams: DispatchParams): QueueParamsInterface | undefined;
+export declare function enqueue(params: QueueParamsInterface, queueEntry: QueuableInterface): void;
 export {};

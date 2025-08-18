@@ -6,11 +6,7 @@ export interface DispatchParams {
 	formData?: FormData;
 }
 
-export interface ActionParams {
-	action?: ReturnType<Element["getAttribute"]>;
-}
-
-export interface RequestParams extends ActionParams {
+export interface RequestParams {
 	action: ReturnType<Element["getAttribute"]>;
 	url: ReturnType<Element["getAttribute"]>;
 	method: ReturnType<Element["getAttribute"]>;

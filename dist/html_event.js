@@ -1,5 +1,3 @@
-// asynchronous
-// queue-able
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue, Queueable } from "./queue.js";
@@ -15,10 +13,10 @@ export function dispatchHtmlEvent(dispatchParams) {
     if (!requestParams)
         return;
     let throttleParams = getThrottleParams(dispatchParams, "html");
-    if (shouldThrottle(dispatchParams, requestParams, throttleParams))
+    if (shouldThrottle(dispatchParams, throttleParams))
         return;
     let abortController = new AbortController();
-    setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+    setThrottler(dispatchParams, throttleParams, abortController);
     let request = createRequest(dispatchParams, requestParams, abortController);
     if (!request)
         return;

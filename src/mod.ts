@@ -5,21 +5,21 @@ export { HtmlEvent } from "./html_event.js";
 
 import { dispatch } from "./dispatch.js";
 
-export interface SuperChunkParamsInterface {
-	target: ParentNode;
+export interface HyperActionsParamsInterface {
+	target: EventTarget;
+	connected: boolean | undefined;
 	eventNames: string[];
-	connected?: boolean;
 }
 
-export interface SuperChunkInterface {
+export interface HyperActionsInterface {
 	connect(): void;
 	disconnect(): void;
 }
 
-export class SuperChunk {
-	#params: SuperChunkParamsInterface;
+export class HyperActions {
+	#params: HyperActionsParamsInterface;
 
-	constructor(params: SuperChunkParamsInterface) {
+	constructor(params: HyperActionsParamsInterface) {
 		this.#params = params;
 		if (this.#params.connected) this.connect();
 	}

@@ -35,7 +35,7 @@ function dispatchEvent(params) {
         return dispatchEsModuleEvent(params);
     if ("json" === attr)
         return dispatchJsonEvent(params);
-    if ("html" === attr)
+    if ("template" === attr)
         return dispatchHtmlEvent(params);
     return dispatchActionEvent(params);
 }

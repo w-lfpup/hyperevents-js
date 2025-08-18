@@ -9,6 +9,7 @@ export function dispatch(sourceEvent: Event) {
 	let { type, currentTarget, target } = sourceEvent;
 	if (!currentTarget) return;
 
+	// I forget if a formdata element can be reused but important to find out
 	let formData: FormData | undefined;
 	if (target instanceof HTMLFormElement) formData = new FormData(target);
 
@@ -40,7 +41,7 @@ function dispatchEvent(params: DispatchParams) {
 
 	if ("esmodule" === attr) return dispatchEsModuleEvent(params);
 	if ("json" === attr) return dispatchJsonEvent(params);
-	if ("html" === attr) return dispatchHtmlEvent(params);
+	if ("template" === attr) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
 }

@@ -46,19 +46,19 @@ export function dispatchEsModuleEvent(params: DispatchParams) {
 	if (urlSet.has(url)) return;
 
 	urlSet.add(url);
-	dispatchEvent({ status: "requested", url }, composed);
+	dispatchEvent({ status: "requested", url }, el, composed);
 
 	import(url)
 		.then(function () {
-			dispatchEvent({ status: "resolved", url }, composed);
+			dispatchEvent({ status: "resolved", url }, el, composed);
 		})
 		.catch(function (error: any) {
 			urlSet.delete(url);
-			dispatchEvent({ status: "rejected", url, error }, composed);
+			dispatchEvent({ status: "rejected", url, error }, el, composed);
 		});
 }
 
-function dispatchEvent(requestState: EsModuleRequestState, composed: boolean) {
+function dispatchEvent(requestState: EsModuleRequestState, target: EventTarget, composed: boolean) {
 	let event = new ESModuleEvent(requestState, { bubbles: true, composed });
-	document.dispatchEvent(event);
+	target.dispatchEvent(event);
 }

@@ -61,11 +61,13 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	if (!requestParams) return;
 
 	let throttleParams = getThrottleParams(dispatchParams, "html");
-	if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
+	// if (shouldThrottle(dispatchParams, requestParams, throttleParams)) return;
+	if (shouldThrottle(dispatchParams, throttleParams)) return;
 
 	let abortController = new AbortController();
 
-	setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+	// setThrottler(dispatchParams, requestParams, throttleParams, abortController);
+	setThrottler(dispatchParams, throttleParams, abortController);
 
 	let request = createRequest(dispatchParams, requestParams, abortController);
 	if (!request) return;

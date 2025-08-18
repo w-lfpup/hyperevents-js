@@ -75,11 +75,11 @@ export function getQueueParams(
 	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
 	if (!queueTargetAttr) return;
 
-	let queueTarget: EventTarget = document;
+	let queueTarget: EventTarget = currentTarget;
 
 	if ("_target" === queueTargetAttr) queueTarget = el;
 	if ("_document" === queueTargetAttr) queueTarget = document;
-	if ("_currentTarget" === queueTargetAttr) queueTarget = currentTarget;
+	// if ("_currentTarget" === queueTargetAttr) queueTarget = currentTarget;
 
 	return { queueTarget };
 }

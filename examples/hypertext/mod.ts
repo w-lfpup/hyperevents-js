@@ -1,12 +1,12 @@
 import {
-	SuperChunk,
+	HyperActions,
 	ActionEvent,
 	HtmlEvent,
 	JsonEvent,
 	ESModuleEvent,
 } from "superchunk";
 
-const _superChunk = new SuperChunk({
+const _hyperActions = new HyperActions({
 	target: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],

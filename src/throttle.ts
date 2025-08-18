@@ -1,4 +1,4 @@
-import type { DispatchParams, RequestParams } from "./type_flyweight.js";
+import type { DispatchParams } from "./type_flyweight.js";
 
 interface Throttler {
 	abortController?: AbortController;
@@ -42,15 +42,17 @@ export function getThrottleParams(
 	};
 }
 
+// overlap in prefixes
+
 export function shouldThrottle(
 	dispatchParams: DispatchParams,
-	requestParams: ThrottleRequestParams,
+	// requestParams: ThrottleRequestParams,
 	throttleParams?: ThrottleParams,
 ): boolean {
 	if (!throttleParams) return false;
 
 	let { currentTarget, el } = dispatchParams;
-	let { action, url } = requestParams;
+	// let { action, url } = requestParams;
 	let { prefix, throttle, timeoutMs } = throttleParams;
 
 	if ("_target" === throttle) return shouldThrottleByElement(el, timeoutMs);
@@ -61,11 +63,11 @@ export function shouldThrottle(
 	if ("_document" === throttle)
 		return shouldThrottleByElement(document, timeoutMs);
 
-	if ("_action" === throttle && action)
-		return shouldThrottleByString(getKey(prefix, throttle, action), timeoutMs);
+	// if ("_action" === throttle && action)
+	// 	return shouldThrottleByString(getKey(prefix, throttle, action), timeoutMs);
 
-	if ("_url" === throttle && url)
-		return shouldThrottleByString(getKey(prefix, throttle, url), timeoutMs);
+	// if ("_url" === throttle && url)
+	// 	return shouldThrottleByString(getKey(prefix, throttle, url), timeoutMs);
 
 	return false;
 }
@@ -74,10 +76,10 @@ function getKey(prefix: string, throttle: string, kind: string) {
 	return `${prefix}:${throttle}:${kind}`;
 }
 
-function shouldThrottleByString(action: string, timeoutMs: number): boolean {
-	let throttler = stringMap.get(action);
-	return compareThrottler(throttler, timeoutMs);
-}
+// function shouldThrottleByString(action: string, timeoutMs: number): boolean {
+// 	let throttler = stringMap.get(action);
+// 	return compareThrottler(throttler, timeoutMs);
+// }
 
 function shouldThrottleByElement(
 	el: Event["target"],
@@ -86,6 +88,7 @@ function shouldThrottleByElement(
 	if (!el) return false;
 
 	let throttler = elementMap.get(el);
+
 	return compareThrottler(throttler, timeoutMs);
 }
 
@@ -104,7 +107,7 @@ function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 
 export function setThrottler(
 	params: DispatchParams,
-	requestParams: ThrottleRequestParams,
+	// requestParams: ThrottleRequestParams,
 	throttleParams?: ThrottleParams,
 	abortController?: AbortController,
 ) {
@@ -113,22 +116,23 @@ export function setThrottler(
 	let { throttle, prefix } = throttleParams;
 
 	if (throttle) {
-		let { el, currentTarget } = params;
-		let { url, action } = requestParams;
+		let { el, currentTarget, sourceEvent } = params;
+		let {timeStamp} = sourceEvent
+		// let { url, action } = requestParams;
 
 		let timestamp = performance.now();
 		let throttler = { timestamp, abortController };
 
 		// throttle by element
-		if ("_target" === throttle) elementMap.set(el, throttler);
-		if ("_currentTarget" === throttle && currentTarget)
-			elementMap.set(currentTarget, throttler);
-		if ("_document" === throttle) elementMap.set(document, throttler);
+		// if ("_target" === throttle) elementMap.set(el, throttler);
+		// if ("_currentTarget" === throttle && currentTarget)
+		// 	elementMap.set(currentTarget, throttler);
+		// if ("_document" === throttle) elementMap.set(document, throttler);
 
-		// throttle by string
-		if ("_action" === throttle && action)
-			stringMap.set(getKey(prefix, throttle, action), throttler);
-		if ("_url" === throttle && url)
-			stringMap.set(getKey(prefix, throttle, url), throttler);
+		let throttleEl = currentTarget;
+		if ("_target" === throttle) throttleEl = el;
+		if ("_document" === throttle) throttleEl = document;
+
+		elementMap.set(throttleEl, throttler);
 	}
 }

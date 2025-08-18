@@ -1,22 +1,29 @@
-# HyperEvents-js
+# HyperActions-js
 
 A hypertext extension for the browser.
 
 ## About
 
-HyperEvents is an alternative to bulky frontend frameworks. Rather than bind and remove specific callbacks on specific elements, HyperEvents utilizes DOM events to create a "hyper" events derived from a UI event and an elements corresponding attributes.
-
-Effectively HyperEvents enable a browser to declaratively:
+HyperActions enable HTML to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
 - dispatch action events (think redux actions)
 
+HyperActions are an alternative to bulky frontend frameworks. Rather than bother with setup and teardown of specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
+
+This makes HyperActions ideal for:
+
+- SSR
+- SSG
+- HTML template elements
+- Shadow DOM
+
 ## Install
 
 ```html
-npm install https://github.com/wolfpup-software/superfetch-js
+npm install https://github.com/wolfpup-software/hyperactions-js
 ```
 
 ## Setup
@@ -24,7 +31,7 @@ npm install https://github.com/wolfpup-software/superfetch-js
 Add a `target` and some `eventNames` on instantiation.
 
 ```ts
-let bang = new Superfetch({
+let bang = new HyperActions({
 	target: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],
@@ -95,4 +102,4 @@ Super chunk can fetch html using the following syntax:
 
 ## License
 
-`HyperEvents-js` is released under the BSD 3-Clause License.
+`HyperAction-js` is released under the BSD 3-Clause License.

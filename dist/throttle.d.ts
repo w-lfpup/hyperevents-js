@@ -9,6 +9,6 @@ export interface ThrottleRequestParams {
     action?: ReturnType<Element["getAttribute"]>;
 }
 export declare function getThrottleParams(dispatchParams: DispatchParams, prefix: string): ThrottleParams | undefined;
-export declare function shouldThrottle(dispatchParams: DispatchParams, requestParams: ThrottleRequestParams, throttleParams?: ThrottleParams): boolean;
-export declare function setThrottler(params: DispatchParams, requestParams: ThrottleRequestParams, throttleParams?: ThrottleParams, abortController?: AbortController): void;
+export declare function shouldThrottle(dispatchParams: DispatchParams, throttleParams?: ThrottleParams): boolean;
+export declare function setThrottler(params: DispatchParams, throttleParams?: ThrottleParams, abortController?: AbortController): void;
 export {};

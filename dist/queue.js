@@ -20,13 +20,11 @@ export function getQueueParams(dispatchParams) {
     let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
     if (!queueTargetAttr)
         return;
-    let queueTarget = document;
+    let queueTarget = currentTarget;
     if ("_target" === queueTargetAttr)
         queueTarget = el;
     if ("_document" === queueTargetAttr)
         queueTarget = document;
-    if ("_currentTarget" === queueTargetAttr)
-        queueTarget = currentTarget;
     return { queueTarget };
 }
 export function enqueue(params, queueEntry) {

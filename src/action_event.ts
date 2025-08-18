@@ -22,10 +22,10 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionParams = getActionParams(dispatchParams);
 	if (!actionParams) return;
 
-	let { composed } = dispatchParams;
+	let { el, composed } = dispatchParams;
 
 	let event = new ActionEvent(actionParams, { bubbles: true, composed });
-	dispatchParams.el.dispatchEvent(event);
+	el.dispatchEvent(event);
 }
 
 function getActionParams(

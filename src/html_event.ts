@@ -92,13 +92,13 @@ function fetchHtml(
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
-	let { currentTarget, composed } = dispatchParams;
+	let { el, composed } = dispatchParams;
 
 	let event = new HtmlEvent(
 		{ status: "requested", ...fetchParams },
 		{ bubbles: true, composed },
 	);
-	currentTarget.dispatchEvent(event);
+	el.dispatchEvent(event);
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
@@ -110,14 +110,14 @@ function fetchHtml(
 				{ status: "resolved", response, html, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			currentTarget.dispatchEvent(event);
+			el.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new HtmlEvent(
 				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			currentTarget.dispatchEvent(event);
+			el.dispatchEvent(event);
 		});
 }
 

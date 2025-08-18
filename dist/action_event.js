@@ -9,9 +9,9 @@ export function dispatchActionEvent(dispatchParams) {
     let actionParams = getActionParams(dispatchParams);
     if (!actionParams)
         return;
-    let { composed } = dispatchParams;
+    let { el, composed } = dispatchParams;
     let event = new ActionEvent(actionParams, { bubbles: true, composed });
-    dispatchParams.el.dispatchEvent(event);
+    el.dispatchEvent(event);
 }
 function getActionParams(dispatchParams) {
     let { el, sourceEvent } = dispatchParams;

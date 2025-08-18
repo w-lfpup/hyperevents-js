@@ -1,4 +1,4 @@
-import { HyperEvents, } from "hyperevents";
+import { HyperEvents } from "hyperevents";
 const _hyperEvents = new HyperEvents({
     target: document,
     connected: true,

@@ -11,6 +11,9 @@ export function dispatch(sourceEvent) {
         formData = new FormData(target);
     for (let node of sourceEvent.composedPath()) {
         if (node instanceof Element) {
+            let kind = node.getAttribute(`${sourceEvent.type}:`);
+            if (!kind)
+                continue;
             if (node.hasAttribute(`${type}:prevent-default`))
                 sourceEvent.preventDefault();
             if (node.hasAttribute(`${type}:stop-immediate-propagation`))
@@ -18,6 +21,7 @@ export function dispatch(sourceEvent) {
             let composed = node.hasAttribute(`${type}:composed`);
             dispatchEvent({
                 el: node,
+                kind,
                 currentTarget,
                 sourceEvent,
                 composed,
@@ -29,13 +33,12 @@ export function dispatch(sourceEvent) {
     }
 }
 function dispatchEvent(params) {
-    let { el, sourceEvent } = params;
-    let attr = el.getAttribute(`${sourceEvent.type}:`);
-    if ("_esmodule" === attr)
+    let { kind } = params;
+    if ("_esmodule" === kind)
         return dispatchEsModuleEvent(params);
-    if ("_json" === attr)
+    if ("_json" === kind)
         return dispatchJsonEvent(params);
-    if ("_html" === attr)
+    if ("_html" === kind)
         return dispatchHtmlEvent(params);
     return dispatchActionEvent(params);
 }

@@ -12,7 +12,7 @@ export function dispatchJsonEvent(dispatchParams) {
     let requestParams = getRequestParams(dispatchParams);
     if (!requestParams)
         return;
-    let throttleParams = getThrottleParams(dispatchParams, "json");
+    let throttleParams = getThrottleParams(dispatchParams);
     if (shouldThrottle(dispatchParams, throttleParams))
         return;
     let abortController = new AbortController();

@@ -15,6 +15,9 @@ export function dispatch(sourceEvent: Event) {
 
 	for (let node of sourceEvent.composedPath()) {
 		if (node instanceof Element) {
+			let kind = node.getAttribute(`${sourceEvent.type}:`);
+			if (!kind) continue;
+
 			if (node.hasAttribute(`${type}:prevent-default`))
 				sourceEvent.preventDefault();
 
@@ -23,6 +26,7 @@ export function dispatch(sourceEvent: Event) {
 			let composed = node.hasAttribute(`${type}:composed`);
 			dispatchEvent({
 				el: node,
+				kind,
 				currentTarget,
 				sourceEvent,
 				composed,
@@ -35,13 +39,11 @@ export function dispatch(sourceEvent: Event) {
 }
 
 function dispatchEvent(params: DispatchParams) {
-	let { el, sourceEvent } = params;
+	let { kind } = params;
 
-	let attr = el.getAttribute(`${sourceEvent.type}:`);
-
-	if ("_esmodule" === attr) return dispatchEsModuleEvent(params);
-	if ("_json" === attr) return dispatchJsonEvent(params);
-	if ("_html" === attr) return dispatchHtmlEvent(params);
+	if ("_esmodule" === kind) return dispatchEsModuleEvent(params);
+	if ("_json" === kind) return dispatchJsonEvent(params);
+	if ("_html" === kind) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
 }

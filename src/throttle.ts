@@ -1,12 +1,11 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
 interface Throttler {
-	abortController?: AbortController;
+	abortController: AbortController;
 	timeStamp: DOMHighResTimeStamp;
 }
 
 interface ThrottleParams {
-	prefix: string;
 	throttle: string;
 	timeoutMs: number;
 }
@@ -15,7 +14,6 @@ let elementMap = new WeakMap<EventTarget, Throttler>();
 
 export function getThrottleParams(
 	dispatchParams: DispatchParams,
-	prefix: string,
 ): ThrottleParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
@@ -29,7 +27,6 @@ export function getThrottleParams(
 	if (Number.isNaN(timeoutMs)) return;
 
 	return {
-		prefix,
 		throttle,
 		timeoutMs,
 	};
@@ -42,17 +39,14 @@ export function shouldThrottle(
 	if (!throttleParams) return false;
 
 	let { currentTarget, el } = dispatchParams;
-	let { prefix, throttle, timeoutMs } = throttleParams;
+	let { throttle, timeoutMs } = throttleParams;
 
-	if ("_target" === throttle) return shouldThrottleByElement(el, timeoutMs);
+	let throttleEl = currentTarget;
 
-	if ("_currentTarget" === throttle)
-		return shouldThrottleByElement(currentTarget, timeoutMs);
+	if ("_target" === throttle) throttleEl = el;
+	if ("_document" === throttle) throttleEl = document;
 
-	if ("_document" === throttle)
-		return shouldThrottleByElement(document, timeoutMs);
-
-	return false;
+	return shouldThrottleByElement(throttleEl, timeoutMs);
 }
 
 function shouldThrottleByElement(
@@ -62,11 +56,6 @@ function shouldThrottleByElement(
 	if (!el) return false;
 
 	let throttler = elementMap.get(el);
-
-	return compareThrottler(throttler, timeoutMs);
-}
-
-function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 	if (throttler) {
 		let delta = performance.now() - throttler.timeStamp;
 		if (delta < timeoutMs) {
@@ -81,13 +70,12 @@ function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 
 export function setThrottler(
 	params: DispatchParams,
-	throttleParams?: ThrottleParams,
-	abortController?: AbortController,
+	throttleParams: ThrottleParams | undefined,
+	abortController: AbortController,
 ) {
 	if (!throttleParams) return;
 
-	let { throttle, prefix } = throttleParams;
-
+	let { throttle } = throttleParams;
 	let { el, currentTarget, sourceEvent } = params;
 	let { timeStamp } = sourceEvent;
 
@@ -97,6 +85,5 @@ export function setThrottler(
 	if ("_target" === throttle) throttleEl = el;
 	if ("_document" === throttle) throttleEl = document;
 
-	if ("html" === prefix) elementMap.set(throttleEl, throttler);
-	if ("json" === prefix) elementMap.set(throttleEl, throttler);
+	elementMap.set(throttleEl, throttler);
 }

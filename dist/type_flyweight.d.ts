@@ -1,4 +1,5 @@
 export interface DispatchParams {
+    kind: string;
     sourceEvent: Event;
     el: Element;
     currentTarget: EventTarget;

@@ -16,9 +16,9 @@ export type EsModuleRequestState = EsModuleEventRequestedInterface | EsModuleEve
 export interface EsModuleEventInterface {
     requestState: EsModuleRequestState;
 }
-export declare class ESModuleEvent extends Event implements EsModuleEventInterface {
+export declare class EsModuleEvent extends Event implements EsModuleEventInterface {
     requestState: EsModuleRequestState;
     constructor(requestState: EsModuleRequestState, eventInitDict: EventInit);
 }
-export declare function dispatchModuleImport(params: DispatchParams): void;
+export declare function dispatchEsModuleEvent(params: DispatchParams): void;
 export {};

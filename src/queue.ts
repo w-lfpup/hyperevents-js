@@ -1,27 +1,89 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
 export interface QueueParamsInterface {
-	queueTarget: Element;
+	queueTarget: EventTarget;
 }
 
-export interface QueueNextCallback {
-	(el: Element): void;
+export interface QueuableInterface {
+	dispatch(): void;
 }
 
-export interface Queuable {
-	dispatch(cb: QueueNextCallback): void;
+export interface FetchCallback<A> {
+	(
+		fetchParams: A,
+		dispatchParams: DispatchParams,
+		abortController: AbortController,
+	): Promise<void> | undefined;
 }
 
 interface Queue {
 	status: "enqueued" | "completed";
-	incoming: Queuable[];
-	outgoing: Queuable[];
+	incoming: QueuableInterface[];
+	outgoing: QueuableInterface[];
 }
 
 let queueMap = new WeakMap<EventTarget, Queue>();
 
+interface QueuableParams<A> {
+	dispatchParams: DispatchParams;
+	queueParams: QueueParamsInterface;
+	abortController: AbortController;
+	fetchParams: A;
+	fetchCallback: FetchCallback<A>;
+}
+
+export class Queueable<A> implements QueuableInterface {
+	#params: QueuableParams<A>;
+
+	constructor(params: QueuableParams<A>) {
+		this.#params = params;
+	}
+
+	dispatch() {
+		let {
+			fetchParams,
+			fetchCallback,
+			dispatchParams,
+			queueParams,
+			abortController,
+		} = this.#params;
+		let { queueTarget } = queueParams;
+
+		let promisedJson = fetchCallback(
+			fetchParams,
+			dispatchParams,
+			abortController,
+		)?.finally(function () {
+			queueNext(queueTarget);
+		});
+
+		if (!promisedJson) {
+			queueNext(queueTarget);
+		}
+	}
+}
+
+export function getQueueParams(
+	dispatchParams: DispatchParams,
+): QueueParamsInterface | undefined {
+	let { el, currentTarget, sourceEvent } = dispatchParams;
+
+	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+	if (!queueTargetAttr) return;
+
+	let queueTarget: EventTarget = currentTarget;
+
+	if ("_target" === queueTargetAttr) queueTarget = el;
+	if ("_document" === queueTargetAttr) queueTarget = document;
+
+	return { queueTarget };
+}
+
 // can combine these
-export function enqueue(params: QueueParamsInterface, queueEntry: Queuable) {
+export function enqueue(
+	params: QueueParamsInterface,
+	queueEntry: QueuableInterface,
+) {
 	let { queueTarget } = params;
 	// add function to queue
 	let queue = queueMap.get(queueTarget);
@@ -37,10 +99,10 @@ export function enqueue(params: QueueParamsInterface, queueEntry: Queuable) {
 	};
 
 	queueMap.set(queueTarget, freshQueue);
-	queueEntry.dispatch(queueNext);
+	queueEntry.dispatch();
 }
 
-function queueNext(el: Element) {
+function queueNext(el: EventTarget) {
 	let queue = queueMap.get(el);
 	if (!queue) return;
 
@@ -51,20 +113,5 @@ function queueNext(el: Element) {
 		}
 	}
 
-	queue.outgoing.pop()?.dispatch(queueNext);
-}
-
-export function getQueueParams(
-	dispatchParams: DispatchParams,
-): QueueParamsInterface | undefined {
-	let { el, currentTarget, sourceEvent } = dispatchParams;
-
-	let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
-	if (queueTarget) {
-		// throttle by element
-		if ("_target" === queueTarget) return { queueTarget: el };
-
-		if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
-			return { queueTarget: currentTarget };
-	}
+	queue.outgoing.pop()?.dispatch();
 }

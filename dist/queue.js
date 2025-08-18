@@ -1,8 +1,34 @@
 let queueMap = new WeakMap();
-// can combine these
+export class Queueable {
+    #params;
+    constructor(params) {
+        this.#params = params;
+    }
+    dispatch() {
+        let { fetchParams, fetchCallback, dispatchParams, queueParams, abortController, } = this.#params;
+        let { queueTarget } = queueParams;
+        let promisedJson = fetchCallback(fetchParams, dispatchParams, abortController)?.finally(function () {
+            queueNext(queueTarget);
+        });
+        if (!promisedJson) {
+            queueNext(queueTarget);
+        }
+    }
+}
+export function getQueueParams(dispatchParams) {
+    let { el, currentTarget, sourceEvent } = dispatchParams;
+    let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+    if (!queueTargetAttr)
+        return;
+    let queueTarget = currentTarget;
+    if ("_target" === queueTargetAttr)
+        queueTarget = el;
+    if ("_document" === queueTargetAttr)
+        queueTarget = document;
+    return { queueTarget };
+}
 export function enqueue(params, queueEntry) {
     let { queueTarget } = params;
-    // add function to queue
     let queue = queueMap.get(queueTarget);
     if ("enqueued" === queue?.status) {
         queue.incoming.push(queueEntry);
@@ -14,7 +40,7 @@ export function enqueue(params, queueEntry) {
         outgoing: [],
     };
     queueMap.set(queueTarget, freshQueue);
-    queueEntry.dispatch(queueNext);
+    queueEntry.dispatch();
 }
 function queueNext(el) {
     let queue = queueMap.get(el);
@@ -27,16 +53,5 @@ function queueNext(el) {
                 queue.outgoing.push(pip);
         }
     }
-    queue.outgoing.pop()?.dispatch(queueNext);
-}
-export function getQueueParams(dispatchParams) {
-    let { el, currentTarget, sourceEvent } = dispatchParams;
-    let queueTarget = el.getAttribute(`${sourceEvent.type}:queue`);
-    if (queueTarget) {
-        // throttle by element
-        if ("_target" === queueTarget)
-            return { queueTarget: el };
-        if (currentTarget instanceof Element && "_currentTarget" === queueTarget)
-            return { queueTarget: currentTarget };
-    }
+    queue.outgoing.pop()?.dispatch();
 }

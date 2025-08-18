@@ -1,12 +1,25 @@
 import type { DispatchParams } from "./type_flyweight.js";
 export interface QueueParamsInterface {
-    queueTarget: Element;
+    queueTarget: EventTarget;
 }
-export interface QueueNextCallback {
-    (el: Element): void;
+export interface QueuableInterface {
+    dispatch(): void;
 }
-export interface Queuable {
-    dispatch(cb: QueueNextCallback): void;
+export interface FetchCallback<A> {
+    (fetchParams: A, dispatchParams: DispatchParams, abortController: AbortController): Promise<void> | undefined;
 }
-export declare function enqueue(params: QueueParamsInterface, queueEntry: Queuable): void;
+interface QueuableParams<A> {
+    dispatchParams: DispatchParams;
+    queueParams: QueueParamsInterface;
+    abortController: AbortController;
+    fetchParams: A;
+    fetchCallback: FetchCallback<A>;
+}
+export declare class Queueable<A> implements QueuableInterface {
+    #private;
+    constructor(params: QueuableParams<A>);
+    dispatch(): void;
+}
 export declare function getQueueParams(dispatchParams: DispatchParams): QueueParamsInterface | undefined;
+export declare function enqueue(params: QueueParamsInterface, queueEntry: QueuableInterface): void;
+export {};

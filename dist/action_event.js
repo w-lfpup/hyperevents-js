@@ -1,35 +1,25 @@
-import { getThrottleParams, setThrottler, shouldThrottle } from "./throttle.js";
 export class ActionEvent extends Event {
-    #params;
-    constructor(params, eventInit) {
+    actionParams;
+    constructor(actionParams, eventInit) {
         super("#action", eventInit);
-        this.#params = params;
-    }
-    get actionParams() {
-        return this.#params;
+        this.actionParams = actionParams;
     }
 }
 export function dispatchActionEvent(dispatchParams) {
     let actionParams = getActionParams(dispatchParams);
-    if (actionParams) {
-        let throttleParams = getThrottleParams(dispatchParams, "action");
-        if (shouldThrottle(dispatchParams, actionParams, throttleParams))
-            return;
-        let abortController = undefined;
-        if (throttleParams)
-            abortController = new AbortController();
-        setThrottler(dispatchParams, actionParams, throttleParams, abortController);
-        let event = new ActionEvent(actionParams, { bubbles: true });
-        dispatchParams.el.dispatchEvent(event);
-    }
+    if (!actionParams)
+        return;
+    let { el, composed } = dispatchParams;
+    let event = new ActionEvent(actionParams, { bubbles: true, composed });
+    el.dispatchEvent(event);
 }
 function getActionParams(dispatchParams) {
-    let { el, sourceEvent, formData } = dispatchParams;
+    let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
     let action = el.getAttribute(`${type}:`);
-    if ("action" === action) {
+    if ("#action" === action) {
         action = el.getAttribute(`${type}:action`);
     }
     if (action)
-        return { action, sourceEvent, formData };
+        return { action, sourceEvent };
 }

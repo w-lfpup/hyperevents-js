@@ -1,17 +1,16 @@
 export interface DispatchParams {
+    kind: string;
     sourceEvent: Event;
     el: Element;
-    currentTarget: Event["currentTarget"];
+    currentTarget: EventTarget;
+    composed: boolean;
     formData?: FormData;
 }
-export interface ActionParams {
-    action?: ReturnType<Element["getAttribute"]>;
-}
-export interface RequestParams extends ActionParams {
-    action: ReturnType<Element["getAttribute"]>;
-    url: ReturnType<Element["getAttribute"]>;
-    method: ReturnType<Element["getAttribute"]>;
+export interface RequestParams {
+    action: string;
+    url: string;
+    method: string;
     timeoutMs?: number;
 }
-export type RequestStatus = "requested" | "resolved" | "rejected";
 export declare function getRequestParams(dispatchParams: DispatchParams): RequestParams | undefined;
+export declare function createRequest(dispatchParams: DispatchParams, requestParams: RequestParams, abortController: AbortController): Request | undefined;

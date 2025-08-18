@@ -1,28 +1,19 @@
-import type { DispatchParams, RequestParams } from "./type_flyweight.js";
+import type { DispatchParams } from "./type_flyweight.js";
 
 interface Throttler {
-	abortController?: AbortController;
-	timestamp: DOMHighResTimeStamp;
+	abortController: AbortController;
+	timeStamp: DOMHighResTimeStamp;
 }
 
 interface ThrottleParams {
-	prefix: string;
 	throttle: string;
 	timeoutMs: number;
 }
 
-export interface ThrottleRequestParams {
-	url?: ReturnType<Element["getAttribute"]>;
-	action?: ReturnType<Element["getAttribute"]>;
-}
-
-// Needs to blow up after a certain amount of keys.
-let stringMap = new Map<string, Throttler>();
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
 export function getThrottleParams(
 	dispatchParams: DispatchParams,
-	prefix: string,
 ): ThrottleParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
@@ -36,7 +27,6 @@ export function getThrottleParams(
 	if (Number.isNaN(timeoutMs)) return;
 
 	return {
-		prefix,
 		throttle,
 		timeoutMs,
 	};
@@ -44,36 +34,19 @@ export function getThrottleParams(
 
 export function shouldThrottle(
 	dispatchParams: DispatchParams,
-	requestParams: ThrottleRequestParams,
 	throttleParams?: ThrottleParams,
 ): boolean {
 	if (!throttleParams) return false;
 
 	let { currentTarget, el } = dispatchParams;
-	let { action, url } = requestParams;
-	let { prefix, throttle, timeoutMs } = throttleParams;
+	let { throttle, timeoutMs } = throttleParams;
 
-	if ("_target" === throttle) return shouldThrottleByElement(el, timeoutMs);
+	let throttleEl = currentTarget;
 
-	if ("_currentTarget" === throttle)
-		return shouldThrottleByElement(currentTarget, timeoutMs);
+	if ("_target" === throttle) throttleEl = el;
+	if ("_document" === throttle) throttleEl = document;
 
-	if ("_action" === throttle && action)
-		return shouldThrottleByString(getKey(prefix, throttle, action), timeoutMs);
-
-	if ("_url" === throttle && url)
-		return shouldThrottleByString(getKey(prefix, throttle, url), timeoutMs);
-
-	return false;
-}
-
-function getKey(prefix: string, throttle: string, kind: string) {
-	return `${prefix}:${throttle}:${kind}`;
-}
-
-function shouldThrottleByString(action: string, timeoutMs: number): boolean {
-	let throttler = stringMap.get(action);
-	return compareThrottler(throttler, timeoutMs);
+	return shouldThrottleByElement(throttleEl, timeoutMs);
 }
 
 function shouldThrottleByElement(
@@ -83,12 +56,8 @@ function shouldThrottleByElement(
 	if (!el) return false;
 
 	let throttler = elementMap.get(el);
-	return compareThrottler(throttler, timeoutMs);
-}
-
-function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 	if (throttler) {
-		let delta = performance.now() - throttler.timestamp;
+		let delta = performance.now() - throttler.timeStamp;
 		if (delta < timeoutMs) {
 			return true;
 		}
@@ -101,30 +70,20 @@ function compareThrottler(throttler: Throttler | undefined, timeoutMs: number) {
 
 export function setThrottler(
 	params: DispatchParams,
-	requestParams: ThrottleRequestParams,
-	throttleParams?: ThrottleParams,
-	abortController?: AbortController,
+	throttleParams: ThrottleParams | undefined,
+	abortController: AbortController,
 ) {
 	if (!throttleParams) return;
 
-	let { throttle, prefix } = throttleParams;
+	let { throttle } = throttleParams;
+	let { el, currentTarget, sourceEvent } = params;
+	let { timeStamp } = sourceEvent;
 
-	if (throttle) {
-		let { el, currentTarget } = params;
-		let { url, action } = requestParams;
+	let throttler = { timeStamp, abortController };
 
-		let timestamp = performance.now();
-		let throttler = { timestamp, abortController };
+	let throttleEl = currentTarget;
+	if ("_target" === throttle) throttleEl = el;
+	if ("_document" === throttle) throttleEl = document;
 
-		// throttle by element
-		if ("_target" === throttle) elementMap.set(el, throttler);
-		if ("_currentTarget" === throttle && currentTarget)
-			elementMap.set(currentTarget, throttler);
-
-		// throttle by string
-		if ("_action" === throttle && action)
-			stringMap.set(getKey(prefix, throttle, action), throttler);
-		if ("_url" === throttle && url)
-			stringMap.set(getKey(prefix, throttle, url), throttler);
-	}
+	elementMap.set(throttleEl, throttler);
 }

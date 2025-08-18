@@ -16,7 +16,7 @@
 		<header></header>
 		<main>
 			<ul
-				pointerover:="esmodule"
+				pointerover:="_esmodule"
 				pointerover:url="./scripts/uwu.js">
 				<p>Actions</p>
 				<li>
@@ -27,10 +27,10 @@
 				</li>
 				<li>
 					<button
-						click:="json"
+						click:="_json"
 						click:action="foxy_json"
 						click:url="./json/hey_foxy.json"
-						click:throttle="_currentTarget"
+						click:throttle
 						click:throttle-ms="1000">
 						fox
 					</button>
@@ -42,9 +42,7 @@
 						wolf
 					</button>
 				</li>
-				<li
-					pointerover:="esmodule"
-					pointerover:url="./scripts/uwu.js">
+				<li>
 					<button
 						click:="action"
 						click:action="eagle!">

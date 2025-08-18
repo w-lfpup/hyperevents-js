@@ -27,9 +27,7 @@ export interface EsModuleEventInterface {
 
 let urlSet = new Set();
 
-const eventInitDict: EventInit = { bubbles: true, composed: true };
-
-export class ESModuleEvent extends Event implements EsModuleEventInterface {
+export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 
 	constructor(requestState: EsModuleRequestState, eventInitDict: EventInit) {
@@ -38,29 +36,36 @@ export class ESModuleEvent extends Event implements EsModuleEventInterface {
 	}
 }
 
-export function dispatchModuleImport(params: DispatchParams) {
-	let { el, sourceEvent } = params;
+export function dispatchEsModuleEvent(params: DispatchParams) {
+	let { el, composed } = params;
 
-	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
+	let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
 	if (urlSet.has(url)) return;
-
 	urlSet.add(url);
-	dispatchEvent({ status: "requested", url });
+
+	let event = new EsModuleEvent(
+		{ status: "requested", url },
+		{ bubbles: true, composed },
+	);
+	el.dispatchEvent(event);
 
 	import(url)
 		.then(function () {
-			dispatchEvent({ status: "resolved", url });
+			let event = new EsModuleEvent(
+				{ status: "resolved", url },
+				{ bubbles: true, composed },
+			);
+			el.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			urlSet.delete(url);
-			dispatchEvent({ status: "rejected", url, error });
+			let event = new EsModuleEvent(
+				{ status: "rejected", url, error },
+				{ bubbles: true, composed },
+			);
+			el.dispatchEvent(event);
 		});
-}
-
-function dispatchEvent(status: EsModuleRequestState) {
-	let event = new ESModuleEvent(status, eventInitDict);
-	document.dispatchEvent(event);
 }

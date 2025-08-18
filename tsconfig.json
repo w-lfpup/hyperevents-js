@@ -1,9 +1,10 @@
 {
 	"compilerOptions": {
-		"lib": ["DOM", "esnext"],
-		"declaration": true,
 		"strict": true,
 		"module": "esnext",
-		"target": "esnext"
+		"target": "esnext",
+		"declaration": true,
+		"removeComments": true,
+		"lib": ["DOM", "esnext"]
 	}
 }

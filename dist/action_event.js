@@ -17,7 +17,7 @@ function getActionParams(dispatchParams) {
     let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
     let action = el.getAttribute(`${type}:`);
-    if ("action" === action) {
+    if ("_action" === action) {
         action = el.getAttribute(`${type}:action`);
     }
     if (action)

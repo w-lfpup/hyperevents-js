@@ -7,13 +7,11 @@ export interface DispatchParams {
 }
 
 export interface RequestParams {
-	action: ReturnType<Element["getAttribute"]>;
-	url: ReturnType<Element["getAttribute"]>;
-	method: ReturnType<Element["getAttribute"]>;
+	action: string;
+	url: string;
+	method: string;
 	timeoutMs?: number;
 }
-
-export type RequestStatus = "requested" | "resolved" | "rejected";
 
 export function getRequestParams(
 	dispatchParams: DispatchParams,
@@ -22,9 +20,12 @@ export function getRequestParams(
 	let { type } = sourceEvent;
 
 	let action = el.getAttribute(`${type}:action`);
-	let url = el.getAttribute(`${type}:url`);
-	let method = el.getAttribute(`${type}:method`);
+	if (!action) return;
 
+	let url = el.getAttribute(`${type}:url`);
+	if (!url) return;
+
+	let method = el.getAttribute(`${type}:method`) ?? "GET";
 	let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
 	let timeoutMs = parseInt(timeoutAttr ?? "0");
 
@@ -42,14 +43,13 @@ export function createRequest(
 	abortController: AbortController,
 ): Request | undefined {
 	let { url, timeoutMs, method } = requestParams;
-	if (!url) return;
 
 	let abortSignals = [abortController.signal];
 	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
 
 	return new Request(url, {
 		signal: AbortSignal.any(abortSignals),
-		method: method ?? "GET",
+		method: method,
 		body: dispatchParams.formData,
 	});
 }

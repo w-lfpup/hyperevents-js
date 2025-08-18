@@ -39,9 +39,9 @@ function dispatchEvent(params: DispatchParams) {
 
 	let attr = el.getAttribute(`${sourceEvent.type}:`);
 
-	if ("esmodule" === attr) return dispatchEsModuleEvent(params);
-	if ("json" === attr) return dispatchJsonEvent(params);
-	if ("template" === attr) return dispatchHtmlEvent(params);
+	if ("_esmodule" === attr) return dispatchEsModuleEvent(params);
+	if ("_json" === attr) return dispatchJsonEvent(params);
+	if ("_html" === attr) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
 }

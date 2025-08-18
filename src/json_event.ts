@@ -6,7 +6,8 @@ import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
 interface JsonEventParamsInterface {
 	request: Request;
-	action: string | null;
+	action: string;
+	abortController: AbortController;
 }
 
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
@@ -63,7 +64,11 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	if (!request) return;
 
 	let { action } = requestParams;
-	let fetchParams: JsonEventParamsInterface = { action, request };
+	let fetchParams: JsonEventParamsInterface = {
+		action,
+		request,
+		abortController,
+	};
 
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {

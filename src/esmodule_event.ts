@@ -44,25 +44,28 @@ export function dispatchEsModuleEvent(params: DispatchParams) {
 
 	let url = new URL(urlAttr, location.href).toString();
 	if (urlSet.has(url)) return;
-
 	urlSet.add(url);
-	dispatchEvent({ status: "requested", url }, el, composed);
+
+	let event = new ESModuleEvent(
+		{ status: "requested", url },
+		{ bubbles: true, composed },
+	);
+	el.dispatchEvent(event);
 
 	import(url)
 		.then(function () {
-			dispatchEvent({ status: "resolved", url }, el, composed);
+			let event = new ESModuleEvent(
+				{ status: "resolved", url },
+				{ bubbles: true, composed },
+			);
+			el.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			urlSet.delete(url);
-			dispatchEvent({ status: "rejected", url, error }, el, composed);
+			let event = new ESModuleEvent(
+				{ status: "rejected", url, error },
+				{ bubbles: true, composed },
+			);
+			el.dispatchEvent(event);
 		});
-}
-
-function dispatchEvent(
-	requestState: EsModuleRequestState,
-	target: EventTarget,
-	composed: boolean,
-) {
-	let event = new ESModuleEvent(requestState, { bubbles: true, composed });
-	target.dispatchEvent(event);
 }

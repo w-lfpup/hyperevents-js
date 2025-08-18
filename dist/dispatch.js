@@ -31,11 +31,11 @@ export function dispatch(sourceEvent) {
 function dispatchEvent(params) {
     let { el, sourceEvent } = params;
     let attr = el.getAttribute(`${sourceEvent.type}:`);
-    if ("esmodule" === attr)
+    if ("_esmodule" === attr)
         return dispatchEsModuleEvent(params);
-    if ("json" === attr)
+    if ("_json" === attr)
         return dispatchJsonEvent(params);
-    if ("template" === attr)
+    if ("_html" === attr)
         return dispatchHtmlEvent(params);
     return dispatchActionEvent(params);
 }

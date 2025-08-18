@@ -21,7 +21,7 @@ export function dispatchHtmlEvent(dispatchParams) {
     if (!request)
         return;
     let { action } = requestParams;
-    let fetchParams = { action, request };
+    let fetchParams = { action, request, abortController };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
         let entry = new Queueable({

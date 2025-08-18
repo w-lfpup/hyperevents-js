@@ -1,7 +1,8 @@
 import type { DispatchParams } from "./type_flyweight.js";
 interface HtmlEventParamsInterface {
     request: Request;
-    action: ReturnType<Element["getAttribute"]>;
+    action: string;
+    abortController: AbortController;
 }
 interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
     queueTarget: EventTarget;
@@ -21,7 +22,7 @@ interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
 }
 export type HtmlEventState = HtmlEventQueuedInterface | HtmlEventRejectedInterface | HtmlEventRequestedInterface | HtmlEventResolvedInterface;
 export interface HtmlEventInterface {
-    readonly htmlParams: HtmlEventParamsInterface;
+    htmlParams: HtmlEventParamsInterface;
 }
 export declare class HtmlEvent extends Event {
     requestState: HtmlEventState;

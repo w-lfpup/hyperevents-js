@@ -6,7 +6,7 @@ export interface ActionEventParamsInterface {
 }
 
 export interface ActionEventInterface {
-	readonly actionParams: ActionEventParamsInterface;
+	actionParams: ActionEventParamsInterface;
 }
 
 export class ActionEvent extends Event implements ActionEventInterface {
@@ -35,7 +35,7 @@ function getActionParams(
 	let { type } = sourceEvent;
 
 	let action = el.getAttribute(`${type}:`);
-	if ("action" === action) {
+	if ("_action" === action) {
 		action = el.getAttribute(`${type}:action`);
 	}
 

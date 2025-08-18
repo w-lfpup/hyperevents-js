@@ -15,17 +15,16 @@ export function dispatchEsModuleEvent(params) {
     if (urlSet.has(url))
         return;
     urlSet.add(url);
-    dispatchEvent({ status: "requested", url }, el, composed);
+    let event = new ESModuleEvent({ status: "requested", url }, { bubbles: true, composed });
+    el.dispatchEvent(event);
     import(url)
         .then(function () {
-        dispatchEvent({ status: "resolved", url }, el, composed);
+        let event = new ESModuleEvent({ status: "resolved", url }, { bubbles: true, composed });
+        el.dispatchEvent(event);
     })
         .catch(function (error) {
         urlSet.delete(url);
-        dispatchEvent({ status: "rejected", url, error }, el, composed);
+        let event = new ESModuleEvent({ status: "rejected", url, error }, { bubbles: true, composed });
+        el.dispatchEvent(event);
     });
-}
-function dispatchEvent(requestState, target, composed) {
-    let event = new ESModuleEvent(requestState, { bubbles: true, composed });
-    target.dispatchEvent(event);
 }

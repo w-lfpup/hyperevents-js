@@ -6,11 +6,10 @@ export interface DispatchParams {
     formData?: FormData;
 }
 export interface RequestParams {
-    action: ReturnType<Element["getAttribute"]>;
-    url: ReturnType<Element["getAttribute"]>;
-    method: ReturnType<Element["getAttribute"]>;
+    action: string;
+    url: string;
+    method: string;
     timeoutMs?: number;
 }
-export type RequestStatus = "requested" | "resolved" | "rejected";
 export declare function getRequestParams(dispatchParams: DispatchParams): RequestParams | undefined;
 export declare function createRequest(dispatchParams: DispatchParams, requestParams: RequestParams, abortController: AbortController): Request | undefined;

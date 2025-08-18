@@ -6,7 +6,8 @@ import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
 interface HtmlEventParamsInterface {
 	request: Request;
-	action: ReturnType<Element["getAttribute"]>;
+	action: string;
+	abortController: AbortController;
 }
 
 interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
@@ -36,7 +37,7 @@ export type HtmlEventState =
 	| HtmlEventResolvedInterface;
 
 export interface HtmlEventInterface {
-	readonly htmlParams: HtmlEventParamsInterface;
+	htmlParams: HtmlEventParamsInterface;
 }
 
 export class HtmlEvent extends Event {
@@ -63,7 +64,11 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	if (!request) return;
 
 	let { action } = requestParams;
-	let fetchParams: HtmlEventParamsInterface = { action, request };
+	let fetchParams: HtmlEventParamsInterface = {
+		action,
+		request,
+		abortController,
+	};
 
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {

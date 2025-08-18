@@ -1,4 +1,12 @@
-# HyperActions-js
+# SuperHyper64-js
+
+# Raven-js
+
+# SuperRelay
+
+# HyperEvents
+
+# HyperActions
 
 A hypertext extension for the browser.
 
@@ -31,7 +39,7 @@ npm install https://github.com/wolfpup-software/hyperactions-js
 Add a `target` and some `eventNames` on instantiation.
 
 ```ts
-let bang = new HyperActions({
+let superHyper64 = new SuperHyper64({
 	target: document,
 	connected: true,
 	eventNames: ["click", "pointerover"],
@@ -70,7 +78,7 @@ Super chunk can fetch esmodules using the following syntax:
 Then listen for request state with `#esmodule` events in javascript-land.
 
 ```ts
-document.addEventListener("#esmodule", function (e: ActionEvent) {
+document.addEventListener("#esmodule", function (e: EsModuleEvent) {
 	let { status, url } = e.actionParams;
 });
 ```
@@ -82,11 +90,17 @@ Super chunk can fetch and dispatch JSON using the following syntax:
 ```html
 <button
 	pointerdown:="json"
+	pointerdown:action="ping_api"
 	pointerdown:url="/fetch/some.json"
-	pointerdown:throttle
-	pointerdown:throttle-ms=""
-	pointerdown:queued=""
 ></button>
+```
+
+Then listen for request state with `#json` events in javascript-land.
+
+```ts
+document.addEventListener("#json", function (e: JsonEvent) {
+	let { status, url } = e.actionParams;
+});
 ```
 
 ## HTML
@@ -96,8 +110,17 @@ Super chunk can fetch html using the following syntax:
 ```html
 <button
 	click:="html"
+	click:action="get_entries"
 	click:url="/fetch/some.html"
 ></button>
+```
+
+Then listen for request state with `#html_fragment` events in javascript-land.
+
+```ts
+document.addEventListener("#html", function (e: HtmlEvent) {
+	let { status, url } = e.actionParams;
+});
 ```
 
 ## License

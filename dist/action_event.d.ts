@@ -4,7 +4,7 @@ export interface ActionEventParamsInterface {
     action: string;
 }
 export interface ActionEventInterface {
-    readonly actionParams: ActionEventParamsInterface;
+    actionParams: ActionEventParamsInterface;
 }
 export declare class ActionEvent extends Event implements ActionEventInterface {
     actionParams: ActionEventParamsInterface;

@@ -1,7 +1,8 @@
 import type { DispatchParams } from "./type_flyweight.js";
 interface JsonEventParamsInterface {
     request: Request;
-    action: string | null;
+    action: string;
+    abortController: AbortController;
 }
 interface JsonEventQueuedInterface extends JsonEventParamsInterface {
     queueTarget: EventTarget;

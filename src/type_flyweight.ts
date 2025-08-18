@@ -28,9 +28,7 @@ export function getRequestParams(
 
 	let method = el.getAttribute(`${type}:method`) ?? "GET";
 	let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
-
-	// SHOULD MAKE A DEFAULT IN DISPATCH PARAMS
-	let timeoutMs = parseInt(timeoutAttr || "3000");
+	let timeoutMs = parseInt(timeoutAttr || "");
 
 	return {
 		timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,

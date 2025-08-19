@@ -37,10 +37,10 @@ export type HtmlRequestState =
 	| HtmlEventResolvedInterface;
 
 export interface HtmlEventInterface {
-	htmlParams: HtmlEventParamsInterface;
+	requestState: HtmlEventParamsInterface;
 }
 
-export class HtmlEvent extends Event {
+export class HtmlEvent extends Event implements HtmlEventInterface {
 	requestState: HtmlRequestState;
 
 	constructor(requestState: HtmlRequestState, eventInit?: EventInit) {

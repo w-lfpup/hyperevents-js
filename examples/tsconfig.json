@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"declaration": false,
 		"paths": {
-			"hyperevents": ["../dist/mod.d.ts"]
+			"hyperevents": ["../dist/mod.d.ts"],
+			"hyperevents/*": ["../dist/*"]
 		}
 	}
 }

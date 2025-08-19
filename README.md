@@ -42,7 +42,7 @@ let _hyperEvents = new HyperEvents({
 
 Action events connect DOM Events to local state.
 
-Actions are declared in html with the following syntax:
+Dsipatch actions with the following syntax:
 
 ```html
 <button click:="update_something"></button>
@@ -58,7 +58,7 @@ document.addEventListener("#action", function (e: ActionEvent) {
 
 ## ES Modules
 
-Super chunk can fetch esmodules using the following syntax:
+Fetch esmodules using the following syntax:
 
 ```html
 <div
@@ -77,7 +77,7 @@ document.addEventListener("#esmodule", function (e: EsModuleEvent) {
 
 ## JSON
 
-Super chunk can fetch and dispatch JSON using the following syntax:
+Fetch and dispatch JSON using the following syntax:
 
 ```html
 <span
@@ -102,7 +102,7 @@ document.addEventListener("#json", function (e: JsonEvent) {
 
 ## HTML
 
-Super chunk can fetch html using the following syntax:
+Fetch html using the following syntax:
 
 ```html
 <input
@@ -149,4 +149,4 @@ declare global {
 
 ## License
 
-`HyperAction-js` is released under the BSD 3-Clause License.
+`HyperEvents-js` is released under the BSD 3-Clause License.

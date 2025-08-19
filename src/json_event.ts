@@ -4,37 +4,37 @@ import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
-interface JsonEventParamsInterface {
+interface JsonRequestInterface {
 	request: Request;
 	action: string;
 	abortController: AbortController;
 }
 
-interface JsonEventQueuedInterface extends JsonEventParamsInterface {
+interface JsonRequestQueuedInterface extends JsonRequestInterface {
 	status: "queued";
 	queueTarget: EventTarget;
 }
 
-interface JsonEventRequestedInterface extends JsonEventParamsInterface {
+interface JsonRequestRequestedInterface extends JsonRequestInterface {
 	status: "requested";
 }
 
-interface JsonEventResolvedInterface extends JsonEventParamsInterface {
+interface JsonRequestResolvedInterface extends JsonRequestInterface {
 	status: "resolved";
 	response: Response;
 	json: any;
 }
 
-interface JsonEventRejectedInterface extends JsonEventParamsInterface {
+interface JsonRequestRejectedInterface extends JsonRequestInterface {
 	status: "rejected";
 	error: any;
 }
 
 export type JsonRequestState =
-	| JsonEventQueuedInterface
-	| JsonEventRequestedInterface
-	| JsonEventResolvedInterface
-	| JsonEventRejectedInterface;
+	| JsonRequestQueuedInterface
+	| JsonRequestRequestedInterface
+	| JsonRequestResolvedInterface
+	| JsonRequestRejectedInterface;
 
 export interface JsonEventInterface {
 	requestState: JsonRequestState;
@@ -64,7 +64,7 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	if (!request) return;
 
 	let { action } = requestParams;
-	let fetchParams: JsonEventParamsInterface = {
+	let fetchParams: JsonRequestInterface = {
 		action,
 		request,
 		abortController,
@@ -92,7 +92,7 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 }
 
 function fetchJson(
-	fetchParams: JsonEventParamsInterface,
+	fetchParams: JsonRequestInterface,
 	dispatchParams: DispatchParams,
 	abortController: AbortController,
 ): Promise<void> | undefined {

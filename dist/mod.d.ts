@@ -1,4 +1,4 @@
-export type { ActionEventInterface, ActionInterface, } from "./action_event.ts";
+export type { ActionEventInterface, ActionInterface } from "./action_event.ts";
 export type { EsModuleEventInterface, EsModuleRequestState, } from "./esmodule_event.ts";
 export type { JsonEventInterface, JsonRequestState } from "./json_event.ts";
 export type { HtmlEventInterface, HtmlRequestState } from "./html_event.ts";

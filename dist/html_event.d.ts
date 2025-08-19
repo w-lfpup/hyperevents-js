@@ -1,28 +1,28 @@
 import type { DispatchParams } from "./type_flyweight.js";
-interface HtmlEventParamsInterface {
+interface HtmlRequestInterface {
     request: Request;
     action: string;
     abortController: AbortController;
 }
-interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestQueuedInterface extends HtmlRequestInterface {
     status: "queued";
     queueTarget: EventTarget;
 }
-interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestRequestedInterface extends HtmlRequestInterface {
     status: "requested";
 }
-interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestResolvedInterface extends HtmlRequestInterface {
     status: "resolved";
     response: Response;
     html: string;
 }
-interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestRejectedInterface extends HtmlRequestInterface {
     status: "rejected";
     error: any;
 }
-export type HtmlRequestState = HtmlEventQueuedInterface | HtmlEventRejectedInterface | HtmlEventRequestedInterface | HtmlEventResolvedInterface;
+export type HtmlRequestState = HtmlRequestQueuedInterface | HtmlRequestRejectedInterface | HtmlRequestRequestedInterface | HtmlRequestResolvedInterface;
 export interface HtmlEventInterface {
-    requestState: HtmlEventParamsInterface;
+    requestState: HtmlRequestState;
 }
 export declare class HtmlEvent extends Event implements HtmlEventInterface {
     requestState: HtmlRequestState;

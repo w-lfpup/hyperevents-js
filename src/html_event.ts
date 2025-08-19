@@ -4,43 +4,43 @@ import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
-interface HtmlEventParamsInterface {
+interface HtmlRequestInterface {
 	request: Request;
 	action: string;
 	abortController: AbortController;
 }
 
-interface HtmlEventQueuedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestQueuedInterface extends HtmlRequestInterface {
 	status: "queued";
 	queueTarget: EventTarget;
 }
 
-interface HtmlEventRequestedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestRequestedInterface extends HtmlRequestInterface {
 	status: "requested";
 }
 
-interface HtmlEventResolvedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestResolvedInterface extends HtmlRequestInterface {
 	status: "resolved";
 	response: Response;
 	html: string;
 }
 
-interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
+interface HtmlRequestRejectedInterface extends HtmlRequestInterface {
 	status: "rejected";
 	error: any;
 }
 
 export type HtmlRequestState =
-	| HtmlEventQueuedInterface
-	| HtmlEventRejectedInterface
-	| HtmlEventRequestedInterface
-	| HtmlEventResolvedInterface;
+	| HtmlRequestQueuedInterface
+	| HtmlRequestRejectedInterface
+	| HtmlRequestRequestedInterface
+	| HtmlRequestResolvedInterface;
 
 export interface HtmlEventInterface {
-	htmlParams: HtmlEventParamsInterface;
+	requestState: HtmlRequestState;
 }
 
-export class HtmlEvent extends Event {
+export class HtmlEvent extends Event implements HtmlEventInterface {
 	requestState: HtmlRequestState;
 
 	constructor(requestState: HtmlRequestState, eventInit?: EventInit) {
@@ -64,7 +64,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	if (!request) return;
 
 	let { action } = requestParams;
-	let fetchParams: HtmlEventParamsInterface = {
+	let fetchParams: HtmlRequestInterface = {
 		action,
 		request,
 		abortController,
@@ -86,7 +86,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 }
 
 function fetchHtml(
-	fetchParams: HtmlEventParamsInterface,
+	fetchParams: HtmlRequestInterface,
 	dispatchParams: DispatchParams,
 	abortController: AbortController,
 ): Promise<void> | undefined {

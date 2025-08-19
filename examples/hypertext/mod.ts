@@ -1,18 +1,18 @@
 import type {
-	ActionEvent,
-	HtmlEvent,
-	JsonEvent,
-	EsModuleEvent,
+	ActionEventInterface,
+	EsModuleEventInterface,
+	JsonEventInterface,
+	HtmlEventInterface,
 } from "hyperevents";
 
 import { HyperEvents } from "hyperevents";
 
 declare global {
 	interface GlobalEventHandlersEventMap {
-		["#action"]: ActionEvent;
-		["#esmodule"]: EsModuleEvent;
-		["#json"]: JsonEvent;
-		["#html"]: HtmlEvent;
+		["#action"]: ActionEventInterface;
+		["#esmodule"]: EsModuleEventInterface;
+		["#json"]: JsonEventInterface;
+		["#html"]: HtmlEventInterface;
 	}
 }
 

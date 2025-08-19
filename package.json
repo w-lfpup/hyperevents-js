@@ -2,6 +2,8 @@
 	"name": "hyperevents",
 	"version": "0.1.0",
 	"description": "declarative HTML projections",
+	"type": "module",
+	"main": "dist/mod.js",
 	"scripts": {
 		"build": "npx tsc --project ./src",
 		"build:examples": "npx tsc --project ./examples",

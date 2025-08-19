@@ -1,26 +1,26 @@
 import type { DispatchParams } from "./type_flyweight.js";
-interface JsonEventParamsInterface {
+interface JsonRequestInterface {
     request: Request;
     action: string;
     abortController: AbortController;
 }
-interface JsonEventQueuedInterface extends JsonEventParamsInterface {
+interface JsonRequestQueuedInterface extends JsonRequestInterface {
     status: "queued";
     queueTarget: EventTarget;
 }
-interface JsonEventRequestedInterface extends JsonEventParamsInterface {
+interface JsonRequestRequestedInterface extends JsonRequestInterface {
     status: "requested";
 }
-interface JsonEventResolvedInterface extends JsonEventParamsInterface {
+interface JsonRequestResolvedInterface extends JsonRequestInterface {
     status: "resolved";
     response: Response;
     json: any;
 }
-interface JsonEventRejectedInterface extends JsonEventParamsInterface {
+interface JsonRequestRejectedInterface extends JsonRequestInterface {
     status: "rejected";
     error: any;
 }
-export type JsonRequestState = JsonEventQueuedInterface | JsonEventRequestedInterface | JsonEventResolvedInterface | JsonEventRejectedInterface;
+export type JsonRequestState = JsonRequestQueuedInterface | JsonRequestRequestedInterface | JsonRequestResolvedInterface | JsonRequestRejectedInterface;
 export interface JsonEventInterface {
     requestState: JsonRequestState;
 }

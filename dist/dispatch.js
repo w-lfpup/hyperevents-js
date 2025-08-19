@@ -11,7 +11,7 @@ export function dispatch(sourceEvent) {
         formData = new FormData(target);
     for (let node of sourceEvent.composedPath()) {
         if (node instanceof Element) {
-            let kind = node.getAttribute(`${sourceEvent.type}:`);
+            let kind = node.getAttribute(`${type}:`);
             if (!kind)
                 continue;
             if (node.hasAttribute(`${type}:prevent-default`))

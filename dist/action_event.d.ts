@@ -1,13 +1,13 @@
 import type { DispatchParams } from "./type_flyweight.js";
-export interface ActionEventParamsInterface {
+export interface ActionParamsInterface {
     sourceEvent: Event;
     action: string;
 }
 export interface ActionEventInterface {
-    actionParams: ActionEventParamsInterface;
+    actionParams: ActionParamsInterface;
 }
 export declare class ActionEvent extends Event implements ActionEventInterface {
-    actionParams: ActionEventParamsInterface;
-    constructor(actionParams: ActionEventParamsInterface, eventInit?: EventInit);
+    actionParams: ActionParamsInterface;
+    constructor(actionParams: ActionParamsInterface, eventInit?: EventInit);
 }
 export declare function dispatchActionEvent(dispatchParams: DispatchParams): void;

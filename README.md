@@ -131,18 +131,18 @@ For typed events, please add the following to your app somewhere thoughtful.
 
 ```ts
 import type {
-	ActionEvent,
-	HtmlEvent,
-	JsonEvent,
-	EsModuleEvent,
+	ActionEventInterface,
+	HtmlEventInterface,
+	JsonEventInterface,
+	EsModuleEventInterface,
 } from "hyperevents";
 
 declare global {
 	interface GlobalEventHandlersEventMap {
-		["#action"]: ActionEvent;
-		["#esmodule"]: EsModuleEvent;
-		["#json"]: JsonEvent;
-		["#html"]: HtmlEvent;
+		["#action"]: ActionEventInterface;
+		["#esmodule"]: EsModuleEventInterface;
+		["#json"]: JsonEventInterface;
+		["#html"]: HtmlEventInterface;
 	}
 }
 ```

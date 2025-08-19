@@ -20,13 +20,13 @@ interface JsonEventRejectedInterface extends JsonEventParamsInterface {
     status: "rejected";
     error: any;
 }
-export type JsonEventState = JsonEventQueuedInterface | JsonEventRequestedInterface | JsonEventResolvedInterface | JsonEventRejectedInterface;
+export type JsonRequestState = JsonEventQueuedInterface | JsonEventRequestedInterface | JsonEventResolvedInterface | JsonEventRejectedInterface;
 export interface JsonEventInterface {
-    requestState: JsonEventState;
+    requestState: JsonRequestState;
 }
 export declare class JsonEvent extends Event implements JsonEventInterface {
-    requestState: JsonEventState;
-    constructor(requestState: JsonEventState, eventInitDict?: EventInit);
+    requestState: JsonRequestState;
+    constructor(requestState: JsonRequestState, eventInitDict?: EventInit);
 }
 export declare function dispatchJsonEvent(dispatchParams: DispatchParams): void;
 export {};

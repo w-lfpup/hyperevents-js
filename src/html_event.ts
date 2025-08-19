@@ -30,7 +30,7 @@ interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
 	error: any;
 }
 
-export type HtmlEventState =
+export type HtmlRequestState =
 	| HtmlEventQueuedInterface
 	| HtmlEventRejectedInterface
 	| HtmlEventRequestedInterface
@@ -41,9 +41,9 @@ export interface HtmlEventInterface {
 }
 
 export class HtmlEvent extends Event {
-	requestState: HtmlEventState;
+	requestState: HtmlRequestState;
 
-	constructor(requestState: HtmlEventState, eventInit?: EventInit) {
+	constructor(requestState: HtmlRequestState, eventInit?: EventInit) {
 		super("#html", eventInit);
 		this.requestState = requestState;
 	}

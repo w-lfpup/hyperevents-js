@@ -20,13 +20,13 @@ interface HtmlEventRejectedInterface extends HtmlEventParamsInterface {
     status: "rejected";
     error: any;
 }
-export type HtmlEventState = HtmlEventQueuedInterface | HtmlEventRejectedInterface | HtmlEventRequestedInterface | HtmlEventResolvedInterface;
+export type HtmlRequestState = HtmlEventQueuedInterface | HtmlEventRejectedInterface | HtmlEventRequestedInterface | HtmlEventResolvedInterface;
 export interface HtmlEventInterface {
     htmlParams: HtmlEventParamsInterface;
 }
 export declare class HtmlEvent extends Event {
-    requestState: HtmlEventState;
-    constructor(requestState: HtmlEventState, eventInit?: EventInit);
+    requestState: HtmlRequestState;
+    constructor(requestState: HtmlRequestState, eventInit?: EventInit);
 }
 export declare function dispatchHtmlEvent(dispatchParams: DispatchParams): void;
 export {};

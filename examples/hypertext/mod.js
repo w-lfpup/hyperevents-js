@@ -5,14 +5,14 @@ const _hyperEvents = new HyperEvents({
     eventNames: ["click", "pointerover"],
 });
 document.addEventListener("#action", function (e) {
-    console.log("#action", e, e.actionParams);
+    console.log("#action", e.actionParams);
 });
 document.addEventListener("#esmodule", function (e) {
-    console.log("#esmodule", e, e.requestState);
+    console.log("#esmodule", e.requestState);
 });
 document.addEventListener("#json", function (e) {
-    console.log("#json", e, e.requestState);
+    console.log("#json", e.requestState);
 });
 document.addEventListener("#html", function (e) {
-    console.log("#html", e, e.requestState);
+    console.log("#html", e.requestState);
 });

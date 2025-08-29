@@ -15,23 +15,22 @@ export function dispatch(sourceEvent: Event) {
 
 	for (let node of sourceEvent.composedPath()) {
 		if (node instanceof Element) {
-			let kind = node.getAttribute(`${type}:`);
-			if (!kind) continue;
-
 			if (node.hasAttribute(`${type}:prevent-default`))
 				sourceEvent.preventDefault();
 
 			if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
-			let composed = node.hasAttribute(`${type}:composed`);
-			dispatchEvent({
-				el: node,
-				kind,
-				currentTarget,
-				sourceEvent,
-				composed,
-				formData,
-			});
+			let kind = node.getAttribute(`${type}:`);
+			if (kind) {
+				dispatchEvent({
+					el: node,
+					composed: node.hasAttribute(`${type}:composed`),
+					kind,
+					currentTarget,
+					sourceEvent,
+					formData,
+				});
+			}
 
 			if (node.hasAttribute(`${type}:stop-propagation`)) return;
 		}

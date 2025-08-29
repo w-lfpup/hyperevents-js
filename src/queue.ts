@@ -17,7 +17,6 @@ export interface FetchCallback<A> {
 }
 
 interface Queue {
-	status: "enqueued" | "completed";
 	incoming: QueuableInterface[];
 	outgoing: QueuableInterface[];
 }
@@ -79,27 +78,24 @@ export function getQueueParams(
 	return { queueTarget };
 }
 
-// can combine these
 export function enqueue(
 	params: QueueParamsInterface,
 	queueEntry: QueuableInterface,
 ) {
 	let { queueTarget } = params;
-	// add function to queue
+
 	let queue = queueMap.get(queueTarget);
-	if ("enqueued" === queue?.status) {
-		queue.incoming.push(queueEntry);
-		return;
+	if (!queue) {
+		let freshQueue = {
+			incoming: [],
+			outgoing: [],
+		};
+		queueMap.set(queueTarget, freshQueue);
+		queue = freshQueue;
 	}
 
-	let freshQueue: Queue = {
-		status: "enqueued",
-		incoming: [],
-		outgoing: [],
-	};
-
-	queueMap.set(queueTarget, freshQueue);
-	queueEntry.dispatch();
+	queue.incoming.push(queueEntry);
+	queueNext(queueTarget);
 }
 
 function queueNext(el: EventTarget) {

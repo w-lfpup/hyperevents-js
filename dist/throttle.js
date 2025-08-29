@@ -24,12 +24,7 @@ export function shouldThrottle(dispatchParams, throttleParams) {
         throttleEl = el;
     if ("_document" === throttle)
         throttleEl = document;
-    return shouldThrottleByElement(throttleEl, timeoutMs);
-}
-function shouldThrottleByElement(el, timeoutMs) {
-    if (!el)
-        return false;
-    let throttler = elementMap.get(el);
+    let throttler = elementMap.get(throttleEl);
     if (throttler) {
         let delta = performance.now() - throttler.timeStamp;
         if (delta < timeoutMs) {

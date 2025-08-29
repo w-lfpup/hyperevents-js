@@ -23,7 +23,6 @@ export function getThrottleParams(
 
 	let throttleMsAttr = el.getAttribute(`${type}:throttle-ms`);
 	let timeoutMs = parseInt(throttleMsAttr ?? "");
-
 	if (Number.isNaN(timeoutMs)) return;
 
 	return {
@@ -42,20 +41,10 @@ export function shouldThrottle(
 	let { throttle, timeoutMs } = throttleParams;
 
 	let throttleEl = currentTarget;
-
 	if ("_target" === throttle) throttleEl = el;
 	if ("_document" === throttle) throttleEl = document;
 
-	return shouldThrottleByElement(throttleEl, timeoutMs);
-}
-
-function shouldThrottleByElement(
-	el: Event["target"],
-	timeoutMs: number,
-): boolean {
-	if (!el) return false;
-
-	let throttler = elementMap.get(el);
+	let throttler = elementMap.get(throttleEl);
 	if (throttler) {
 		let delta = performance.now() - throttler.timeStamp;
 		if (delta < timeoutMs) {

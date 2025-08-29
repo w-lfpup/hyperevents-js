@@ -75,31 +75,6 @@ document.addEventListener("#esmodule", function (e: EsModuleEvent) {
 });
 ```
 
-## JSON
-
-Fetch and dispatch JSON using the following syntax:
-
-```html
-<span
-	pointerdown:="_json"
-	pointerdown:action="ping_api"
-	pointerdown:url="/fetch/some.json"
-></span>
-```
-
-Then listen for request state with `#json` events in javascript-land.
-
-```ts
-document.addEventListener("#json", function (e: JsonEvent) {
-	let { requestState } = e;
-	let { status } = requestState;
-
-	if ("resolved" === status) {
-		let { json } = requestState;
-	}
-});
-```
-
 ## HTML
 
 Fetch html using the following syntax:
@@ -125,6 +100,31 @@ document.addEventListener("#html", function (e: HtmlEvent) {
 });
 ```
 
+## JSON
+
+Fetch and dispatch JSON using the following syntax:
+
+```html
+<span
+	pointerdown:="_json"
+	pointerdown:action="ping_api"
+	pointerdown:url="/fetch/some.json"
+></span>
+```
+
+Then listen for request state with `#json` events in javascript-land.
+
+```ts
+document.addEventListener("#json", function (e: JsonEvent) {
+	let { requestState } = e;
+	let { status } = requestState;
+
+	if ("resolved" === status) {
+		let { json } = requestState;
+	}
+});
+```
+
 ## Typescript
 
 For typed events, please add the following to your app somewhere thoughtful.
@@ -132,17 +132,17 @@ For typed events, please add the following to your app somewhere thoughtful.
 ```ts
 import type {
 	ActionEventInterface,
+	EsModuleEventInterface,
 	HtmlEventInterface,
 	JsonEventInterface,
-	EsModuleEventInterface,
 } from "hyperevents";
 
 declare global {
 	interface GlobalEventHandlersEventMap {
 		["#action"]: ActionEventInterface;
 		["#esmodule"]: EsModuleEventInterface;
-		["#json"]: JsonEventInterface;
 		["#html"]: HtmlEventInterface;
+		["#json"]: JsonEventInterface;
 	}
 }
 ```

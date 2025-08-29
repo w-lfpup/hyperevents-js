@@ -1,9 +1,4 @@
-import type {
-	ActionEventInterface,
-	EsModuleEventInterface,
-	JsonEventInterface,
-	HtmlEventInterface,
-} from "hyperevents";
+import type { EsModuleEventInterface } from "hyperevents";
 
 import { HyperEvents } from "hyperevents";
 

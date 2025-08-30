@@ -40,11 +40,11 @@ export class Queueable<A> implements QueuableInterface {
 
 	dispatch() {
 		let {
-			fetchParams,
-			fetchCallback,
-			dispatchParams,
-			queueParams,
 			abortController,
+			dispatchParams,
+			fetchCallback,
+			fetchParams,
+			queueParams,
 		} = this.#params;
 		let { queueTarget } = queueParams;
 
@@ -71,7 +71,6 @@ export function getQueueParams(
 	if (!queueTargetAttr) return;
 
 	let queueTarget: EventTarget = currentTarget;
-
 	if ("_target" === queueTargetAttr) queueTarget = el;
 	if ("_document" === queueTargetAttr) queueTarget = document;
 

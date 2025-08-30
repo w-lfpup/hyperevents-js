@@ -5,7 +5,7 @@ export class Queueable {
         this.#params = params;
     }
     dispatch() {
-        let { fetchParams, fetchCallback, dispatchParams, queueParams, abortController, } = this.#params;
+        let { abortController, dispatchParams, fetchCallback, fetchParams, queueParams, } = this.#params;
         let { queueTarget } = queueParams;
         let promisedJson = fetchCallback(fetchParams, dispatchParams, abortController)?.finally(function () {
             queueNext(queueTarget);
@@ -30,17 +30,16 @@ export function getQueueParams(dispatchParams) {
 export function enqueue(params, queueEntry) {
     let { queueTarget } = params;
     let queue = queueMap.get(queueTarget);
-    if ("enqueued" === queue?.status) {
-        queue.incoming.push(queueEntry);
-        return;
+    if (!queue) {
+        let freshQueue = {
+            incoming: [],
+            outgoing: [],
+        };
+        queueMap.set(queueTarget, freshQueue);
+        queue = freshQueue;
     }
-    let freshQueue = {
-        status: "enqueued",
-        incoming: [],
-        outgoing: [],
-    };
-    queueMap.set(queueTarget, freshQueue);
-    queueEntry.dispatch();
+    queue.incoming.push(queueEntry);
+    queueNext(queueTarget);
 }
 function queueNext(el) {
     let queue = queueMap.get(el);

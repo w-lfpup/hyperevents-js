@@ -1,16 +1,16 @@
 export interface DispatchParams {
+    composed: boolean;
+    currentTarget: EventTarget;
+    el: Element;
+    formData?: FormData;
     kind: string;
     sourceEvent: Event;
-    el: Element;
-    currentTarget: EventTarget;
-    composed: boolean;
-    formData?: FormData;
 }
 export interface RequestParams {
     action: string;
-    url: string;
     method: string;
     timeoutMs?: number;
+    url: string;
 }
 export declare function getRequestParams(dispatchParams: DispatchParams): RequestParams | undefined;
 export declare function createRequest(dispatchParams: DispatchParams, requestParams: RequestParams, abortController: AbortController): Request | undefined;

@@ -6,16 +6,12 @@ A hypertext extension for the browser.
 
 `HyperEvents` enable HTML to declaratively:
 
+- lazy-load esmodules
 - query JSON APIs
 - fetch html fragments
-- lazy-load esmodules
 - dispatch action events (think redux actions)
 
-This makes `HyperEvents` well-suited for:
-
-- SSR
-- SSG
-- Templates and shadow DOM
+This makes `HyperEvents` well-suited for SSR/SSG, template elements, and shadow DOM.
 
 ## Install
 
@@ -37,12 +33,12 @@ let _hyperEvents = new HyperEvents({
 
 ## Events
 
-`HyperEvents` enable HTML to declaratively:
+Learn how to:
 
-- query [JSON](./docs/json_events.md) APIs
-- fetch [html](./docs/html_events.md) fragments
-- lazy-load [esmodules](./docs/esmodule_events.md)
-- dispatch [actions](./docs/action_events.md) events (think redux actions)
+- dispatch [actions](./docs/action_events.md)
+- import [esmodules](./docs/esmodule_events.md)
+- query [JSON](./docs/json_events.md)
+- fetch [html](./docs/html_events.md)
 
 ## Typescript
 

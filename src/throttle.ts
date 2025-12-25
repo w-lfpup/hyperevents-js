@@ -37,12 +37,11 @@ export function shouldThrottle(
 ): boolean {
 	if (!throttleParams) return false;
 
-	let { target, el } = dispatchParams;
+	let { target } = dispatchParams;
 	let { throttle, timeoutMs } = throttleParams;
 
-	let throttleEl = target;
-	if ("_target" === throttle) throttleEl = el;
-	if ("_document" === throttle) throttleEl = document;
+	let throttleEl: EventTarget = document;
+	if ("_target" === throttle) throttleEl = target;
 
 	let throttler = elementMap.get(throttleEl);
 	if (throttler) {

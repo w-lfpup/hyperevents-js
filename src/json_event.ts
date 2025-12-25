@@ -2,7 +2,7 @@ import type { DispatchParams } from "./type_flyweight.js";
 
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue, Queueable } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 
 interface JsonRequestInterface {
 	request: Request;

@@ -1,4 +1,3 @@
-// import { dispatch } from "./dispatch.js";
 import type { DispatchParams } from "./type_flyweight.js";
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
@@ -18,8 +17,8 @@ export interface HyperEventsInterface {
 }
 
 export class HyperEvents {
-	#params: HyperEventsParamsInterface;
 	#boundDispatch = this.#dispatch.bind(this);
+	#params: HyperEventsParamsInterface;
 	#target: EventTarget;
 
 	constructor(params: HyperEventsParamsInterface) {

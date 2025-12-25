@@ -70,7 +70,6 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 		abortController,
 	};
 
-	// could be one function call in the queue module itself
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {
 		let { queueTarget } = queueParams;

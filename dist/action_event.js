@@ -16,10 +16,7 @@ export function dispatchActionEvent(dispatchParams) {
 function getActionParams(dispatchParams) {
     let { el, kind, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
-    let action = kind;
-    if ("_action" === kind) {
-        action = el.getAttribute(`${type}:action`);
-    }
+    let action = "_action" === kind ? el.getAttribute(`${type}:action`) : kind;
     if (action)
         return { action, sourceEvent };
 }

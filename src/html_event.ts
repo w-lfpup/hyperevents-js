@@ -73,14 +73,19 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	// could be one function call in the queue module itself
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {
-		let entry = new Queueable({
+		let { queueTarget } = queueParams;
+
+		dispatchParams.target.dispatchEvent(
+			new HtmlEvent({ status: "queued", queueTarget, ...fetchParams }),
+		);
+
+		return enqueue({
 			fetchCallback: fetchHtml,
+			fetchParams,
 			dispatchParams,
 			queueParams,
-			fetchParams,
 			abortController,
 		});
-		return enqueue(queueParams, entry);
 	}
 
 	fetchHtml(fetchParams, dispatchParams, abortController);

@@ -78,14 +78,13 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 			new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
 		);
 
-		let entry = new Queueable({
+		return enqueue({
 			fetchCallback: fetchJson,
 			fetchParams,
 			dispatchParams,
 			queueParams,
 			abortController,
 		});
-		return enqueue(queueParams, entry);
 	}
 
 	fetchJson(fetchParams, dispatchParams, abortController);

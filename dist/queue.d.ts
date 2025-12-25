@@ -21,5 +21,5 @@ export declare class Queueable<A> implements QueuableInterface {
     dispatch(): void;
 }
 export declare function getQueueParams(dispatchParams: DispatchParams): QueueParamsInterface | undefined;
-export declare function enqueue(params: QueueParamsInterface, queueEntry: QueuableInterface): void;
+export declare function enqueue<A>(params: QueuableParams<A>): void;
 export {};

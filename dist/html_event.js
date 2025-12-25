@@ -1,6 +1,6 @@
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue, Queueable } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 export class HtmlEvent extends Event {
     requestState;
     constructor(requestState, eventInit) {
@@ -28,14 +28,15 @@ export function dispatchHtmlEvent(dispatchParams) {
     };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
-        let entry = new Queueable({
+        let { queueTarget } = queueParams;
+        dispatchParams.target.dispatchEvent(new HtmlEvent({ status: "queued", queueTarget, ...fetchParams }));
+        return enqueue({
             fetchCallback: fetchHtml,
+            fetchParams,
             dispatchParams,
             queueParams,
-            fetchParams,
             abortController,
         });
-        return enqueue(queueParams, entry);
     }
     fetchHtml(fetchParams, dispatchParams, abortController);
 }

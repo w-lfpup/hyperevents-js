@@ -1,6 +1,6 @@
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue, Queueable } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 export class JsonEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -30,14 +30,13 @@ export function dispatchJsonEvent(dispatchParams) {
     if (queueParams) {
         let { queueTarget } = queueParams;
         dispatchParams.target.dispatchEvent(new JsonEvent({ status: "queued", queueTarget, ...fetchParams }));
-        let entry = new Queueable({
+        return enqueue({
             fetchCallback: fetchJson,
             fetchParams,
             dispatchParams,
             queueParams,
             abortController,
         });
-        return enqueue(queueParams, entry);
     }
     fetchJson(fetchParams, dispatchParams, abortController);
 }

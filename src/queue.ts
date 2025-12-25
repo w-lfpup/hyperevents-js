@@ -77,12 +77,10 @@ export function getQueueParams(
 	return { queueTarget };
 }
 
-export function enqueue(
-	params: QueueParamsInterface,
-	queueEntry: QueuableInterface,
-) {
-	let { queueTarget } = params;
-
+export function enqueue<A>(
+	params: QueuableParams<A>
+) {	
+	let { queueTarget } = params.queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
 		let freshQueue = {
@@ -93,7 +91,8 @@ export function enqueue(
 		queue = freshQueue;
 	}
 
-	queue.incoming.push(queueEntry);
+	let entry = new Queueable(params);
+	queue.incoming.push(entry);
 	queueNext(queueTarget);
 }
 

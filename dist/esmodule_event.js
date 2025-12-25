@@ -7,7 +7,7 @@ export class EsModuleEvent extends Event {
     }
 }
 export function dispatchEsModuleEvent(params) {
-    let { el, composed } = params;
+    let { el, target, composed } = params;
     let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
     if (null === urlAttr)
         return;
@@ -16,15 +16,15 @@ export function dispatchEsModuleEvent(params) {
         return;
     urlSet.add(url);
     let event = new EsModuleEvent({ status: "requested", url }, { bubbles: true, composed });
-    el.dispatchEvent(event);
+    target.dispatchEvent(event);
     import(url)
         .then(function () {
         let event = new EsModuleEvent({ status: "resolved", url }, { bubbles: true, composed });
-        el.dispatchEvent(event);
+        target.dispatchEvent(event);
     })
         .catch(function (error) {
         urlSet.delete(url);
         let event = new EsModuleEvent({ status: "rejected", url, error }, { bubbles: true, composed });
-        el.dispatchEvent(event);
+        target.dispatchEvent(event);
     });
 }

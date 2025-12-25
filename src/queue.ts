@@ -65,13 +65,13 @@ export class Queueable<A> implements QueuableInterface {
 export function getQueueParams(
 	dispatchParams: DispatchParams,
 ): QueueParamsInterface | undefined {
-	let { el, currentTarget, sourceEvent } = dispatchParams;
+	let { el, target, sourceEvent } = dispatchParams;
 
 	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
 	if (!queueTargetAttr) return;
 
-	let queueTarget: EventTarget = currentTarget;
-	if ("_target" === queueTargetAttr) queueTarget = el;
+	let queueTarget: EventTarget = target;
+	// if ("_target" === queueTargetAttr) queueTarget = target;
 	if ("_document" === queueTargetAttr) queueTarget = document;
 
 	return { queueTarget };

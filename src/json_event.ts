@@ -74,7 +74,7 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	if (queueParams) {
 		let { queueTarget } = queueParams;
 
-		dispatchParams.currentTarget.dispatchEvent(
+		dispatchParams.target.dispatchEvent(
 			new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
 		);
 
@@ -98,13 +98,13 @@ function fetchJson(
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
-	let { el, composed } = dispatchParams;
+	let { target, composed } = dispatchParams;
 
 	let event = new JsonEvent(
 		{ status: "requested", ...fetchParams },
 		{ bubbles: true, composed },
 	);
-	el.dispatchEvent(event);
+	target.dispatchEvent(event);
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
@@ -113,14 +113,14 @@ function fetchJson(
 				{ status: "resolved", response, json, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			el.dispatchEvent(event);
+			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new JsonEvent(
 				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			el.dispatchEvent(event);
+			target.dispatchEvent(event);
 		});
 }
 

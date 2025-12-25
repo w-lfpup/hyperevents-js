@@ -42,18 +42,18 @@ export function dispatchHtmlEvent(dispatchParams) {
 function fetchHtml(fetchParams, dispatchParams, abortController) {
     if (abortController.signal.aborted)
         return;
-    let { el, composed } = dispatchParams;
+    let { target, composed } = dispatchParams;
     let event = new HtmlEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });
-    el.dispatchEvent(event);
+    target.dispatchEvent(event);
     return fetch(fetchParams.request)
         .then(resolveResponseBody)
         .then(function ([response, html]) {
         let event = new HtmlEvent({ status: "resolved", response, html, ...fetchParams }, { bubbles: true, composed });
-        el.dispatchEvent(event);
+        target.dispatchEvent(event);
     })
         .catch(function (error) {
         let event = new HtmlEvent({ status: "rejected", error, ...fetchParams }, { bubbles: true, composed });
-        el.dispatchEvent(event);
+        target.dispatchEvent(event);
     });
 }
 function resolveResponseBody(response) {

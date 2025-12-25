@@ -70,6 +70,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 		abortController,
 	};
 
+	// could be one function call in the queue module itself
 	let queueParams = getQueueParams(dispatchParams);
 	if (queueParams) {
 		let entry = new Queueable({
@@ -92,13 +93,13 @@ function fetchHtml(
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
-	let { el, composed } = dispatchParams;
+	let { target, composed } = dispatchParams;
 
 	let event = new HtmlEvent(
 		{ status: "requested", ...fetchParams },
 		{ bubbles: true, composed },
 	);
-	el.dispatchEvent(event);
+	target.dispatchEvent(event);
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
@@ -107,14 +108,14 @@ function fetchHtml(
 				{ status: "resolved", response, html, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			el.dispatchEvent(event);
+			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new HtmlEvent(
 				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			el.dispatchEvent(event);
+			target.dispatchEvent(event);
 		});
 }
 

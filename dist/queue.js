@@ -16,13 +16,11 @@ export class Queueable {
     }
 }
 export function getQueueParams(dispatchParams) {
-    let { el, currentTarget, sourceEvent } = dispatchParams;
+    let { el, target, sourceEvent } = dispatchParams;
     let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
     if (!queueTargetAttr)
         return;
-    let queueTarget = currentTarget;
-    if ("_target" === queueTargetAttr)
-        queueTarget = el;
+    let queueTarget = target;
     if ("_document" === queueTargetAttr)
         queueTarget = document;
     return { queueTarget };

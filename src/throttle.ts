@@ -37,10 +37,10 @@ export function shouldThrottle(
 ): boolean {
 	if (!throttleParams) return false;
 
-	let { currentTarget, el } = dispatchParams;
+	let { target, el } = dispatchParams;
 	let { throttle, timeoutMs } = throttleParams;
 
-	let throttleEl = currentTarget;
+	let throttleEl = target;
 	if ("_target" === throttle) throttleEl = el;
 	if ("_document" === throttle) throttleEl = document;
 
@@ -65,12 +65,12 @@ export function setThrottler(
 	if (!throttleParams) return;
 
 	let { throttle } = throttleParams;
-	let { el, currentTarget, sourceEvent } = params;
+	let { el, target, sourceEvent } = params;
 	let { timeStamp } = sourceEvent;
 
 	let throttler = { timeStamp, abortController };
 
-	let throttleEl = currentTarget;
+	let throttleEl = target;
 	if ("_target" === throttle) throttleEl = el;
 	if ("_document" === throttle) throttleEl = document;
 

@@ -1,7 +1,8 @@
 export interface HyperEventsParamsInterface {
-    target: EventTarget;
-    eventNames: string[];
     connected?: boolean;
+    eventNames: string[];
+    host: EventTarget;
+    target?: EventTarget;
 }
 export interface HyperEventsInterface {
     connect(): void;

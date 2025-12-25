@@ -9,15 +9,15 @@ export function dispatchActionEvent(dispatchParams) {
     let actionParams = getActionParams(dispatchParams);
     if (!actionParams)
         return;
-    let { el, composed } = dispatchParams;
+    let { target, composed } = dispatchParams;
     let event = new ActionEvent(actionParams, { bubbles: true, composed });
-    el.dispatchEvent(event);
+    target.dispatchEvent(event);
 }
 function getActionParams(dispatchParams) {
-    let { el, sourceEvent } = dispatchParams;
+    let { el, kind, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
-    let action = el.getAttribute(`${type}:`);
-    if ("_action" === action) {
+    let action = kind;
+    if ("_action" === kind) {
         action = el.getAttribute(`${type}:action`);
     }
     if (action)

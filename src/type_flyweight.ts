@@ -1,6 +1,6 @@
 export interface DispatchParams {
 	composed: boolean;
-	currentTarget: EventTarget;
+	target: EventTarget;
 	el: Element;
 	formData?: FormData;
 	kind: string;

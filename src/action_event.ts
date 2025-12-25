@@ -22,20 +22,20 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionParams = getActionParams(dispatchParams);
 	if (!actionParams) return;
 
-	let { el, composed } = dispatchParams;
+	let { target, composed } = dispatchParams;
 
 	let event = new ActionEvent(actionParams, { bubbles: true, composed });
-	el.dispatchEvent(event);
+	target.dispatchEvent(event);
 }
 
 function getActionParams(
 	dispatchParams: DispatchParams,
 ): ActionInterface | undefined {
-	let { el, sourceEvent } = dispatchParams;
+	let { el, kind, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
-	let action = el.getAttribute(`${type}:`);
-	if ("_action" === action) {
+	let action: string | null = kind;
+	if ("_action" === kind) {
 		action = el.getAttribute(`${type}:action`);
 	}
 

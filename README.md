@@ -11,9 +11,9 @@ HyperEvents enable HTML to declaratively:
 - lazy-load esmodules
 - dispatch action events (think redux actions)
 
-HyperEvents are an alternative to bulky frontend frameworks. Rather than bother with setup and teardown of specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
+HyperEvents are an alternative to bulky frontend frameworks. Rather setup and teardown specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
 
-This makes HyperEvents ideal for:
+HyperEvents is built for modern web standards making it ideal for:
 
 - SSR
 - SSG

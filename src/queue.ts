@@ -24,11 +24,11 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 interface QueuableParams<A> {
-	dispatchParams: DispatchParams;
-	queueParams: QueueParamsInterface;
 	abortController: AbortController;
-	fetchParams: A;
+	dispatchParams: DispatchParams;
 	fetchCallback: FetchCallback<A>;
+	fetchParams: A;
+	queueParams: QueueParamsInterface;
 }
 
 export class Queueable<A> implements QueuableInterface {

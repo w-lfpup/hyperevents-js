@@ -2,7 +2,7 @@ import type { DispatchParams } from "./type_flyweight.js";
 
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue, Queueable } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 
 interface JsonRequestInterface {
 	request: Request;
@@ -74,18 +74,17 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	if (queueParams) {
 		let { queueTarget } = queueParams;
 
-		dispatchParams.currentTarget.dispatchEvent(
+		dispatchParams.target.dispatchEvent(
 			new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
 		);
 
-		let entry = new Queueable({
+		return enqueue({
 			fetchCallback: fetchJson,
 			fetchParams,
 			dispatchParams,
 			queueParams,
 			abortController,
 		});
-		return enqueue(queueParams, entry);
 	}
 
 	fetchJson(fetchParams, dispatchParams, abortController);
@@ -98,13 +97,13 @@ function fetchJson(
 ): Promise<void> | undefined {
 	if (abortController.signal.aborted) return;
 
-	let { el, composed } = dispatchParams;
+	let { target, composed } = dispatchParams;
 
 	let event = new JsonEvent(
 		{ status: "requested", ...fetchParams },
 		{ bubbles: true, composed },
 	);
-	el.dispatchEvent(event);
+	target.dispatchEvent(event);
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
@@ -113,14 +112,14 @@ function fetchJson(
 				{ status: "resolved", response, json, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			el.dispatchEvent(event);
+			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new JsonEvent(
 				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true, composed },
 			);
-			el.dispatchEvent(event);
+			target.dispatchEvent(event);
 		});
 }
 

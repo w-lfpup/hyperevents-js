@@ -24,11 +24,11 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 interface QueuableParams<A> {
-	dispatchParams: DispatchParams;
-	queueParams: QueueParamsInterface;
 	abortController: AbortController;
-	fetchParams: A;
+	dispatchParams: DispatchParams;
 	fetchCallback: FetchCallback<A>;
+	fetchParams: A;
+	queueParams: QueueParamsInterface;
 }
 
 export class Queueable<A> implements QueuableInterface {
@@ -65,24 +65,19 @@ export class Queueable<A> implements QueuableInterface {
 export function getQueueParams(
 	dispatchParams: DispatchParams,
 ): QueueParamsInterface | undefined {
-	let { el, currentTarget, sourceEvent } = dispatchParams;
+	let { el, target, sourceEvent } = dispatchParams;
 
 	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
 	if (!queueTargetAttr) return;
 
-	let queueTarget: EventTarget = currentTarget;
-	if ("_target" === queueTargetAttr) queueTarget = el;
-	if ("_document" === queueTargetAttr) queueTarget = document;
+	let queueTarget: EventTarget = document;
+	if ("_target" === queueTargetAttr) queueTarget = target;
 
 	return { queueTarget };
 }
 
-export function enqueue(
-	params: QueueParamsInterface,
-	queueEntry: QueuableInterface,
-) {
-	let { queueTarget } = params;
-
+export function enqueue<A>(params: QueuableParams<A>) {
+	let { queueTarget } = params.queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
 		let freshQueue = {
@@ -93,7 +88,8 @@ export function enqueue(
 		queue = freshQueue;
 	}
 
-	queue.incoming.push(queueEntry);
+	let entry = new Queueable(params);
+	queue.incoming.push(entry);
 	queueNext(queueTarget);
 }
 

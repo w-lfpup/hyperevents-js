@@ -1,6 +1,6 @@
 import { getRequestParams, createRequest } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue, Queueable } from "./queue.js";
+import { getQueueParams, enqueue } from "./queue.js";
 export class HtmlEvent extends Event {
     requestState;
     constructor(requestState, eventInit) {
@@ -28,32 +28,33 @@ export function dispatchHtmlEvent(dispatchParams) {
     };
     let queueParams = getQueueParams(dispatchParams);
     if (queueParams) {
-        let entry = new Queueable({
+        let { queueTarget } = queueParams;
+        dispatchParams.target.dispatchEvent(new HtmlEvent({ status: "queued", queueTarget, ...fetchParams }));
+        return enqueue({
             fetchCallback: fetchHtml,
+            fetchParams,
             dispatchParams,
             queueParams,
-            fetchParams,
             abortController,
         });
-        return enqueue(queueParams, entry);
     }
     fetchHtml(fetchParams, dispatchParams, abortController);
 }
 function fetchHtml(fetchParams, dispatchParams, abortController) {
     if (abortController.signal.aborted)
         return;
-    let { el, composed } = dispatchParams;
+    let { target, composed } = dispatchParams;
     let event = new HtmlEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });
-    el.dispatchEvent(event);
+    target.dispatchEvent(event);
     return fetch(fetchParams.request)
         .then(resolveResponseBody)
         .then(function ([response, html]) {
         let event = new HtmlEvent({ status: "resolved", response, html, ...fetchParams }, { bubbles: true, composed });
-        el.dispatchEvent(event);
+        target.dispatchEvent(event);
     })
         .catch(function (error) {
         let event = new HtmlEvent({ status: "rejected", error, ...fetchParams }, { bubbles: true, composed });
-        el.dispatchEvent(event);
+        target.dispatchEvent(event);
     });
 }
 function resolveResponseBody(response) {

@@ -1,10 +1,10 @@
 export interface DispatchParams {
 	composed: boolean;
-	currentTarget: EventTarget;
 	el: Element;
 	formData?: FormData;
 	kind: string;
 	sourceEvent: Event;
+	target: EventTarget;
 }
 
 export interface RequestParams {

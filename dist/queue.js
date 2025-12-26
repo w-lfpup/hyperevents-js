@@ -16,19 +16,17 @@ export class Queueable {
     }
 }
 export function getQueueParams(dispatchParams) {
-    let { el, currentTarget, sourceEvent } = dispatchParams;
+    let { el, target, sourceEvent } = dispatchParams;
     let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
     if (!queueTargetAttr)
         return;
-    let queueTarget = currentTarget;
-    if ("_target" === queueTargetAttr)
-        queueTarget = el;
+    let queueTarget = target;
     if ("_document" === queueTargetAttr)
         queueTarget = document;
     return { queueTarget };
 }
-export function enqueue(params, queueEntry) {
-    let { queueTarget } = params;
+export function enqueue(params) {
+    let { queueTarget } = params.queueParams;
     let queue = queueMap.get(queueTarget);
     if (!queue) {
         let freshQueue = {
@@ -38,7 +36,8 @@ export function enqueue(params, queueEntry) {
         queueMap.set(queueTarget, freshQueue);
         queue = freshQueue;
     }
-    queue.incoming.push(queueEntry);
+    let entry = new Queueable(params);
+    queue.incoming.push(entry);
     queueNext(queueTarget);
 }
 function queueNext(el) {

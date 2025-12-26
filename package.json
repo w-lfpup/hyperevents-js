@@ -1,9 +1,11 @@
 {
 	"name": "hyperevents",
-	"version": "0.1.0",
 	"description": "declarative HTML projections",
 	"type": "module",
 	"main": "dist/mod.js",
+	"author": "Taylor Vann",
+	"version": "0.1.0",
+	"license": "BSD-3-Clause",
 	"scripts": {
 		"build": "npx tsc --project ./src",
 		"build:examples": "npx tsc --project ./examples",
@@ -12,7 +14,5 @@
 	"devDependencies": {
 		"prettier": "^3.2.5",
 		"typescript": "^5.4.5"
-	},
-	"author": "W-lfpup",
-	"license": "BSD-3-Clause"
+	}
 }

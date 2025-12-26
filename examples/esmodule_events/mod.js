@@ -1,6 +1,6 @@
 import { HyperEvents } from "hyperevents";
 const _hyperEvents = new HyperEvents({
-    target: document,
+    host: document,
     connected: true,
     eventNames: ["click", "pointerover"],
 });

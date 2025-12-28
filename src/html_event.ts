@@ -1,31 +1,25 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 
-import { getRequestParams, createRequest } from "./type_flyweight.js";
+import { getRequestParams, createFetchParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
-interface HtmlRequestInterface {
-	request: Request;
-	action: string;
-	abortController: AbortController;
-}
-
-interface HtmlRequestQueuedInterface extends HtmlRequestInterface {
+interface HtmlRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
 	queueTarget: EventTarget;
 }
 
-interface HtmlRequestRequestedInterface extends HtmlRequestInterface {
+interface HtmlRequestRequestedInterface extends FetchParamsInterface {
 	status: "requested";
 }
 
-interface HtmlRequestResolvedInterface extends HtmlRequestInterface {
+interface HtmlRequestResolvedInterface extends FetchParamsInterface {
 	status: "resolved";
 	response: Response;
 	html: string;
 }
 
-interface HtmlRequestRejectedInterface extends HtmlRequestInterface {
+interface HtmlRequestRejectedInterface extends FetchParamsInterface {
 	status: "rejected";
 	error: any;
 }
@@ -50,24 +44,13 @@ export class HtmlEvent extends Event implements HtmlEventInterface {
 }
 
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
-	let requestParams = getRequestParams(dispatchParams);
-	if (!requestParams) return;
-
 	// let throttleParams = getThrottleParams(dispatchParams);
 	// if (shouldThrottle(dispatchParams, throttleParams)) return;
 
-	let abortController = new AbortController();
-
 	// setThrottler(dispatchParams, throttleParams, abortController);
 
-	let { action } = requestParams;
-	let request = createRequest(dispatchParams, requestParams, abortController);
-
-	let fetchParams: HtmlRequestInterface = {
-		action,
-		request,
-		abortController,
-	};
+	let fetchParams = createFetchParams(dispatchParams);
+	if (!fetchParams) return;
 
 	// let queueParams = getQueueParams(dispatchParams);
 	// if (queueParams) {
@@ -91,7 +74,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 
 function fetchHtml(
 	dispatchParams: DispatchParams,
-	fetchParams: HtmlRequestInterface,
+	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
 	if (fetchParams.request.signal.aborted) return; // maybe?
 

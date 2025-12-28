@@ -7,14 +7,20 @@ export interface DispatchParams {
 	target: EventTarget;
 }
 
-export interface RequestParams {
+interface RequestParams {
 	action: string;
 	method: string;
 	timeoutMs?: number;
 	url: string;
 }
 
-export function getRequestParams(
+export interface FetchParamsInterface {
+	request: Request;
+	action: string;
+	abortController: AbortController;
+}
+
+function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
@@ -38,7 +44,7 @@ export function getRequestParams(
 	};
 }
 
-export function createRequest(
+function createRequest(
 	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
 	abortController: AbortController,
@@ -53,4 +59,22 @@ export function createRequest(
 		method: method,
 		body: dispatchParams.formData,
 	});
+}
+
+export function createFetchParams(
+	dispatchParams: DispatchParams,
+): FetchParamsInterface | undefined {
+	let requestParams = getRequestParams(dispatchParams);
+	if (!requestParams) return;
+
+	let abortController = new AbortController();
+
+	let { action } = requestParams;
+	let request = createRequest(dispatchParams, requestParams, abortController);
+
+	return {
+		action,
+		request,
+		abortController,
+	};
 }

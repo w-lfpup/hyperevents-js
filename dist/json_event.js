@@ -1,4 +1,4 @@
-import { getRequestParams, createRequest } from "./type_flyweight.js";
+import { createFetchParams } from "./type_flyweight.js";
 export class JsonEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -7,21 +7,13 @@ export class JsonEvent extends Event {
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
-    let requestParams = getRequestParams(dispatchParams);
-    if (!requestParams)
+    let fetchParams = createFetchParams(dispatchParams);
+    if (!fetchParams)
         return;
-    let abortController = new AbortController();
-    let request = createRequest(dispatchParams, requestParams, abortController);
-    let { action } = requestParams;
-    let fetchParams = {
-        action,
-        request,
-        abortController,
-    };
-    fetchJson(fetchParams, dispatchParams, abortController);
+    fetchJson(dispatchParams, fetchParams);
 }
-function fetchJson(fetchParams, dispatchParams, abortController) {
-    if (abortController.signal.aborted)
+function fetchJson(dispatchParams, fetchParams) {
+    if (fetchParams.request.signal.aborted)
         return;
     let { target, composed } = dispatchParams;
     let event = new JsonEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });

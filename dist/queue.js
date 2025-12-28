@@ -5,9 +5,9 @@ export class Queueable {
         this.#params = params;
     }
     dispatch() {
-        let { abortController, dispatchParams, fetchCallback, fetchParams, queueParams, } = this.#params;
+        let { dispatchParams, fetchCallback, fetchParams, queueParams } = this.#params;
         let { queueTarget } = queueParams;
-        let promisedJson = fetchCallback(fetchParams, dispatchParams, abortController)?.finally(function () {
+        let promisedJson = fetchCallback(fetchParams, dispatchParams)?.finally(function () {
             queueNext(queueTarget);
         });
         if (!promisedJson) {

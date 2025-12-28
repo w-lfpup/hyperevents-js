@@ -1,6 +1,6 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 
-import { getRequestParams, createFetchParams } from "./type_flyweight.js";
+import { createFetchParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 
@@ -44,16 +44,13 @@ export class JsonEvent extends Event implements JsonEventInterface {
 }
 
 export function dispatchJsonEvent(dispatchParams: DispatchParams) {
-	// this could be one function
 	// let throttleParams = getThrottleParams(dispatchParams);
 	// if (shouldThrottle(dispatchParams)) return;
 
-	// setThrottler(dispatchParams, throttleParams, abortController);
-
-	// this can be one function
-	// createFetchParams(dispatchParams, requestParams)
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
+
+	// setThrottler(dispatchParams, throttleParams, fetchParams.abortController);
 
 	// let queueParams = getQueueParams(dispatchParams);
 	// if (queueParams) {
@@ -72,12 +69,12 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	// 	});
 	// }
 
-	fetchJson(fetchParams, dispatchParams);
+	fetchJson(dispatchParams, fetchParams);
 }
 
 function fetchJson(
-	fetchParams: FetchParamsInterface,
 	dispatchParams: DispatchParams,
+	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
 	if (fetchParams.request.signal.aborted) return; // maybe?
 

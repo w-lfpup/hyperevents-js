@@ -1,4 +1,4 @@
-import { getRequestParams, createRequest } from "./type_flyweight.js";
+import { createFetchParams } from "./type_flyweight.js";
 export class HtmlEvent extends Event {
     requestState;
     constructor(requestState, eventInit) {
@@ -7,21 +7,13 @@ export class HtmlEvent extends Event {
     }
 }
 export function dispatchHtmlEvent(dispatchParams) {
-    let requestParams = getRequestParams(dispatchParams);
-    if (!requestParams)
+    let fetchParams = createFetchParams(dispatchParams);
+    if (!fetchParams)
         return;
-    let abortController = new AbortController();
-    let request = createRequest(dispatchParams, requestParams, abortController);
-    let { action } = requestParams;
-    let fetchParams = {
-        action,
-        request,
-        abortController,
-    };
-    fetchHtml(dispatchParams, fetchParams, abortController);
+    fetchHtml(dispatchParams, fetchParams);
 }
-function fetchHtml(dispatchParams, fetchParams, abortController) {
-    if (abortController.signal.aborted)
+function fetchHtml(dispatchParams, fetchParams) {
+    if (fetchParams.request.signal.aborted)
         return;
     let { target, composed } = dispatchParams;
     let event = new HtmlEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });

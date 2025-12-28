@@ -1,22 +1,17 @@
-import type { DispatchParams } from "./type_flyweight.js";
-interface HtmlRequestInterface {
-    request: Request;
-    action: string;
-    abortController: AbortController;
-}
-interface HtmlRequestQueuedInterface extends HtmlRequestInterface {
+import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
+interface HtmlRequestQueuedInterface extends FetchParamsInterface {
     status: "queued";
     queueTarget: EventTarget;
 }
-interface HtmlRequestRequestedInterface extends HtmlRequestInterface {
+interface HtmlRequestRequestedInterface extends FetchParamsInterface {
     status: "requested";
 }
-interface HtmlRequestResolvedInterface extends HtmlRequestInterface {
+interface HtmlRequestResolvedInterface extends FetchParamsInterface {
     status: "resolved";
     response: Response;
     html: string;
 }
-interface HtmlRequestRejectedInterface extends HtmlRequestInterface {
+interface HtmlRequestRejectedInterface extends FetchParamsInterface {
     status: "rejected";
     error: any;
 }

@@ -1,6 +1,6 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 
-import { getRequestParams, createFetchParams } from "./type_flyweight.js";
+import { createFetchParams } from "./type_flyweight.js";
 import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
@@ -47,10 +47,10 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	// let throttleParams = getThrottleParams(dispatchParams);
 	// if (shouldThrottle(dispatchParams, throttleParams)) return;
 
-	// setThrottler(dispatchParams, throttleParams, abortController);
-
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
+
+	// setThrottler(dispatchParams, throttleParams, fetchParams.abortController);
 
 	// let queueParams = getQueueParams(dispatchParams);
 	// if (queueParams) {

@@ -19,6 +19,9 @@ interface Queue {
 
 let queueMap = new WeakMap<EventTarget, Queue>();
 
+// dispatchQueuedEvent()
+// fetchRequest()
+// ... let queuable take the rest from there
 interface QueuableParams<A> {
 	dispatchParams: DispatchParams;
 	fetchCallback: FetchCallback<A>;
@@ -34,6 +37,9 @@ export class Queueable<A> implements QueuableInterface {
 	}
 
 	dispatch() {
+		// queuable.dispatchQueuedEvent()
+		// queuable.fetchRequest() -> Promise
+
 		let { dispatchParams, fetchCallback, fetchParams, queueParams } =
 			this.#params;
 		let { queueTarget } = queueParams;

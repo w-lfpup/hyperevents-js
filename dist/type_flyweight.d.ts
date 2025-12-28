@@ -7,8 +7,8 @@ export interface DispatchParams {
     target: EventTarget;
 }
 export interface FetchParamsInterface {
-    request: Request;
-    action: string;
     abortController: AbortController;
+    action: string;
+    request: Request;
 }
 export declare function createFetchParams(dispatchParams: DispatchParams): FetchParamsInterface | undefined;

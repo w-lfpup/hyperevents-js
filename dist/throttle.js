@@ -25,9 +25,8 @@ export function shouldThrottle(dispatchParams, throttleParams) {
     let throttler = elementMap.get(throttleEl);
     if (throttler) {
         let delta = performance.now() - throttler.timeStamp;
-        if (delta < timeoutMs) {
+        if (delta < timeoutMs)
             return true;
-        }
         throttler.abortController?.abort();
     }
     return false;

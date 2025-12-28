@@ -17,13 +17,11 @@ export function getThrottleParams(dispatchParams) {
 export function shouldThrottle(dispatchParams, throttleParams) {
     if (!throttleParams)
         return false;
-    let { target, el } = dispatchParams;
+    let { target } = dispatchParams;
     let { throttle, timeoutMs } = throttleParams;
-    let throttleEl = target;
+    let throttleEl = document;
     if ("_target" === throttle)
-        throttleEl = el;
-    if ("_document" === throttle)
-        throttleEl = document;
+        throttleEl = target;
     let throttler = elementMap.get(throttleEl);
     if (throttler) {
         let delta = performance.now() - throttler.timeStamp;

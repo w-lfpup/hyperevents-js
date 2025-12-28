@@ -18,6 +18,8 @@ export class ActionEvent extends Event implements ActionEventInterface {
 	}
 }
 
+// makes sense to throttle and queue
+
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionParams = getActionParams(dispatchParams);
 	if (!actionParams) return;

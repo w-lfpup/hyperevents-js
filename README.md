@@ -4,14 +4,16 @@ A hypertext extension for the browser.
 
 ## About
 
+HyperEvents is a web friendly response to modern frameworks.
+
+Rather maintain a virtual dom and maintain callbacks on specific elements, UI events are up-cycled into "hyper" events. Developers can listen to hyperevents and react accordingly.
+
 HyperEvents enable HTML to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
 - dispatch action events (think redux actions)
-
-HyperEvents are an alternative to bulky frontend frameworks. Rather setup and teardown specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
 
 HyperEvents is built for modern web standards making it ideal for:
 

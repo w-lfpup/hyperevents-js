@@ -36,6 +36,9 @@ export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	}
 }
 
+// doesnt make sense to throttle
+// could make sense to queue
+
 export function dispatchEsModuleEvent(params: DispatchParams) {
 	let { el, target, composed } = params;
 

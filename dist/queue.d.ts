@@ -9,11 +9,11 @@ export interface FetchCallback<A> {
     (fetchParams: A, dispatchParams: DispatchParams, abortController: AbortController): Promise<void> | undefined;
 }
 interface QueuableParams<A> {
-    dispatchParams: DispatchParams;
-    queueParams: QueueParamsInterface;
     abortController: AbortController;
-    fetchParams: A;
+    dispatchParams: DispatchParams;
     fetchCallback: FetchCallback<A>;
+    fetchParams: A;
+    queueParams: QueueParamsInterface;
 }
 export declare class Queueable<A> implements QueuableInterface {
     #private;

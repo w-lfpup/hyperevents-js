@@ -8,8 +8,8 @@ export function getRequestParams(dispatchParams) {
     if (!url)
         return;
     let method = el.getAttribute(`${type}:method`) ?? "GET";
-    let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
-    let timeoutMs = parseInt(timeoutAttr || "");
+    let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
+    let timeoutMs = parseInt(timeoutMsAttr ?? "");
     return {
         timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
         action,

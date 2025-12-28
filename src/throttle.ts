@@ -69,9 +69,9 @@ export function setThrottler(
 
 	let throttler = { timeStamp, abortController };
 
-	let throttleEl = target;
-	if ("_target" === throttle) throttleEl = el;
-	if ("_document" === throttle) throttleEl = document;
+	let throttleEl: EventTarget = document;
+	// if ("_action" === throttle) throttleEl = el;
+	if ("_target" === throttle) throttleEl = target;
 
 	elementMap.set(throttleEl, throttler);
 }

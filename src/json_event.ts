@@ -53,16 +53,15 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	let requestParams = getRequestParams(dispatchParams);
 	if (!requestParams) return;
 
-	let throttleParams = getThrottleParams(dispatchParams);
-	if (shouldThrottle(dispatchParams, throttleParams)) return;
+	// this could be one function
+	// let throttleParams = getThrottleParams(dispatchParams);
+	// if (shouldThrottle(dispatchParams)) return;
 
 	let abortController = new AbortController();
 
-	setThrottler(dispatchParams, throttleParams, abortController);
+	// setThrottler(dispatchParams, throttleParams, abortController);
 
 	let request = createRequest(dispatchParams, requestParams, abortController);
-	if (!request) return;
-
 	let { action } = requestParams;
 	let fetchParams: JsonRequestInterface = {
 		action,
@@ -70,22 +69,22 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 		abortController,
 	};
 
-	let queueParams = getQueueParams(dispatchParams);
-	if (queueParams) {
-		let { queueTarget } = queueParams;
+	// let queueParams = getQueueParams(dispatchParams);
+	// if (queueParams) {
+	// 	let { queueTarget } = queueParams;
 
-		dispatchParams.target.dispatchEvent(
-			new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
-		);
+	// 	dispatchParams.target.dispatchEvent(
+	// 		new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
+	// 	);
 
-		return enqueue({
-			fetchCallback: fetchJson,
-			fetchParams,
-			dispatchParams,
-			queueParams,
-			abortController,
-		});
-	}
+	// 	return enqueue({
+	// 		fetchCallback: fetchJson,
+	// 		fetchParams,
+	// 		dispatchParams,
+	// 		queueParams,
+	// 		abortController,
+	// 	});
+	// }
 
 	fetchJson(fetchParams, dispatchParams, abortController);
 }
@@ -123,6 +122,6 @@ function fetchJson(
 		});
 }
 
-function resolveResponseBody(response: Response): Promise<[Response, string]> {
+function resolveResponseBody(response: Response): Promise<[Response, any]> {
 	return Promise.all([response, response.json()]);
 }

@@ -27,8 +27,8 @@ export function getRequestParams(
 	if (!url) return;
 
 	let method = el.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
-	let timeoutMs = parseInt(timeoutAttr || "");
+	let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
+	let timeoutMs = parseInt(timeoutMsAttr ?? "");
 
 	return {
 		timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
@@ -42,7 +42,7 @@ export function createRequest(
 	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
 	abortController: AbortController,
-): Request | undefined {
+): Request {
 	let { url, timeoutMs, method } = requestParams;
 
 	let abortSignals = [abortController.signal];

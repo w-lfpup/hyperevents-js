@@ -61,8 +61,9 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 
 	// setThrottler(dispatchParams, throttleParams, abortController);
 
-	let request = createRequest(dispatchParams, requestParams, abortController);
 	let { action } = requestParams;
+	let request = createRequest(dispatchParams, requestParams, abortController);
+
 	let fetchParams: JsonRequestInterface = {
 		action,
 		request,
@@ -86,15 +87,14 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	// 	});
 	// }
 
-	fetchJson(fetchParams, dispatchParams, abortController);
+	fetchJson(fetchParams, dispatchParams);
 }
 
 function fetchJson(
 	fetchParams: JsonRequestInterface,
 	dispatchParams: DispatchParams,
-	abortController: AbortController,
 ): Promise<void> | undefined {
-	if (abortController.signal.aborted) return;
+	if (fetchParams.request.signal.aborted) return; // maybe?
 
 	let { target, composed } = dispatchParams;
 

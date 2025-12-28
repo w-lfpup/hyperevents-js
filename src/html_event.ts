@@ -60,9 +60,9 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 
 	// setThrottler(dispatchParams, throttleParams, abortController);
 
+	let { action } = requestParams;
 	let request = createRequest(dispatchParams, requestParams, abortController);
 
-	let { action } = requestParams;
 	let fetchParams: HtmlRequestInterface = {
 		action,
 		request,
@@ -86,15 +86,14 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	// 	});
 	// }
 
-	fetchHtml(dispatchParams, fetchParams, abortController);
+	fetchHtml(dispatchParams, fetchParams);
 }
 
 function fetchHtml(
 	dispatchParams: DispatchParams,
 	fetchParams: HtmlRequestInterface,
-	abortController: AbortController,
 ): Promise<void> | undefined {
-	if (abortController.signal.aborted) return;
+	if (fetchParams.request.signal.aborted) return; // maybe?
 
 	let { target, composed } = dispatchParams;
 

@@ -9,11 +9,7 @@ export interface QueuableInterface {
 }
 
 export interface FetchCallback<A> {
-	(
-		fetchParams: A,
-		dispatchParams: DispatchParams,
-		abortController: AbortController,
-	): Promise<void> | undefined;
+	(fetchParams: A, dispatchParams: DispatchParams): Promise<void> | undefined;
 }
 
 interface Queue {
@@ -24,7 +20,6 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 interface QueuableParams<A> {
-	abortController: AbortController;
 	dispatchParams: DispatchParams;
 	fetchCallback: FetchCallback<A>;
 	fetchParams: A;
@@ -39,22 +34,15 @@ export class Queueable<A> implements QueuableInterface {
 	}
 
 	dispatch() {
-		let {
-			abortController,
-			dispatchParams,
-			fetchCallback,
-			fetchParams,
-			queueParams,
-		} = this.#params;
+		let { dispatchParams, fetchCallback, fetchParams, queueParams } =
+			this.#params;
 		let { queueTarget } = queueParams;
 
-		let promisedJson = fetchCallback(
-			fetchParams,
-			dispatchParams,
-			abortController,
-		)?.finally(function () {
-			queueNext(queueTarget);
-		});
+		let promisedJson = fetchCallback(fetchParams, dispatchParams)?.finally(
+			function () {
+				queueNext(queueTarget);
+			},
+		);
 
 		if (!promisedJson) {
 			queueNext(queueTarget);

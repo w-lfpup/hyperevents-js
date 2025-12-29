@@ -32,15 +32,19 @@ export type JsonRequestState =
 	| JsonRequestRejectedInterface;
 
 export interface JsonEventInterface {
-	requestState: JsonRequestState;
+	readonly requestState: JsonRequestState;
 }
 
 export class JsonEvent extends Event implements JsonEventInterface {
-	requestState: JsonRequestState;
+	#requestState: JsonRequestState;
 
 	constructor(requestState: JsonRequestState, eventInitDict?: EventInit) {
 		super("#json", eventInitDict);
-		this.requestState = requestState;
+		this.#requestState = requestState;
+	}
+
+	get requestState() {
+		return this.#requestState;
 	}
 }
 

@@ -1,15 +1,16 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-export interface QueueParamsInterface {
+export interface QueableAtom {
+	dispatchQueuedEvent(): void;
+	fetch(): Promise<void>;
+}
+
+interface QueueParamsInterface {
 	queueTarget: EventTarget;
 }
 
-export interface QueuableInterface {
+interface QueuableInterface {
 	dispatch(queueTarget: EventTarget): void;
-}
-
-export interface FetchCallback<A> {
-	(fetchParams: A, dispatchParams: DispatchParams): Promise<void> | undefined;
 }
 
 interface Queue {
@@ -17,14 +18,10 @@ interface Queue {
 	outgoing: QueuableInterface[];
 }
 
+// module wide
 let queueMap = new WeakMap<EventTarget, Queue>();
 
-export interface QueableAtom {
-	dispatchQueuedEvent(): void;
-	fetch(): Promise<void>;
-}
-
-export class QueuedAtom implements QueuableInterface {
+class QueuedAtom implements QueuableInterface {
 	#params: QueableAtom;
 
 	constructor(params: QueableAtom) {
@@ -38,7 +35,7 @@ export class QueuedAtom implements QueuableInterface {
 	}
 }
 
-export function getQueueParams(
+function getQueueParams(
 	dispatchParams: DispatchParams,
 ): QueueParamsInterface | undefined {
 	let { el, target, sourceEvent } = dispatchParams;
@@ -70,11 +67,10 @@ export function queued(
 		queue = freshQueue;
 	}
 
-	let entry = new QueuedAtom(atom);
-	queue.incoming.push(entry);
-
 	atom.dispatchQueuedEvent();
 
+	let entry = new QueuedAtom(atom);
+	queue.incoming.push(entry);
 	queueNext(queueTarget);
 
 	return true;

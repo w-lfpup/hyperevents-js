@@ -32,15 +32,19 @@ export type HtmlRequestState =
 	| HtmlRequestResolvedInterface;
 
 export interface HtmlEventInterface {
-	requestState: HtmlRequestState;
+	readonly requestState: HtmlRequestState;
 }
 
 export class HtmlEvent extends Event implements HtmlEventInterface {
-	requestState: HtmlRequestState;
+	#requestState: HtmlRequestState;
 
 	constructor(requestState: HtmlRequestState, eventInit?: EventInit) {
 		super("#html", eventInit);
-		this.requestState = requestState;
+		this.#requestState = requestState;
+	}
+
+	get requestState(): HtmlRequestState {
+		return this.#requestState;
 	}
 }
 

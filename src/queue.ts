@@ -19,40 +19,25 @@ interface Queue {
 
 let queueMap = new WeakMap<EventTarget, Queue>();
 
-// dispatchQueuedEvent()
-// fetchRequest()
-// ... let queuable take the rest from there
-interface QueuableParams<A> {
-	dispatchParams: DispatchParams;
-	fetchCallback: FetchCallback<A>;
-	fetchParams: A;
+export interface QueableAtom {
 	queueParams: QueueParamsInterface;
+	dispatchQueuedEvent(): void;
+	fetch(): Promise<void>;
 }
 
-export class Queueable<A> implements QueuableInterface {
-	#params: QueuableParams<A>;
+export class QueuedAtom implements QueuableInterface {
+	#params: QueableAtom;
 
-	constructor(params: QueuableParams<A>) {
+	constructor(params: QueableAtom) {
 		this.#params = params;
 	}
 
 	dispatch() {
-		// queuable.dispatchQueuedEvent()
-		// queuable.fetchRequest() -> Promise
+		let { queueTarget } = this.#params.queueParams;
 
-		let { dispatchParams, fetchCallback, fetchParams, queueParams } =
-			this.#params;
-		let { queueTarget } = queueParams;
-
-		let promisedJson = fetchCallback(fetchParams, dispatchParams)?.finally(
-			function () {
-				queueNext(queueTarget);
-			},
-		);
-
-		if (!promisedJson) {
+		this.#params.fetch().finally(function () {
 			queueNext(queueTarget);
-		}
+		});
 	}
 }
 
@@ -70,8 +55,8 @@ export function getQueueParams(
 	return { queueTarget };
 }
 
-export function enqueue<A>(params: QueuableParams<A>) {
-	let { queueTarget } = params.queueParams;
+export function enqueue(atom: QueableAtom) {
+	let { queueTarget } = atom.queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
 		let freshQueue = {
@@ -82,8 +67,8 @@ export function enqueue<A>(params: QueuableParams<A>) {
 		queue = freshQueue;
 	}
 
-	let entry = new Queueable(params);
-	queue.incoming.push(entry);
+	// let entry = new Queueable(params);
+	// queue.incoming.push(entry);
 	queueNext(queueTarget);
 }
 

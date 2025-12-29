@@ -56,7 +56,7 @@ function shouldThrottle(
 	return false;
 }
 
-export function setThrottler(
+export function throttled(
 	params: DispatchParams,
 	abortParams?: AbortParams,
 ): boolean {

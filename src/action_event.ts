@@ -1,6 +1,6 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-import { setThrottler } from "./throttle.js";
+import { throttled } from "./throttle.js";
 
 export interface ActionInterface {
 	sourceEvent: Event;
@@ -20,14 +20,11 @@ export class ActionEvent extends Event implements ActionEventInterface {
 	}
 }
 
-// makes sense to throttle and queue
-// but also to throttle later? is it opt out? or should never?
-
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionParams = getActionParams(dispatchParams);
 	if (!actionParams) return;
 
-	if (setThrottler(dispatchParams)) return;
+	if (throttled(dispatchParams)) return;
 
 	let { target, composed } = dispatchParams;
 

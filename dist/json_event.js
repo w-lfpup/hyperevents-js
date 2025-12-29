@@ -1,4 +1,5 @@
 import { createFetchParams } from "./type_flyweight.js";
+import { setThrottler } from "./throttle.js";
 export class JsonEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -9,6 +10,8 @@ export class JsonEvent extends Event {
 export function dispatchJsonEvent(dispatchParams) {
     let fetchParams = createFetchParams(dispatchParams);
     if (!fetchParams)
+        return;
+    if (setThrottler(dispatchParams, fetchParams))
         return;
     fetchJson(dispatchParams, fetchParams);
 }

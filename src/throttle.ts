@@ -1,7 +1,11 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-interface Throttler {
+interface AbortParams {
 	abortController: AbortController;
+}
+
+interface Throttler {
+	abortParams?: AbortParams;
 	timeStamp: DOMHighResTimeStamp;
 }
 
@@ -12,7 +16,7 @@ interface ThrottleParams {
 
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
-export function getThrottleParams(
+function getThrottleParams(
 	dispatchParams: DispatchParams,
 ): ThrottleParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
@@ -33,10 +37,8 @@ export function getThrottleParams(
 
 export function shouldThrottle(
 	dispatchParams: DispatchParams,
-	throttleParams?: ThrottleParams,
+	throttleParams: ThrottleParams,
 ): boolean {
-	if (!throttleParams) return false;
-
 	let { target } = dispatchParams;
 	let { throttle, timeoutMs } = throttleParams;
 
@@ -48,7 +50,7 @@ export function shouldThrottle(
 		let delta = performance.now() - throttler.timeStamp;
 		if (delta < timeoutMs) return true;
 
-		throttler.abortController?.abort();
+		throttler.abortParams?.abortController.abort();
 	}
 
 	return false;
@@ -56,20 +58,24 @@ export function shouldThrottle(
 
 export function setThrottler(
 	params: DispatchParams,
-	throttleParams: ThrottleParams | undefined,
-	abortController: AbortController,
-) {
-	if (!throttleParams) return;
+	abortParams?: AbortParams,
+): boolean {
+	let throttleParams = getThrottleParams(params);
+	if (!throttleParams) return false;
+
+	// should throttle
+	if (shouldThrottle(params, throttleParams)) return true;
 
 	let { throttle } = throttleParams;
-	let { el, target, sourceEvent } = params;
+	let { target, sourceEvent } = params;
 	let { timeStamp } = sourceEvent;
 
-	let throttler = { timeStamp, abortController };
+	let throttler = { timeStamp, abortParams };
 
 	let throttleEl: EventTarget = document;
-	// if ("_action" === throttle) throttleEl = el;
 	if ("_target" === throttle) throttleEl = target;
 
 	elementMap.set(throttleEl, throttler);
+
+	return false;
 }

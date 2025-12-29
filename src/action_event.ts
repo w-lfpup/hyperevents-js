@@ -19,6 +19,7 @@ export class ActionEvent extends Event implements ActionEventInterface {
 }
 
 // makes sense to throttle and queue
+// but also to throttle later? is it opt out? or should never?
 
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionParams = getActionParams(dispatchParams);

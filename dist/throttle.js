@@ -1,5 +1,5 @@
 let elementMap = new WeakMap();
-export function getThrottleParams(dispatchParams) {
+function getThrottleParams(dispatchParams) {
     let { el, sourceEvent } = dispatchParams;
     let { type } = sourceEvent;
     let throttle = el.getAttribute(`${type}:throttle`);
@@ -15,8 +15,6 @@ export function getThrottleParams(dispatchParams) {
     };
 }
 export function shouldThrottle(dispatchParams, throttleParams) {
-    if (!throttleParams)
-        return false;
     let { target } = dispatchParams;
     let { throttle, timeoutMs } = throttleParams;
     let throttleEl = document;
@@ -27,19 +25,23 @@ export function shouldThrottle(dispatchParams, throttleParams) {
         let delta = performance.now() - throttler.timeStamp;
         if (delta < timeoutMs)
             return true;
-        throttler.abortController?.abort();
+        throttler.abortParams?.abortController.abort();
     }
     return false;
 }
-export function setThrottler(params, throttleParams, abortController) {
+export function setThrottler(params, abortParams) {
+    let throttleParams = getThrottleParams(params);
     if (!throttleParams)
-        return;
+        return false;
+    if (shouldThrottle(params, throttleParams))
+        return true;
     let { throttle } = throttleParams;
-    let { el, target, sourceEvent } = params;
+    let { target, sourceEvent } = params;
     let { timeStamp } = sourceEvent;
-    let throttler = { timeStamp, abortController };
+    let throttler = { timeStamp, abortParams };
     let throttleEl = document;
     if ("_target" === throttle)
         throttleEl = target;
     elementMap.set(throttleEl, throttler);
+    return false;
 }

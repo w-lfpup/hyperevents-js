@@ -1,7 +1,7 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 
 import { createFetchParams } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
+import { setThrottler, shouldThrottle } from "./throttle.js";
 import { getQueueParams, enqueue } from "./queue.js";
 
 interface JsonRequestQueuedInterface extends FetchParamsInterface {
@@ -44,13 +44,10 @@ export class JsonEvent extends Event implements JsonEventInterface {
 }
 
 export function dispatchJsonEvent(dispatchParams: DispatchParams) {
-	// let throttleParams = getThrottleParams(dispatchParams);
-	// if (shouldThrottle(dispatchParams)) return;
-
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
 
-	// setThrottler(dispatchParams, throttleParams, fetchParams.abortController);
+	if (setThrottler(dispatchParams, fetchParams)) return;
 
 	// let queueParams = getQueueParams(dispatchParams);
 	// if (queueParams) {

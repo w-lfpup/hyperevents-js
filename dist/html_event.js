@@ -1,4 +1,5 @@
 import { createFetchParams } from "./type_flyweight.js";
+import { setThrottler } from "./throttle.js";
 export class HtmlEvent extends Event {
     requestState;
     constructor(requestState, eventInit) {
@@ -9,6 +10,8 @@ export class HtmlEvent extends Event {
 export function dispatchHtmlEvent(dispatchParams) {
     let fetchParams = createFetchParams(dispatchParams);
     if (!fetchParams)
+        return;
+    if (setThrottler(dispatchParams, fetchParams))
         return;
     fetchHtml(dispatchParams, fetchParams);
 }

@@ -47,7 +47,7 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 
 	let url = new URL(urlAttr, location.href).toString();
 	if (urlSet.has(url)) return;
-	
+
 	urlSet.add(url);
 
 	let event = new EsModuleEvent(

@@ -6,9 +6,9 @@ export class EsModuleEvent extends Event {
         this.requestState = requestState;
     }
 }
-export function dispatchEsModuleEvent(params) {
-    let { el, target, composed } = params;
-    let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
+export function dispatchEsModuleEvent(dispatchParams) {
+    let { el, target, composed, sourceEvent } = dispatchParams;
+    let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
     if (null === urlAttr)
         return;
     let url = new URL(urlAttr, location.href).toString();

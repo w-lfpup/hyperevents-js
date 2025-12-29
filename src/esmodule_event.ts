@@ -39,14 +39,15 @@ export class EsModuleEvent extends Event implements EsModuleEventInterface {
 // doesnt make sense to throttle
 // could make sense to queue
 
-export function dispatchEsModuleEvent(params: DispatchParams) {
-	let { el, target, composed } = params;
+export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
+	let { el, target, composed, sourceEvent } = dispatchParams;
 
-	let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
+	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
 	if (urlSet.has(url)) return;
+	
 	urlSet.add(url);
 
 	let event = new EsModuleEvent(

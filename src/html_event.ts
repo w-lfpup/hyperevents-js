@@ -1,7 +1,7 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 
 import { createFetchParams } from "./type_flyweight.js";
-import { setThrottler, shouldThrottle } from "./throttle.js";
+import { setThrottler } from "./throttle.js";
 import { getQueueParams, enqueue, Queueable } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {

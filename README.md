@@ -4,11 +4,7 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperEvents is a web friendly response to modern frameworks.
-
-Rather maintain a virtual dom and maintain callbacks on specific elements, UI events are up-cycled into "hyper" events. Developers can listen to hyperevents and react accordingly.
-
-HyperEvents enable HTML to declaratively:
+HyperEvents is a friendly response to modern frameworks and enable HTML to declaratively:
 
 - query JSON APIs
 - fetch html fragments
@@ -20,7 +16,7 @@ HyperEvents is built for modern web standards making it ideal for:
 - SSR
 - SSG
 - HTML template elements
-- Shadow DOM
+- Declarative shadow DOM
 
 ## Install
 
@@ -84,7 +80,6 @@ Fetch html using the following syntax:
 ```html
 <input
 	input:="_html"
-	input:throttle-ms
 	input:action="get_entries"
 	input:url="/fetch/some.html"
 >
@@ -94,11 +89,10 @@ Then listen for request state with `#html` events in javascript-land.
 
 ```ts
 document.addEventListener("#html", function (e: HtmlEvent) {
-	let { requestState } = e;
-	let { status } = requestState;
+	let { requestState: rs } = e;
 
-	if ("resolved" === status) {
-		let { html } = requestState;
+	if ("get_entries" === rs.action && "resolved" === rs.status) {
+		let { html } = rs;
 	}
 });
 ```
@@ -111,7 +105,7 @@ Fetch and dispatch JSON using the following syntax:
 <span
 	pointerdown:="_json"
 	pointerdown:action="ping_api"
-	pointerdown:url="/fetch/some.json"
+	pointerdown:url="/ping/api.json"
 ></span>
 ```
 
@@ -119,11 +113,10 @@ Then listen for request state with `#json` events in javascript-land.
 
 ```ts
 document.addEventListener("#json", function (e: JsonEvent) {
-	let { requestState } = e;
-	let { status } = requestState;
+	let { requestState: rs } = e;
 
-	if ("resolved" === status) {
-		let { json } = requestState;
+	if ("ping_api" === rs.action && "resolved" === rs.status) {
+		let { json } = rs;
 	}
 });
 ```

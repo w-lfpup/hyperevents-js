@@ -84,6 +84,7 @@ Fetch html using the following syntax:
 ```html
 <input
 	input:="_html"
+	input:throttle-ms
 	input:action="get_entries"
 	input:url="/fetch/some.html"
 >

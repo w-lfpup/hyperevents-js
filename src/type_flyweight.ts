@@ -20,6 +20,24 @@ export interface FetchParamsInterface {
 	request: Request;
 }
 
+export function createFetchParams(
+	dispatchParams: DispatchParams,
+): FetchParamsInterface | undefined {
+	let requestParams = getRequestParams(dispatchParams);
+	if (!requestParams) return;
+
+	let abortController = new AbortController();
+
+	let { action } = requestParams;
+	let request = createRequest(dispatchParams, requestParams, abortController);
+
+	return {
+		action,
+		request,
+		abortController,
+	};
+}
+
 function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
@@ -59,22 +77,4 @@ function createRequest(
 		method: method,
 		body: dispatchParams.formData,
 	});
-}
-
-export function createFetchParams(
-	dispatchParams: DispatchParams,
-): FetchParamsInterface | undefined {
-	let requestParams = getRequestParams(dispatchParams);
-	if (!requestParams) return;
-
-	let abortController = new AbortController();
-
-	let { action } = requestParams;
-	let request = createRequest(dispatchParams, requestParams, abortController);
-
-	return {
-		action,
-		request,
-		abortController,
-	};
 }

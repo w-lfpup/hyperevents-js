@@ -92,7 +92,7 @@ function fetchJson(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	if (fetchParams.request.signal.aborted) return; // maybe?
+	if (fetchParams.abortController.signal.aborted) return;
 
 	let { target, composed } = dispatchParams;
 

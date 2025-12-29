@@ -70,8 +70,8 @@ class HtmlFetch implements QueableAtom {
 		target.dispatchEvent(event);
 	}
 
-	async fetch(): Promise<void> {
-		fetchHtml(this.#dispatchParams, this.#fetchParams);
+	fetch(): Promise<void> | undefined {
+		return fetchHtml(this.#dispatchParams, this.#fetchParams);
 	}
 }
 
@@ -91,7 +91,7 @@ function fetchHtml(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	if (fetchParams.request.signal.aborted) return; // maybe?
+	if (fetchParams.abortController.signal.aborted) return;
 
 	let { target, composed } = dispatchParams;
 

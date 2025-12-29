@@ -35,7 +35,7 @@ function getThrottleParams(
 	};
 }
 
-export function shouldThrottle(
+function shouldThrottle(
 	dispatchParams: DispatchParams,
 	throttleParams: ThrottleParams,
 ): boolean {

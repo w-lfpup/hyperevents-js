@@ -5,7 +5,7 @@ export interface QueueParamsInterface {
 }
 
 export interface QueuableInterface {
-	dispatch(): void;
+	dispatch(queueTarget: EventTarget): void;
 }
 
 export interface FetchCallback<A> {
@@ -20,7 +20,6 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 export interface QueableAtom {
-	queueParams: QueueParamsInterface;
 	dispatchQueuedEvent(): void;
 	fetch(): Promise<void>;
 }
@@ -32,9 +31,7 @@ export class QueuedAtom implements QueuableInterface {
 		this.#params = params;
 	}
 
-	dispatch() {
-		let { queueTarget } = this.#params.queueParams;
-
+	dispatch(queueTarget: EventTarget) {
 		this.#params.fetch().finally(function () {
 			queueNext(queueTarget);
 		});
@@ -55,8 +52,14 @@ export function getQueueParams(
 	return { queueTarget };
 }
 
-export function enqueue(atom: QueableAtom) {
-	let { queueTarget } = atom.queueParams;
+export function queued(
+	dispatchParams: DispatchParams,
+	atom: QueableAtom,
+): boolean {
+	let queueParams = getQueueParams(dispatchParams);
+	if (!queueParams) return false;
+
+	let { queueTarget } = queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
 		let freshQueue = {
@@ -67,9 +70,14 @@ export function enqueue(atom: QueableAtom) {
 		queue = freshQueue;
 	}
 
-	// let entry = new Queueable(params);
-	// queue.incoming.push(entry);
+	let entry = new QueuedAtom(atom);
+	queue.incoming.push(entry);
+
+	atom.dispatchQueuedEvent();
+
 	queueNext(queueTarget);
+
+	return true;
 }
 
 function queueNext(el: EventTarget) {
@@ -83,5 +91,5 @@ function queueNext(el: EventTarget) {
 		}
 	}
 
-	queue.outgoing.pop()?.dispatch();
+	queue.outgoing.pop()?.dispatch(el);
 }

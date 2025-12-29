@@ -1,8 +1,9 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
+import type { QueableAtom } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { queued } from "./queue.js";
 
 interface JsonRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
@@ -43,18 +44,35 @@ export class JsonEvent extends Event implements JsonEventInterface {
 	}
 }
 
+class JsonFetch implements QueableAtom {
+	#dispatchParams;
+	#fetchParams;
+
+	constructor(
+		dispatchParams: DispatchParams,
+		fetchParams: FetchParamsInterface,
+	) {
+		this.#dispatchParams = dispatchParams;
+		this.#fetchParams = fetchParams;
+	}
+
+	dispatchQueuedEvent(): void {}
+
+	async fetch(): Promise<void> {
+		fetchJson(this.#dispatchParams, this.#fetchParams);
+	}
+}
+
 export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
 
 	if (throttled(dispatchParams, fetchParams)) return;
 
-	// let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
-	// if (queued(dispatchParams, jsonFetch)) return;
+	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+	if (queued(dispatchParams, jsonFetch)) return;
 
-	// jsonFetch.fetch();
-
-	fetchJson(dispatchParams, fetchParams);
+	jsonFetch.fetch();
 }
 
 // turn this into object

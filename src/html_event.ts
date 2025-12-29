@@ -1,8 +1,9 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
+import type { QueableAtom } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { queued } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
@@ -43,18 +44,35 @@ export class HtmlEvent extends Event implements HtmlEventInterface {
 	}
 }
 
+class HtmlFetch implements QueableAtom {
+	#dispatchParams;
+	#fetchParams;
+
+	constructor(
+		dispatchParams: DispatchParams,
+		fetchParams: FetchParamsInterface,
+	) {
+		this.#dispatchParams = dispatchParams;
+		this.#fetchParams = fetchParams;
+	}
+
+	dispatchQueuedEvent(): void {}
+
+	async fetch(): Promise<void> {
+		fetchHtml(this.#dispatchParams, this.#fetchParams);
+	}
+}
+
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
 
 	if (throttled(dispatchParams, fetchParams)) return;
 
-	// let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
-	// if (queued(dispatchParams, htmlFetch)) return;
+	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+	if (queued(dispatchParams, htmlFetch)) return;
 
-	// htmlFetch.fetch();
-
-	fetchHtml(dispatchParams, fetchParams);
+	htmlFetch.fetch();
 }
 
 function fetchHtml(

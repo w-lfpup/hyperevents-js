@@ -60,7 +60,15 @@ class HtmlFetch implements QueableAtom {
 		this.#fetchParams = fetchParams;
 	}
 
-	dispatchQueuedEvent(): void {}
+	dispatchQueueEvent(queueTarget: EventTarget): void {
+		let { target, composed } = this.#dispatchParams;
+
+		let event = new HtmlEvent(
+			{ status: "queued", queueTarget, ...this.#fetchParams },
+			{ bubbles: true, composed },
+		);
+		target.dispatchEvent(event);
+	}
 
 	async fetch(): Promise<void> {
 		fetchHtml(this.#dispatchParams, this.#fetchParams);

@@ -60,10 +60,18 @@ class JsonFetch implements QueableAtom {
 		this.#fetchParams = fetchParams;
 	}
 
-	dispatchQueuedEvent(): void {}
+	dispatchQueueEvent(queueTarget: EventTarget): void {
+		let { target, composed } = this.#dispatchParams;
 
-	async fetch(): Promise<void> {
-		fetchJson(this.#dispatchParams, this.#fetchParams);
+		let event = new JsonEvent(
+			{ status: "queued", queueTarget, ...this.#fetchParams },
+			{ bubbles: true, composed },
+		);
+		target.dispatchEvent(event);
+	}
+
+	fetch(): Promise<void> | undefined {
+		return fetchJson(this.#dispatchParams, this.#fetchParams);
 	}
 }
 

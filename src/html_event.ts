@@ -49,24 +49,10 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 
 	if (throttled(dispatchParams, fetchParams)) return;
 
-	// setThrottler(dispatchParams, throttleParams, fetchParams.abortController);
+	// let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+	// if (queued(dispatchParams, htmlFetch)) return;
 
-	// let queueParams = getQueueParams(dispatchParams);
-	// if (queueParams) {
-	// 	let { queueTarget } = queueParams;
-
-	// 	dispatchParams.target.dispatchEvent(
-	// 		new HtmlEvent({ status: "queued", queueTarget, ...fetchParams }),
-	// 	);
-
-	// 	return enqueue({
-	// 		fetchCallback: fetchHtml,
-	// 		fetchParams,
-	// 		dispatchParams,
-	// 		queueParams,
-	// 		abortController,
-	// 	});
-	// }
+	// htmlFetch.fetch();
 
 	fetchHtml(dispatchParams, fetchParams);
 }

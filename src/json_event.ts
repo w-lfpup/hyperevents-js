@@ -49,26 +49,15 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 
 	if (throttled(dispatchParams, fetchParams)) return;
 
-	// let queueParams = getQueueParams(dispatchParams);
-	// if (queueParams) {
-	// 	let { queueTarget } = queueParams;
+	// let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+	// if (queued(dispatchParams, jsonFetch)) return;
 
-	// 	dispatchParams.target.dispatchEvent(
-	// 		new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
-	// 	);
-
-	// 	return enqueue({
-	// 		fetchCallback: fetchJson,
-	// 		fetchParams,
-	// 		dispatchParams,
-	// 		queueParams,
-	// 		abortController,
-	// 	});
-	// }
+	// jsonFetch.fetch();
 
 	fetchJson(dispatchParams, fetchParams);
 }
 
+// turn this into object
 function fetchJson(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,

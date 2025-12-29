@@ -1,7 +1,7 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
 export interface QueableAtom {
-	dispatchQueueEvent(queueTarget: EventTarget): void;
+	dispatchQueueEvent(): void;
 	fetch(): Promise<void> | undefined;
 }
 
@@ -65,7 +65,7 @@ export function queued(
 	let { queueTarget } = queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
-		let freshQueue = {
+		let freshQueue: Queue = {
 			incoming: [],
 			outgoing: [],
 		};
@@ -73,7 +73,7 @@ export function queued(
 		queue = freshQueue;
 	}
 
-	atom.dispatchQueueEvent(queueTarget);
+	atom.dispatchQueueEvent();
 
 	let entry = new QueuedAtom(atom);
 	queue.incoming.push(entry);

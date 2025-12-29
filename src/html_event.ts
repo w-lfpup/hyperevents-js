@@ -7,7 +7,6 @@ import { queued } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
-	queueTarget: EventTarget;
 }
 
 interface HtmlRequestRequestedInterface extends FetchParamsInterface {
@@ -60,11 +59,11 @@ class HtmlFetch implements QueableAtom {
 		this.#fetchParams = fetchParams;
 	}
 
-	dispatchQueueEvent(queueTarget: EventTarget): void {
+	dispatchQueueEvent(): void {
 		let { target, composed } = this.#dispatchParams;
 
 		let event = new HtmlEvent(
-			{ status: "queued", queueTarget, ...this.#fetchParams },
+			{ status: "queued", ...this.#fetchParams },
 			{ bubbles: true, composed },
 		);
 		target.dispatchEvent(event);

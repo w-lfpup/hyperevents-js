@@ -7,7 +7,6 @@ import { queued } from "./queue.js";
 
 interface JsonRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
-	queueTarget: EventTarget;
 }
 
 interface JsonRequestRequestedInterface extends FetchParamsInterface {
@@ -60,11 +59,11 @@ class JsonFetch implements QueableAtom {
 		this.#fetchParams = fetchParams;
 	}
 
-	dispatchQueueEvent(queueTarget: EventTarget): void {
+	dispatchQueueEvent(): void {
 		let { target, composed } = this.#dispatchParams;
 
 		let event = new JsonEvent(
-			{ status: "queued", queueTarget, ...this.#fetchParams },
+			{ status: "queued", ...this.#fetchParams },
 			{ bubbles: true, composed },
 		);
 		target.dispatchEvent(event);

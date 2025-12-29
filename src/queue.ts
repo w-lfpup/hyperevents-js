@@ -95,6 +95,3 @@ function queueNext(el: EventTarget) {
 
 	queue.outgoing.pop()?.dispatch(el);
 }
-
-// fail safe to stop everything?
-function abortAllQueuedSignals() {}

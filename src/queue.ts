@@ -41,20 +41,6 @@ class QueuedAtom implements QueuableInterface {
 	}
 }
 
-function getQueueParams(
-	dispatchParams: DispatchParams,
-): QueueParamsInterface | undefined {
-	let { el, target, sourceEvent } = dispatchParams;
-
-	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
-	if (!queueTargetAttr) return;
-
-	let queueTarget: EventTarget = document;
-	if ("_target" === queueTargetAttr) queueTarget = target;
-
-	return { queueTarget };
-}
-
 export function queued(
 	dispatchParams: DispatchParams,
 	atom: QueableAtom,
@@ -80,6 +66,20 @@ export function queued(
 	queueNext(queueTarget);
 
 	return true;
+}
+
+function getQueueParams(
+	dispatchParams: DispatchParams,
+): QueueParamsInterface | undefined {
+	let { el, target, sourceEvent } = dispatchParams;
+
+	let queueAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+	if (null === queueAttr) return;
+
+	let queueTarget: EventTarget = target;
+	if ("_document" === queueAttr) queueTarget = document;
+
+	return { queueTarget };
 }
 
 function queueNext(el: EventTarget) {

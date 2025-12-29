@@ -41,7 +41,9 @@ function getThrottleParams(
 	let { type } = sourceEvent;
 
 	let windowMsAttr = el.getAttribute(`${type}:throttle-ms`);
-	let windowMs = parseInt(windowMsAttr ?? "");
+	if (null === windowMsAttr) return;
+
+	let windowMs = parseInt(windowMsAttr);
 	if (Number.isNaN(windowMs)) return;
 
 	return {

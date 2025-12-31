@@ -16,7 +16,6 @@ interface ThrottleParams {
 
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
-// add action
 export function throttled(
 	params: DispatchParams,
 	abortParams?: AbortParams,
@@ -67,10 +66,8 @@ function shouldThrottle(
 		if (sourceEvent.type === throttler.type) {
 			if (delta < windowMs) return true;
 
-			// should this occur here? or ...
 			throttler.abortParams?.abortController.abort();
 		}
-		// here?
 	}
 
 	return false;

@@ -19,8 +19,6 @@ interface Queue {
 }
 
 // MODULE WIDE MEMORY
-//
-// MAYBE ATTACH TO WINDOW?
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 class QueuedAtom implements QueuableInterface {

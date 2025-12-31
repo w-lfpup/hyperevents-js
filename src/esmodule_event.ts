@@ -60,9 +60,8 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 
 	if (moduleState) {
 		let { status } = moduleState;
-		if ("resolved" === status) {
-			el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
-		}
+		if ("resolved" === status) queueUpdate(el, sourceEvent);
+
 		return;
 	}
 
@@ -120,9 +119,9 @@ function getImportParams(
 
 function importEsModule(
 	dispatchParams: DispatchParams,
-	importParams: EsImportParams,
+	esImportParams: EsImportParams,
 ): Promise<void> | undefined {
-	let { url } = importParams;
+	let { url } = esImportParams;
 	let requested: EsModuleRequestedInterface = { status: "requested", url };
 	moduleMap.set(url, requested);
 
@@ -135,8 +134,9 @@ function importEsModule(
 			let resolved: EsModuleResolvedInterface = { status: "resolved", url };
 			moduleMap.set(url, resolved);
 
+			queueUpdate(el, sourceEvent);
+
 			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
-			el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
 			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
@@ -148,4 +148,10 @@ function importEsModule(
 			);
 			target.dispatchEvent(event);
 		});
+}
+
+function queueUpdate(el: Element, sourceEvent: Event) {
+	queueMicrotask(function () {
+		el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
+	});
 }

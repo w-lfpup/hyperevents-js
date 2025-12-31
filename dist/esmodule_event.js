@@ -16,9 +16,8 @@ export function dispatchEsModuleEvent(dispatchParams) {
     let moduleState = moduleMap.get(url);
     if (moduleState) {
         let { status } = moduleState;
-        if ("resolved" === status) {
-            el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
-        }
+        if ("resolved" === status)
+            queueUpdate(el, sourceEvent);
         return;
     }
     let requested = { status: "requested", url };
@@ -57,8 +56,8 @@ function getImportParams(dispatchParams) {
         url,
     };
 }
-function importEsModule(dispatchParams, importParams) {
-    let { url } = importParams;
+function importEsModule(dispatchParams, esImportParams) {
+    let { url } = esImportParams;
     let requested = { status: "requested", url };
     moduleMap.set(url, requested);
     let { el, target, composed, sourceEvent } = dispatchParams;
@@ -68,13 +67,18 @@ function importEsModule(dispatchParams, importParams) {
         .then(function () {
         let resolved = { status: "resolved", url };
         moduleMap.set(url, resolved);
+        queueUpdate(el, sourceEvent);
         let event = new EsModuleEvent(resolved, { bubbles: true, composed });
-        el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
         target.dispatchEvent(event);
     })
         .catch(function (error) {
         moduleMap.delete(url);
         let event = new EsModuleEvent({ status: "rejected", url, error }, { bubbles: true, composed });
         target.dispatchEvent(event);
+    });
+}
+function queueUpdate(el, sourceEvent) {
+    queueMicrotask(function () {
+        el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
     });
 }

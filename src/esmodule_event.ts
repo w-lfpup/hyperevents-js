@@ -50,7 +50,7 @@ export class EsModuleEvent extends Event implements EsModuleEventInterface {
 }
 
 export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
-	let { el, target, composed, sourceEvent } = dispatchParams;
+	let { el, sourceEvent } = dispatchParams;
 
 	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
 	if (null === urlAttr) return;

@@ -93,29 +93,12 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	}
 
 	// create object
-	let importParams = getImportParams(dispatchParams);
-	if (!importParams) return;
-
-	let moduleImport = new EsModuleImport(dispatchParams, importParams);
+	let moduleImport = new EsModuleImport(dispatchParams, {url});
 	if (queued(dispatchParams, moduleImport)) return;
 
 	moduleImport.fetch();
 }
 
-
-function getImportParams(
-	dispatchParams: DispatchParams,
-): EsImportParams | undefined {
-	let { el, sourceEvent } = dispatchParams;
-	let { type } = sourceEvent;
-
-	let url = el.getAttribute(`${type}:url`);
-	if (!url) return;
-
-	return {
-		url,
-	};
-}
 
 function importEsModule(
 	dispatchParams: DispatchParams,

@@ -43,23 +43,10 @@ export function dispatchEsModuleEvent(dispatchParams) {
         if ("rejected" !== status)
             return;
     }
-    let importParams = getImportParams(dispatchParams);
-    if (!importParams)
-        return;
-    let moduleImport = new EsModuleImport(dispatchParams, importParams);
+    let moduleImport = new EsModuleImport(dispatchParams, { url });
     if (queued(dispatchParams, moduleImport))
         return;
     moduleImport.fetch();
-}
-function getImportParams(dispatchParams) {
-    let { el, sourceEvent } = dispatchParams;
-    let { type } = sourceEvent;
-    let url = el.getAttribute(`${type}:url`);
-    if (!url)
-        return;
-    return {
-        url,
-    };
 }
 function importEsModule(dispatchParams, esImportParams) {
     let { url } = esImportParams;

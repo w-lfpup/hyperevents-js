@@ -4,7 +4,7 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperEvents is a friendly response to modern frameworks and enable HTML to declaratively:
+HyperEvents enables HTML to declaratively:
 
 - query JSON APIs
 - fetch html fragments

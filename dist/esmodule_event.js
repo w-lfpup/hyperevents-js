@@ -59,9 +59,9 @@ function importEsModule(dispatchParams, esImportParams) {
         .then(function () {
         let resolved = { status: "resolved", url };
         moduleMap.set(url, resolved);
-        queueUpdateAsResolved(el, sourceEvent);
         let event = new EsModuleEvent(resolved, { bubbles: true, composed });
         target.dispatchEvent(event);
+        queueUpdateAsResolved(el, sourceEvent);
     })
         .catch(function (error) {
         moduleMap.delete(url);

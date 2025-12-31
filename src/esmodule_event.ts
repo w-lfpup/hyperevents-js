@@ -1,4 +1,12 @@
 import type { DispatchParams } from "./type_flyweight.js";
+import type { QueableAtom } from "./queue.js";
+
+import { queued } from "./queue.js";
+
+interface EsModulQueuedInterface {
+	status: "queued";
+	url: string;
+}
 
 interface EsModuleRequestedInterface {
 	status: "requested";
@@ -17,6 +25,7 @@ interface EsModuleErrorInterface {
 }
 
 export type EsModuleRequestState =
+	| EsModulQueuedInterface
 	| EsModuleRequestedInterface
 	| EsModuleResolvedInterface
 	| EsModuleErrorInterface;
@@ -26,7 +35,6 @@ export interface EsModuleEventInterface {
 }
 
 // map {url: RequestState }
-let urlSet = new Set();
 
 let moduleMap = new Map<string, EsModuleRequestState>();
 
@@ -61,123 +69,81 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	moduleMap.set(url, requested);
 
 	// create object
+	let importParams = getImportParams(dispatchParams);
+	if (!importParams) return;
 
-	let event = new EsModuleEvent(requested, { bubbles: true, composed });
-	target.dispatchEvent(event);
+	let moduleImport = new EsModuleImport(dispatchParams, importParams);
+	if (queued(dispatchParams, moduleImport)) return;
 
-	import(url)
-		.then(function () {
-			let resolved: EsModuleResolvedInterface = { status: "resolved", url };
-			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
-			el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
-			moduleMap.set(url, resolved);
-
-			target.dispatchEvent(event);
-		})
-		.catch(function (error: any) {
-			urlSet.delete(url);
-			let event = new EsModuleEvent(
-				{ status: "rejected", url, error },
-				{ bubbles: true, composed },
-			);
-			target.dispatchEvent(event);
-		});
+	moduleImport.fetch();
 }
 
 class EsModuleImport implements QueableAtom {
 	#dispatchParams;
-	#fetchParams;
+	#importParams;
 
-	constructor(
-		dispatchParams: DispatchParams,
-		fetchParams: FetchParamsInterface,
-	) {
+	constructor(dispatchParams: DispatchParams, importParams: ImportParams) {
 		this.#dispatchParams = dispatchParams;
-		this.#fetchParams = fetchParams;
+		this.#importParams = importParams;
 	}
 
 	dispatchQueueEvent(): void {
 		let { target, composed } = this.#dispatchParams;
 
 		let event = new EsModuleEvent(
-			{ status: "queued", ...this.#fetchParams },
+			{ status: "queued", ...this.#importParams },
 			{ bubbles: true, composed },
 		);
 		target.dispatchEvent(event);
 	}
 
 	fetch(): Promise<void> | undefined {
-		return importEsModule(this.#dispatchParams, this.#fetchParams);
+		return importEsModule(this.#dispatchParams, this.#importParams);
 	}
-}
-
-export function createFetchParams(
-	dispatchParams: DispatchParams,
-): FetchParamsInterface | undefined {
-	let requestParams = getImportParams(dispatchParams);
-	if (!requestParams) return;
-
-	let abortController = new AbortController();
-
-	let { action } = requestParams;
-	let request = createRequest(dispatchParams, requestParams, abortController);
-
-	return {
-		action,
-		request,
-		abortController,
-	};
 }
 
 function getImportParams(
 	dispatchParams: DispatchParams,
-): RequestParams | undefined {
+): ImportParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
 	let url = el.getAttribute(`${type}:url`);
 	if (!url) return;
 
-	let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
-	let timeoutMs = parseInt(timeoutMsAttr ?? "");
-
 	return {
-		timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
 		url,
 	};
 }
 
 interface ImportParams {
-	abortController: AbortController;
 	url: string;
 }
 
 function importEsModule(
 	dispatchParams: DispatchParams,
-	fetchParams: ImportParams,
+	importParams: ImportParams,
 ): Promise<void> | undefined {
-	let { url, abortController } = fetchParams;
-	if (abortController.signal.aborted) return;
+	let { url } = importParams;
+	let requested: EsModuleRequestedInterface = { status: "requested", url };
+	moduleMap.set(url, requested);
 
 	let { el, target, composed, sourceEvent } = dispatchParams;
-
-	let event = new EsModuleEvent(
-		{ status: "requested", url },
-		{ bubbles: true, composed },
-	);
+	let event = new EsModuleEvent(requested, { bubbles: true, composed });
 	target.dispatchEvent(event);
 
-	import(url)
+	return import(url)
 		.then(function () {
-			let event = new EsModuleEvent(
-				{ status: "resolved", url },
-				{ bubbles: true, composed },
-			);
+			let resolved: EsModuleResolvedInterface = { status: "resolved", url };
+			moduleMap.set(url, resolved);
+
+			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
 			el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
 			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
-			urlSet.delete(url);
+			moduleMap.delete(url);
+
 			let event = new EsModuleEvent(
 				{ status: "rejected", url, error },
 				{ bubbles: true, composed },

@@ -1,4 +1,4 @@
-let urlSet = new Set();
+import { queued } from "./queue.js";
 let moduleMap = new Map();
 export class EsModuleEvent extends Event {
     requestState;
@@ -23,50 +23,29 @@ export function dispatchEsModuleEvent(dispatchParams) {
     }
     let requested = { status: "requested", url };
     moduleMap.set(url, requested);
-    let event = new EsModuleEvent(requested, { bubbles: true, composed });
-    target.dispatchEvent(event);
-    import(url)
-        .then(function () {
-        let resolved = { status: "resolved", url };
-        let event = new EsModuleEvent(resolved, { bubbles: true, composed });
-        el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
-        moduleMap.set(url, resolved);
-        target.dispatchEvent(event);
-    })
-        .catch(function (error) {
-        urlSet.delete(url);
-        let event = new EsModuleEvent({ status: "rejected", url, error }, { bubbles: true, composed });
-        target.dispatchEvent(event);
-    });
+    let importParams = getImportParams(dispatchParams);
+    if (!importParams)
+        return;
+    let moduleImport = new EsModuleImport(dispatchParams, importParams);
+    if (queued(dispatchParams, moduleImport))
+        return;
+    moduleImport.fetch();
 }
 class EsModuleImport {
     #dispatchParams;
-    #fetchParams;
-    constructor(dispatchParams, fetchParams) {
+    #importParams;
+    constructor(dispatchParams, importParams) {
         this.#dispatchParams = dispatchParams;
-        this.#fetchParams = fetchParams;
+        this.#importParams = importParams;
     }
     dispatchQueueEvent() {
         let { target, composed } = this.#dispatchParams;
-        let event = new EsModuleEvent({ status: "queued", ...this.#fetchParams }, { bubbles: true, composed });
+        let event = new EsModuleEvent({ status: "queued", ...this.#importParams }, { bubbles: true, composed });
         target.dispatchEvent(event);
     }
     fetch() {
-        return importEsModule(this.#dispatchParams, this.#fetchParams);
+        return importEsModule(this.#dispatchParams, this.#importParams);
     }
-}
-export function createFetchParams(dispatchParams) {
-    let requestParams = getImportParams(dispatchParams);
-    if (!requestParams)
-        return;
-    let abortController = new AbortController();
-    let { action } = requestParams;
-    let request = createRequest(dispatchParams, requestParams, abortController);
-    return {
-        action,
-        request,
-        abortController,
-    };
 }
 function getImportParams(dispatchParams) {
     let { el, sourceEvent } = dispatchParams;
@@ -74,28 +53,27 @@ function getImportParams(dispatchParams) {
     let url = el.getAttribute(`${type}:url`);
     if (!url)
         return;
-    let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
-    let timeoutMs = parseInt(timeoutMsAttr ?? "");
     return {
-        timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
         url,
     };
 }
-function importEsModule(dispatchParams, fetchParams) {
-    let { url, abortController } = fetchParams;
-    if (abortController.signal.aborted)
-        return;
+function importEsModule(dispatchParams, importParams) {
+    let { url } = importParams;
+    let requested = { status: "requested", url };
+    moduleMap.set(url, requested);
     let { el, target, composed, sourceEvent } = dispatchParams;
-    let event = new EsModuleEvent({ status: "requested", url }, { bubbles: true, composed });
+    let event = new EsModuleEvent(requested, { bubbles: true, composed });
     target.dispatchEvent(event);
-    import(url)
+    return import(url)
         .then(function () {
-        let event = new EsModuleEvent({ status: "resolved", url }, { bubbles: true, composed });
+        let resolved = { status: "resolved", url };
+        moduleMap.set(url, resolved);
+        let event = new EsModuleEvent(resolved, { bubbles: true, composed });
         el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
         target.dispatchEvent(event);
     })
         .catch(function (error) {
-        urlSet.delete(url);
+        moduleMap.delete(url);
         let event = new EsModuleEvent({ status: "rejected", url, error }, { bubbles: true, composed });
         target.dispatchEvent(event);
     });

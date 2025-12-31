@@ -113,18 +113,29 @@ function getImportParams(
 
 	return {
 		url,
+		abortController: new AbortController(),
 	};
 }
 
 interface ImportParams {
 	url: string;
+	abortController: AbortController;
 }
 
 function importEsModule(
 	dispatchParams: DispatchParams,
 	importParams: ImportParams,
 ): Promise<void> | undefined {
-	let { url } = importParams;
+	let { url, abortController } = importParams;
+	if (abortController.signal.aborted) {
+		let rejected: EsModuleErrorInterface = {
+			status: "rejected",
+			url,
+			error: new Error("EsModule import was aborted."),
+		};
+		moduleMap.set(url, rejected);
+	}
+
 	let requested: EsModuleRequestedInterface = { status: "requested", url };
 	moduleMap.set(url, requested);
 

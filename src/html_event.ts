@@ -47,18 +47,6 @@ export class HtmlEvent extends Event implements HtmlEventInterface {
 	}
 }
 
-export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
-	let fetchParams = createFetchParams(dispatchParams);
-	if (!fetchParams) return;
-
-	if (throttled(dispatchParams, fetchParams)) return;
-
-	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
-	if (queued(dispatchParams, htmlFetch)) return;
-
-	htmlFetch.fetch();
-}
-
 class HtmlFetch implements QueableAtom {
 	#dispatchParams;
 	#fetchParams;
@@ -84,6 +72,18 @@ class HtmlFetch implements QueableAtom {
 	fetch(): Promise<void> | undefined {
 		return fetchHtml(this.#dispatchParams, this.#fetchParams);
 	}
+}
+
+export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
+	let fetchParams = createFetchParams(dispatchParams);
+	if (!fetchParams) return;
+
+	if (throttled(dispatchParams, fetchParams)) return;
+
+	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+	if (queued(dispatchParams, htmlFetch)) return;
+
+	htmlFetch.fetch();
 }
 
 function fetchHtml(

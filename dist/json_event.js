@@ -11,17 +11,6 @@ export class JsonEvent extends Event {
         return this.#requestState;
     }
 }
-export function dispatchJsonEvent(dispatchParams) {
-    let fetchParams = createFetchParams(dispatchParams);
-    if (!fetchParams)
-        return;
-    if (throttled(dispatchParams, fetchParams))
-        return;
-    let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
-    if (queued(dispatchParams, jsonFetch))
-        return;
-    jsonFetch.fetch();
-}
 class JsonFetch {
     #dispatchParams;
     #fetchParams;
@@ -37,6 +26,17 @@ class JsonFetch {
     fetch() {
         return fetchJson(this.#dispatchParams, this.#fetchParams);
     }
+}
+export function dispatchJsonEvent(dispatchParams) {
+    let fetchParams = createFetchParams(dispatchParams);
+    if (!fetchParams)
+        return;
+    if (throttled(dispatchParams, fetchParams))
+        return;
+    let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+    if (queued(dispatchParams, jsonFetch))
+        return;
+    jsonFetch.fetch();
 }
 function fetchJson(dispatchParams, fetchParams) {
     if (fetchParams.abortController.signal.aborted)

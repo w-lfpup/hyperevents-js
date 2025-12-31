@@ -11,17 +11,6 @@ export class HtmlEvent extends Event {
         return this.#requestState;
     }
 }
-export function dispatchHtmlEvent(dispatchParams) {
-    let fetchParams = createFetchParams(dispatchParams);
-    if (!fetchParams)
-        return;
-    if (throttled(dispatchParams, fetchParams))
-        return;
-    let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
-    if (queued(dispatchParams, htmlFetch))
-        return;
-    htmlFetch.fetch();
-}
 class HtmlFetch {
     #dispatchParams;
     #fetchParams;
@@ -37,6 +26,17 @@ class HtmlFetch {
     fetch() {
         return fetchHtml(this.#dispatchParams, this.#fetchParams);
     }
+}
+export function dispatchHtmlEvent(dispatchParams) {
+    let fetchParams = createFetchParams(dispatchParams);
+    if (!fetchParams)
+        return;
+    if (throttled(dispatchParams, fetchParams))
+        return;
+    let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+    if (queued(dispatchParams, htmlFetch))
+        return;
+    htmlFetch.fetch();
 }
 function fetchHtml(dispatchParams, fetchParams) {
     if (fetchParams.abortController.signal.aborted)

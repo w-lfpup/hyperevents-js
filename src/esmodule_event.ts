@@ -3,7 +3,7 @@ import type { QueableAtom } from "./queue.js";
 
 import { queued } from "./queue.js";
 
-interface EsModulQueuedInterface {
+interface EsModuleQueuedInterface {
 	status: "queued";
 	url: string;
 }
@@ -25,7 +25,7 @@ interface EsModuleErrorInterface {
 }
 
 export type EsModuleRequestState =
-	| EsModulQueuedInterface
+	| EsModuleQueuedInterface
 	| EsModuleRequestedInterface
 	| EsModuleResolvedInterface
 	| EsModuleErrorInterface;
@@ -49,36 +49,6 @@ export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	}
 }
 
-export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
-	let { el, sourceEvent } = dispatchParams;
-
-	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
-	if (null === urlAttr) return;
-
-	let url = new URL(urlAttr, location.href).toString();
-	let moduleState = moduleMap.get(url);
-
-	if (moduleState) {
-		let { status } = moduleState;
-		if ("resolved" === status) queueUpdate(el, sourceEvent);
-
-		return;
-	}
-
-	let requested: EsModuleRequestState = { status: "requested", url };
-
-	moduleMap.set(url, requested);
-
-	// create object
-	let importParams = getImportParams(dispatchParams);
-	if (!importParams) return;
-
-	let moduleImport = new EsModuleImport(dispatchParams, importParams);
-	if (queued(dispatchParams, moduleImport)) return;
-
-	moduleImport.fetch();
-}
-
 class EsModuleImport implements QueableAtom {
 	#dispatchParams;
 	#importParams;
@@ -90,11 +60,15 @@ class EsModuleImport implements QueableAtom {
 
 	dispatchQueueEvent(): void {
 		let { target, composed } = this.#dispatchParams;
+		let moduleQueued: EsModuleQueuedInterface = {
+			status: "queued",
+			...this.#importParams,
+		};
 
-		let event = new EsModuleEvent(
-			{ status: "queued", ...this.#importParams },
-			{ bubbles: true, composed },
-		);
+		let { url } = this.#importParams;
+		moduleMap.set(url, moduleQueued);
+
+		let event = new EsModuleEvent(moduleQueued, { bubbles: true, composed });
 		target.dispatchEvent(event);
 	}
 
@@ -102,6 +76,32 @@ class EsModuleImport implements QueableAtom {
 		return importEsModule(this.#dispatchParams, this.#importParams);
 	}
 }
+
+export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
+	let { el, sourceEvent } = dispatchParams;
+
+	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
+	if (null === urlAttr) return;
+
+	let url = new URL(urlAttr, location.href).toString();
+	let moduleState = moduleMap.get(url);
+
+	if (moduleState) {
+		let { status } = moduleState;
+		if ("resolved" === status) queueUpdateAsResolved(el, sourceEvent);
+		if ("rejected" !== status) return;
+	}
+
+	// create object
+	let importParams = getImportParams(dispatchParams);
+	if (!importParams) return;
+
+	let moduleImport = new EsModuleImport(dispatchParams, importParams);
+	if (queued(dispatchParams, moduleImport)) return;
+
+	moduleImport.fetch();
+}
+
 
 function getImportParams(
 	dispatchParams: DispatchParams,
@@ -134,7 +134,7 @@ function importEsModule(
 			let resolved: EsModuleResolvedInterface = { status: "resolved", url };
 			moduleMap.set(url, resolved);
 
-			queueUpdate(el, sourceEvent);
+			queueUpdateAsResolved(el, sourceEvent);
 
 			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
 			target.dispatchEvent(event);
@@ -150,7 +150,7 @@ function importEsModule(
 		});
 }
 
-function queueUpdate(el: Element, sourceEvent: Event) {
+function queueUpdateAsResolved(el: Element, sourceEvent: Event) {
 	queueMicrotask(function () {
 		el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
 	});

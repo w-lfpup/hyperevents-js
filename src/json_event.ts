@@ -47,18 +47,6 @@ export class JsonEvent extends Event implements JsonEventInterface {
 	}
 }
 
-export function dispatchJsonEvent(dispatchParams: DispatchParams) {
-	let fetchParams = createFetchParams(dispatchParams);
-	if (!fetchParams) return;
-
-	if (throttled(dispatchParams, fetchParams)) return;
-
-	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
-	if (queued(dispatchParams, jsonFetch)) return;
-
-	jsonFetch.fetch();
-}
-
 class JsonFetch implements QueableAtom {
 	#dispatchParams;
 	#fetchParams;
@@ -84,6 +72,18 @@ class JsonFetch implements QueableAtom {
 	fetch(): Promise<void> | undefined {
 		return fetchJson(this.#dispatchParams, this.#fetchParams);
 	}
+}
+
+export function dispatchJsonEvent(dispatchParams: DispatchParams) {
+	let fetchParams = createFetchParams(dispatchParams);
+	if (!fetchParams) return;
+
+	if (throttled(dispatchParams, fetchParams)) return;
+
+	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+	if (queued(dispatchParams, jsonFetch)) return;
+
+	jsonFetch.fetch();
 }
 
 function fetchJson(

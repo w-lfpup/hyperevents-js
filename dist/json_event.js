@@ -1,47 +1,45 @@
-import { getRequestParams, createRequest } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { createFetchParams } from "./type_flyweight.js";
+import { throttled } from "./throttle.js";
+import { queued } from "./queue.js";
 export class JsonEvent extends Event {
-    requestState;
+    #requestState;
     constructor(requestState, eventInitDict) {
         super("#json", eventInitDict);
-        this.requestState = requestState;
+        this.#requestState = requestState;
+    }
+    get requestState() {
+        return this.#requestState;
+    }
+}
+class JsonFetch {
+    #dispatchParams;
+    #fetchParams;
+    constructor(dispatchParams, fetchParams) {
+        this.#dispatchParams = dispatchParams;
+        this.#fetchParams = fetchParams;
+    }
+    dispatchQueueEvent() {
+        let { target, composed } = this.#dispatchParams;
+        let event = new JsonEvent({ status: "queued", ...this.#fetchParams }, { bubbles: true, composed });
+        target.dispatchEvent(event);
+    }
+    fetch() {
+        return fetchJson(this.#dispatchParams, this.#fetchParams);
     }
 }
 export function dispatchJsonEvent(dispatchParams) {
-    let requestParams = getRequestParams(dispatchParams);
-    if (!requestParams)
+    let fetchParams = createFetchParams(dispatchParams);
+    if (!fetchParams)
         return;
-    let throttleParams = getThrottleParams(dispatchParams);
-    if (shouldThrottle(dispatchParams, throttleParams))
+    if (throttled(dispatchParams, fetchParams))
         return;
-    let abortController = new AbortController();
-    setThrottler(dispatchParams, throttleParams, abortController);
-    let request = createRequest(dispatchParams, requestParams, abortController);
-    if (!request)
+    let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+    if (queued(dispatchParams, jsonFetch))
         return;
-    let { action } = requestParams;
-    let fetchParams = {
-        action,
-        request,
-        abortController,
-    };
-    let queueParams = getQueueParams(dispatchParams);
-    if (queueParams) {
-        let { queueTarget } = queueParams;
-        dispatchParams.target.dispatchEvent(new JsonEvent({ status: "queued", queueTarget, ...fetchParams }));
-        return enqueue({
-            fetchCallback: fetchJson,
-            fetchParams,
-            dispatchParams,
-            queueParams,
-            abortController,
-        });
-    }
-    fetchJson(fetchParams, dispatchParams, abortController);
+    jsonFetch.fetch();
 }
-function fetchJson(fetchParams, dispatchParams, abortController) {
-    if (abortController.signal.aborted)
+function fetchJson(dispatchParams, fetchParams) {
+    if (fetchParams.abortController.signal.aborted)
         return;
     let { target, composed } = dispatchParams;
     let event = new JsonEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });

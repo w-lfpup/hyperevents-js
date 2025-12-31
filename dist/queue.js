@@ -1,32 +1,23 @@
 let queueMap = new WeakMap();
-export class Queueable {
-    #params;
-    constructor(params) {
-        this.#params = params;
+class QueuedAtom {
+    #atom;
+    constructor(atom) {
+        this.#atom = atom;
     }
-    dispatch() {
-        let { abortController, dispatchParams, fetchCallback, fetchParams, queueParams, } = this.#params;
-        let { queueTarget } = queueParams;
-        let promisedJson = fetchCallback(fetchParams, dispatchParams, abortController)?.finally(function () {
-            queueNext(queueTarget);
-        });
-        if (!promisedJson) {
-            queueNext(queueTarget);
-        }
+    dispatch(queueTarget) {
+        let promise = this.#atom.fetch();
+        promise
+            ? promise.finally(function () {
+                queueNext(queueTarget);
+            })
+            : queueNext(queueTarget);
     }
 }
-export function getQueueParams(dispatchParams) {
-    let { el, target, sourceEvent } = dispatchParams;
-    let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
-    if (!queueTargetAttr)
-        return;
-    let queueTarget = target;
-    if ("_document" === queueTargetAttr)
-        queueTarget = document;
-    return { queueTarget };
-}
-export function enqueue(params) {
-    let { queueTarget } = params.queueParams;
+export function queued(dispatchParams, atom) {
+    let queueParams = getQueueParams(dispatchParams);
+    if (!queueParams)
+        return false;
+    let { queueTarget } = queueParams;
     let queue = queueMap.get(queueTarget);
     if (!queue) {
         let freshQueue = {
@@ -36,9 +27,21 @@ export function enqueue(params) {
         queueMap.set(queueTarget, freshQueue);
         queue = freshQueue;
     }
-    let entry = new Queueable(params);
+    atom.dispatchQueueEvent();
+    let entry = new QueuedAtom(atom);
     queue.incoming.push(entry);
     queueNext(queueTarget);
+    return true;
+}
+function getQueueParams(dispatchParams) {
+    let { el, target, sourceEvent } = dispatchParams;
+    let queueAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+    if (null === queueAttr)
+        return;
+    let queueTarget = document;
+    if ("_target" === queueAttr)
+        queueTarget = target;
+    return { queueTarget };
 }
 function queueNext(el) {
     let queue = queueMap.get(el);
@@ -51,5 +54,5 @@ function queueNext(el) {
                 queue.outgoing.push(pip);
         }
     }
-    queue.outgoing.pop()?.dispatch();
+    queue.outgoing.pop()?.dispatch(el);
 }

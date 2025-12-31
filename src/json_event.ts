@@ -1,31 +1,25 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
+import type { QueableAtom } from "./queue.js";
 
-import { getRequestParams, createRequest } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { createFetchParams } from "./type_flyweight.js";
+import { throttled } from "./throttle.js";
+import { queued } from "./queue.js";
 
-interface JsonRequestInterface {
-	request: Request;
-	action: string;
-	abortController: AbortController;
-}
-
-interface JsonRequestQueuedInterface extends JsonRequestInterface {
+interface JsonRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
-	queueTarget: EventTarget;
 }
 
-interface JsonRequestRequestedInterface extends JsonRequestInterface {
+interface JsonRequestRequestedInterface extends FetchParamsInterface {
 	status: "requested";
 }
 
-interface JsonRequestResolvedInterface extends JsonRequestInterface {
+interface JsonRequestResolvedInterface extends FetchParamsInterface {
 	status: "resolved";
 	response: Response;
 	json: any;
 }
 
-interface JsonRequestRejectedInterface extends JsonRequestInterface {
+interface JsonRequestRejectedInterface extends FetchParamsInterface {
 	status: "rejected";
 	error: any;
 }
@@ -37,65 +31,66 @@ export type JsonRequestState =
 	| JsonRequestRejectedInterface;
 
 export interface JsonEventInterface {
-	requestState: JsonRequestState;
+	readonly requestState: JsonRequestState;
 }
 
 export class JsonEvent extends Event implements JsonEventInterface {
-	requestState: JsonRequestState;
+	#requestState: JsonRequestState;
 
 	constructor(requestState: JsonRequestState, eventInitDict?: EventInit) {
 		super("#json", eventInitDict);
-		this.requestState = requestState;
+		this.#requestState = requestState;
+	}
+
+	get requestState() {
+		return this.#requestState;
+	}
+}
+
+class JsonFetch implements QueableAtom {
+	#dispatchParams;
+	#fetchParams;
+
+	constructor(
+		dispatchParams: DispatchParams,
+		fetchParams: FetchParamsInterface,
+	) {
+		this.#dispatchParams = dispatchParams;
+		this.#fetchParams = fetchParams;
+	}
+
+	dispatchQueueEvent(): void {
+		let { target, composed } = this.#dispatchParams;
+
+		let event = new JsonEvent(
+			{ status: "queued", ...this.#fetchParams },
+			{ bubbles: true, composed },
+		);
+		target.dispatchEvent(event);
+	}
+
+	fetch(): Promise<void> | undefined {
+		return fetchJson(this.#dispatchParams, this.#fetchParams);
 	}
 }
 
 export function dispatchJsonEvent(dispatchParams: DispatchParams) {
-	let requestParams = getRequestParams(dispatchParams);
-	if (!requestParams) return;
+	let fetchParams = createFetchParams(dispatchParams);
+	if (!fetchParams) return;
 
-	let throttleParams = getThrottleParams(dispatchParams);
-	if (shouldThrottle(dispatchParams, throttleParams)) return;
+	if (throttled(dispatchParams, fetchParams)) return;
 
-	let abortController = new AbortController();
+	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+	if (queued(dispatchParams, jsonFetch)) return;
 
-	setThrottler(dispatchParams, throttleParams, abortController);
-
-	let request = createRequest(dispatchParams, requestParams, abortController);
-	if (!request) return;
-
-	let { action } = requestParams;
-	let fetchParams: JsonRequestInterface = {
-		action,
-		request,
-		abortController,
-	};
-
-	let queueParams = getQueueParams(dispatchParams);
-	if (queueParams) {
-		let { queueTarget } = queueParams;
-
-		dispatchParams.target.dispatchEvent(
-			new JsonEvent({ status: "queued", queueTarget, ...fetchParams }),
-		);
-
-		return enqueue({
-			fetchCallback: fetchJson,
-			fetchParams,
-			dispatchParams,
-			queueParams,
-			abortController,
-		});
-	}
-
-	fetchJson(fetchParams, dispatchParams, abortController);
+	jsonFetch.fetch();
 }
 
 function fetchJson(
-	fetchParams: JsonRequestInterface,
 	dispatchParams: DispatchParams,
-	abortController: AbortController,
+	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	if (abortController.signal.aborted) return;
+	if (fetchParams.abortController.signal.aborted) return;
 
 	let { target, composed } = dispatchParams;
 
@@ -123,6 +118,6 @@ function fetchJson(
 		});
 }
 
-function resolveResponseBody(response: Response): Promise<[Response, string]> {
+function resolveResponseBody(response: Response): Promise<[Response, any]> {
 	return Promise.all([response, response.json()]);
 }

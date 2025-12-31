@@ -1,6 +1,6 @@
 {
-	"name": "hyperevents",
-	"description": "declarative HTML projections",
+	"name": "@w-lfpup/hyperevents",
+	"description": "A hypertext extension for the browser",
 	"type": "module",
 	"main": "dist/mod.js",
 	"author": "Taylor Vann",

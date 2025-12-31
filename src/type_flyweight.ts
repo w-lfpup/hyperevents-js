@@ -7,14 +7,38 @@ export interface DispatchParams {
 	target: EventTarget;
 }
 
-export interface RequestParams {
+interface RequestParams {
 	action: string;
 	method: string;
 	timeoutMs?: number;
 	url: string;
 }
 
-export function getRequestParams(
+export interface FetchParamsInterface {
+	abortController: AbortController;
+	action: string;
+	request: Request;
+}
+
+export function createFetchParams(
+	dispatchParams: DispatchParams,
+): FetchParamsInterface | undefined {
+	let requestParams = getRequestParams(dispatchParams);
+	if (!requestParams) return;
+
+	let abortController = new AbortController();
+
+	let { action } = requestParams;
+	let request = createRequest(dispatchParams, requestParams, abortController);
+
+	return {
+		action,
+		request,
+		abortController,
+	};
+}
+
+function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
@@ -27,8 +51,8 @@ export function getRequestParams(
 	if (!url) return;
 
 	let method = el.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutAttr = el.getAttribute(`${type}:timeout-ms`);
-	let timeoutMs = parseInt(timeoutAttr || "");
+	let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
+	let timeoutMs = parseInt(timeoutMsAttr ?? "");
 
 	return {
 		timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
@@ -38,11 +62,11 @@ export function getRequestParams(
 	};
 }
 
-export function createRequest(
+function createRequest(
 	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
 	abortController: AbortController,
-): Request | undefined {
+): Request {
 	let { url, timeoutMs, method } = requestParams;
 
 	let abortSignals = [abortController.signal];

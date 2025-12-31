@@ -1,3 +1,4 @@
+import { throttled } from "./throttle.js";
 export class ActionEvent extends Event {
     actionParams;
     constructor(actionParams, eventInit) {
@@ -8,6 +9,8 @@ export class ActionEvent extends Event {
 export function dispatchActionEvent(dispatchParams) {
     let actionParams = getActionParams(dispatchParams);
     if (!actionParams)
+        return;
+    if (throttled(dispatchParams))
         return;
     let { target, composed } = dispatchParams;
     let event = new ActionEvent(actionParams, { bubbles: true, composed });

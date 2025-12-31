@@ -1,19 +1,16 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-export interface QueueParamsInterface {
+export interface QueableAtom {
+	dispatchQueueEvent(): void;
+	fetch(): Promise<void> | undefined;
+}
+
+interface QueueParamsInterface {
 	queueTarget: EventTarget;
 }
 
-export interface QueuableInterface {
-	dispatch(): void;
-}
-
-export interface FetchCallback<A> {
-	(
-		fetchParams: A,
-		dispatchParams: DispatchParams,
-		abortController: AbortController,
-	): Promise<void> | undefined;
+interface QueuableInterface {
+	dispatch(queueTarget: EventTarget): void;
 }
 
 interface Queue {
@@ -21,66 +18,38 @@ interface Queue {
 	outgoing: QueuableInterface[];
 }
 
+// MODULE WIDE MEMORY
 let queueMap = new WeakMap<EventTarget, Queue>();
 
-interface QueuableParams<A> {
-	abortController: AbortController;
-	dispatchParams: DispatchParams;
-	fetchCallback: FetchCallback<A>;
-	fetchParams: A;
-	queueParams: QueueParamsInterface;
-}
+class QueuedAtom implements QueuableInterface {
+	#atom: QueableAtom;
 
-export class Queueable<A> implements QueuableInterface {
-	#params: QueuableParams<A>;
-
-	constructor(params: QueuableParams<A>) {
-		this.#params = params;
+	constructor(atom: QueableAtom) {
+		this.#atom = atom;
 	}
 
-	dispatch() {
-		let {
-			abortController,
-			dispatchParams,
-			fetchCallback,
-			fetchParams,
-			queueParams,
-		} = this.#params;
-		let { queueTarget } = queueParams;
+	dispatch(queueTarget: EventTarget) {
+		let promise = this.#atom.fetch();
 
-		let promisedJson = fetchCallback(
-			fetchParams,
-			dispatchParams,
-			abortController,
-		)?.finally(function () {
-			queueNext(queueTarget);
-		});
-
-		if (!promisedJson) {
-			queueNext(queueTarget);
-		}
+		promise
+			? promise.finally(function () {
+					queueNext(queueTarget);
+				})
+			: queueNext(queueTarget);
 	}
 }
 
-export function getQueueParams(
+export function queued(
 	dispatchParams: DispatchParams,
-): QueueParamsInterface | undefined {
-	let { el, target, sourceEvent } = dispatchParams;
+	atom: QueableAtom,
+): boolean {
+	let queueParams = getQueueParams(dispatchParams);
+	if (!queueParams) return false;
 
-	let queueTargetAttr = el.getAttribute(`${sourceEvent.type}:queue`);
-	if (!queueTargetAttr) return;
-
-	let queueTarget: EventTarget = document;
-	if ("_target" === queueTargetAttr) queueTarget = target;
-
-	return { queueTarget };
-}
-
-export function enqueue<A>(params: QueuableParams<A>) {
-	let { queueTarget } = params.queueParams;
+	let { queueTarget } = queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
-		let freshQueue = {
+		let freshQueue: Queue = {
 			incoming: [],
 			outgoing: [],
 		};
@@ -88,9 +57,27 @@ export function enqueue<A>(params: QueuableParams<A>) {
 		queue = freshQueue;
 	}
 
-	let entry = new Queueable(params);
+	atom.dispatchQueueEvent();
+
+	let entry = new QueuedAtom(atom);
 	queue.incoming.push(entry);
 	queueNext(queueTarget);
+
+	return true;
+}
+
+function getQueueParams(
+	dispatchParams: DispatchParams,
+): QueueParamsInterface | undefined {
+	let { el, target, sourceEvent } = dispatchParams;
+
+	let queueAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+	if (null === queueAttr) return;
+
+	let queueTarget: EventTarget = document;
+	if ("_target" === queueAttr) queueTarget = target;
+
+	return { queueTarget };
 }
 
 function queueNext(el: EventTarget) {
@@ -104,5 +91,5 @@ function queueNext(el: EventTarget) {
 		}
 	}
 
-	queue.outgoing.pop()?.dispatch();
+	queue.outgoing.pop()?.dispatch(el);
 }

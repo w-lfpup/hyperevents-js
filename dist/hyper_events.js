@@ -3,8 +3,8 @@ import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 export class HyperEvents {
-    #params;
     #boundDispatch = this.#dispatch.bind(this);
+    #params;
     #target;
     constructor(params) {
         this.#params = params;

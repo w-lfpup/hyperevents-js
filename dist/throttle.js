@@ -1,50 +1,40 @@
 let elementMap = new WeakMap();
-export function getThrottleParams(dispatchParams) {
-    let { el, sourceEvent } = dispatchParams;
-    let { type } = sourceEvent;
-    let throttle = el.getAttribute(`${type}:throttle`);
-    if (!throttle)
-        return;
-    let throttleMsAttr = el.getAttribute(`${type}:throttle-ms`);
-    let timeoutMs = parseInt(throttleMsAttr ?? "");
-    if (Number.isNaN(timeoutMs))
-        return;
-    return {
-        throttle,
-        timeoutMs,
-    };
-}
-export function shouldThrottle(dispatchParams, throttleParams) {
+export function throttled(params, abortParams) {
+    let throttleParams = getThrottleParams(params);
     if (!throttleParams)
         return false;
-    let { target, el } = dispatchParams;
-    let { throttle, timeoutMs } = throttleParams;
-    let throttleEl = target;
-    if ("_target" === throttle)
-        throttleEl = el;
-    if ("_document" === throttle)
-        throttleEl = document;
+    if (shouldThrottle(params, throttleParams))
+        return true;
+    let { el, sourceEvent } = params;
+    let { timeStamp, type } = sourceEvent;
+    elementMap.set(el, { timeStamp, type, abortParams });
+    return false;
+}
+function getThrottleParams(dispatchParams) {
+    let { el, sourceEvent } = dispatchParams;
+    let { type } = sourceEvent;
+    let windowMsAttr = el.getAttribute(`${type}:throttle-ms`);
+    if (null === windowMsAttr)
+        return;
+    let windowMs = parseInt(windowMsAttr);
+    if (Number.isNaN(windowMs))
+        return;
+    return {
+        windowMs,
+    };
+}
+function shouldThrottle(dispatchParams, throttleParams) {
+    let { el, sourceEvent } = dispatchParams;
+    let { windowMs } = throttleParams;
+    let throttleEl = el;
     let throttler = elementMap.get(throttleEl);
     if (throttler) {
         let delta = performance.now() - throttler.timeStamp;
-        if (delta < timeoutMs) {
-            return true;
+        if (sourceEvent.type === throttler.type) {
+            if (delta < windowMs)
+                return true;
+            throttler.abortParams?.abortController.abort();
         }
-        throttler.abortController?.abort();
     }
     return false;
-}
-export function setThrottler(params, throttleParams, abortController) {
-    if (!throttleParams)
-        return;
-    let { throttle } = throttleParams;
-    let { el, target, sourceEvent } = params;
-    let { timeStamp } = sourceEvent;
-    let throttler = { timeStamp, abortController };
-    let throttleEl = target;
-    if ("_target" === throttle)
-        throttleEl = el;
-    if ("_document" === throttle)
-        throttleEl = document;
-    elementMap.set(throttleEl, throttler);
 }

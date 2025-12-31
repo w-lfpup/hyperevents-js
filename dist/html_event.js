@@ -1,47 +1,45 @@
-import { getRequestParams, createRequest } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue } from "./queue.js";
+import { createFetchParams } from "./type_flyweight.js";
+import { throttled } from "./throttle.js";
+import { queued } from "./queue.js";
 export class HtmlEvent extends Event {
-    requestState;
+    #requestState;
     constructor(requestState, eventInit) {
         super("#html", eventInit);
-        this.requestState = requestState;
+        this.#requestState = requestState;
+    }
+    get requestState() {
+        return this.#requestState;
+    }
+}
+class HtmlFetch {
+    #dispatchParams;
+    #fetchParams;
+    constructor(dispatchParams, fetchParams) {
+        this.#dispatchParams = dispatchParams;
+        this.#fetchParams = fetchParams;
+    }
+    dispatchQueueEvent() {
+        let { target, composed } = this.#dispatchParams;
+        let event = new HtmlEvent({ status: "queued", ...this.#fetchParams }, { bubbles: true, composed });
+        target.dispatchEvent(event);
+    }
+    fetch() {
+        return fetchHtml(this.#dispatchParams, this.#fetchParams);
     }
 }
 export function dispatchHtmlEvent(dispatchParams) {
-    let requestParams = getRequestParams(dispatchParams);
-    if (!requestParams)
+    let fetchParams = createFetchParams(dispatchParams);
+    if (!fetchParams)
         return;
-    let throttleParams = getThrottleParams(dispatchParams);
-    if (shouldThrottle(dispatchParams, throttleParams))
+    if (throttled(dispatchParams, fetchParams))
         return;
-    let abortController = new AbortController();
-    setThrottler(dispatchParams, throttleParams, abortController);
-    let request = createRequest(dispatchParams, requestParams, abortController);
-    if (!request)
+    let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+    if (queued(dispatchParams, htmlFetch))
         return;
-    let { action } = requestParams;
-    let fetchParams = {
-        action,
-        request,
-        abortController,
-    };
-    let queueParams = getQueueParams(dispatchParams);
-    if (queueParams) {
-        let { queueTarget } = queueParams;
-        dispatchParams.target.dispatchEvent(new HtmlEvent({ status: "queued", queueTarget, ...fetchParams }));
-        return enqueue({
-            fetchCallback: fetchHtml,
-            fetchParams,
-            dispatchParams,
-            queueParams,
-            abortController,
-        });
-    }
-    fetchHtml(fetchParams, dispatchParams, abortController);
+    htmlFetch.fetch();
 }
-function fetchHtml(fetchParams, dispatchParams, abortController) {
-    if (abortController.signal.aborted)
+function fetchHtml(dispatchParams, fetchParams) {
+    if (fetchParams.abortController.signal.aborted)
         return;
     let { target, composed } = dispatchParams;
     let event = new HtmlEvent({ status: "requested", ...fetchParams }, { bubbles: true, composed });

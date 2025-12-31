@@ -4,21 +4,19 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperEvents enable HTML to declaratively:
+HyperEvents enables HTML to declaratively:
 
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
 - dispatch action events (think redux actions)
 
-HyperEvents are an alternative to bulky frontend frameworks. Rather setup and teardown specific callbacks on specific elements, DOM UI events create "action" events. Developers can listen and derive local state from action events.
-
 HyperEvents is built for modern web standards making it ideal for:
 
 - SSR
 - SSG
 - HTML template elements
-- Shadow DOM
+- Declarative shadow DOM
 
 ## Install
 
@@ -91,11 +89,10 @@ Then listen for request state with `#html` events in javascript-land.
 
 ```ts
 document.addEventListener("#html", function (e: HtmlEvent) {
-	let { requestState } = e;
-	let { status } = requestState;
+	let { requestState: rs } = e;
 
-	if ("resolved" === status) {
-		let { html } = requestState;
+	if ("get_entries" === rs.action && "resolved" === rs.status) {
+		let { html } = rs;
 	}
 });
 ```
@@ -108,7 +105,7 @@ Fetch and dispatch JSON using the following syntax:
 <span
 	pointerdown:="_json"
 	pointerdown:action="ping_api"
-	pointerdown:url="/fetch/some.json"
+	pointerdown:url="/ping/api.json"
 ></span>
 ```
 
@@ -116,11 +113,10 @@ Then listen for request state with `#json` events in javascript-land.
 
 ```ts
 document.addEventListener("#json", function (e: JsonEvent) {
-	let { requestState } = e;
-	let { status } = requestState;
+	let { requestState: rs } = e;
 
-	if ("resolved" === status) {
-		let { json } = requestState;
+	if ("ping_api" === rs.action && "resolved" === rs.status) {
+		let { json } = rs;
 	}
 });
 ```

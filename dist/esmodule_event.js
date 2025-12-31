@@ -1,4 +1,5 @@
-let urlSet = new Set();
+import { queued } from "./queue.js";
+let moduleMap = new Map();
 export class EsModuleEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -6,25 +7,70 @@ export class EsModuleEvent extends Event {
         this.requestState = requestState;
     }
 }
-export function dispatchEsModuleEvent(params) {
-    let { el, target, composed } = params;
-    let urlAttr = el.getAttribute(`${params.sourceEvent.type}:url`);
+class EsModuleImport {
+    #dispatchParams;
+    #importParams;
+    constructor(dispatchParams, importParams) {
+        this.#dispatchParams = dispatchParams;
+        this.#importParams = importParams;
+    }
+    dispatchQueueEvent() {
+        let { target, composed } = this.#dispatchParams;
+        let moduleQueued = {
+            status: "queued",
+            ...this.#importParams,
+        };
+        let { url } = this.#importParams;
+        moduleMap.set(url, moduleQueued);
+        let event = new EsModuleEvent(moduleQueued, { bubbles: true, composed });
+        target.dispatchEvent(event);
+    }
+    fetch() {
+        return importEsModule(this.#dispatchParams, this.#importParams);
+    }
+}
+export function dispatchEsModuleEvent(dispatchParams) {
+    let { el, sourceEvent } = dispatchParams;
+    let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
     if (null === urlAttr)
         return;
     let url = new URL(urlAttr, location.href).toString();
-    if (urlSet.has(url))
+    let moduleState = moduleMap.get(url);
+    if (moduleState) {
+        let { status } = moduleState;
+        if ("resolved" === status)
+            queueUpdateAsResolved(el, sourceEvent);
+        if ("rejected" !== status)
+            return;
+    }
+    let moduleImport = new EsModuleImport(dispatchParams, { url });
+    if (queued(dispatchParams, moduleImport))
         return;
-    urlSet.add(url);
-    let event = new EsModuleEvent({ status: "requested", url }, { bubbles: true, composed });
+    moduleImport.fetch();
+}
+function importEsModule(dispatchParams, esImportParams) {
+    let { url } = esImportParams;
+    let requested = { status: "requested", url };
+    moduleMap.set(url, requested);
+    let { el, target, composed, sourceEvent } = dispatchParams;
+    let event = new EsModuleEvent(requested, { bubbles: true, composed });
     target.dispatchEvent(event);
-    import(url)
+    return import(url)
         .then(function () {
-        let event = new EsModuleEvent({ status: "resolved", url }, { bubbles: true, composed });
+        let resolved = { status: "resolved", url };
+        moduleMap.set(url, resolved);
+        let event = new EsModuleEvent(resolved, { bubbles: true, composed });
         target.dispatchEvent(event);
+        queueUpdateAsResolved(el, sourceEvent);
     })
         .catch(function (error) {
-        urlSet.delete(url);
+        moduleMap.delete(url);
         let event = new EsModuleEvent({ status: "rejected", url, error }, { bubbles: true, composed });
         target.dispatchEvent(event);
+    });
+}
+function queueUpdateAsResolved(el, sourceEvent) {
+    queueMicrotask(function () {
+        el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
     });
 }

@@ -1,5 +1,7 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
+import { throttled } from "./throttle.js";
+
 export interface ActionInterface {
 	sourceEvent: Event;
 	action: string;
@@ -21,6 +23,8 @@ export class ActionEvent extends Event implements ActionEventInterface {
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionParams = getActionParams(dispatchParams);
 	if (!actionParams) return;
+
+	if (throttled(dispatchParams)) return;
 
 	let { target, composed } = dispatchParams;
 

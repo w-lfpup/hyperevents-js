@@ -1,31 +1,25 @@
-import type { DispatchParams } from "./type_flyweight.js";
+import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
+import type { QueableAtom } from "./queue.js";
 
-import { getRequestParams, createRequest } from "./type_flyweight.js";
-import { setThrottler, getThrottleParams, shouldThrottle } from "./throttle.js";
-import { getQueueParams, enqueue, Queueable } from "./queue.js";
+import { createFetchParams } from "./type_flyweight.js";
+import { throttled } from "./throttle.js";
+import { queued } from "./queue.js";
 
-interface HtmlRequestInterface {
-	request: Request;
-	action: string;
-	abortController: AbortController;
-}
-
-interface HtmlRequestQueuedInterface extends HtmlRequestInterface {
+interface HtmlRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
-	queueTarget: EventTarget;
 }
 
-interface HtmlRequestRequestedInterface extends HtmlRequestInterface {
+interface HtmlRequestRequestedInterface extends FetchParamsInterface {
 	status: "requested";
 }
 
-interface HtmlRequestResolvedInterface extends HtmlRequestInterface {
+interface HtmlRequestResolvedInterface extends FetchParamsInterface {
 	status: "resolved";
 	response: Response;
 	html: string;
 }
 
-interface HtmlRequestRejectedInterface extends HtmlRequestInterface {
+interface HtmlRequestRejectedInterface extends FetchParamsInterface {
 	status: "rejected";
 	error: any;
 }
@@ -37,65 +31,66 @@ export type HtmlRequestState =
 	| HtmlRequestResolvedInterface;
 
 export interface HtmlEventInterface {
-	requestState: HtmlRequestState;
+	readonly requestState: HtmlRequestState;
 }
 
 export class HtmlEvent extends Event implements HtmlEventInterface {
-	requestState: HtmlRequestState;
+	#requestState: HtmlRequestState;
 
 	constructor(requestState: HtmlRequestState, eventInit?: EventInit) {
 		super("#html", eventInit);
-		this.requestState = requestState;
+		this.#requestState = requestState;
+	}
+
+	get requestState(): HtmlRequestState {
+		return this.#requestState;
+	}
+}
+
+class HtmlFetch implements QueableAtom {
+	#dispatchParams;
+	#fetchParams;
+
+	constructor(
+		dispatchParams: DispatchParams,
+		fetchParams: FetchParamsInterface,
+	) {
+		this.#dispatchParams = dispatchParams;
+		this.#fetchParams = fetchParams;
+	}
+
+	dispatchQueueEvent(): void {
+		let { target, composed } = this.#dispatchParams;
+
+		let event = new HtmlEvent(
+			{ status: "queued", ...this.#fetchParams },
+			{ bubbles: true, composed },
+		);
+		target.dispatchEvent(event);
+	}
+
+	fetch(): Promise<void> | undefined {
+		return fetchHtml(this.#dispatchParams, this.#fetchParams);
 	}
 }
 
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
-	let requestParams = getRequestParams(dispatchParams);
-	if (!requestParams) return;
+	let fetchParams = createFetchParams(dispatchParams);
+	if (!fetchParams) return;
 
-	let throttleParams = getThrottleParams(dispatchParams);
-	if (shouldThrottle(dispatchParams, throttleParams)) return;
+	if (throttled(dispatchParams, fetchParams)) return;
 
-	let abortController = new AbortController();
+	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+	if (queued(dispatchParams, htmlFetch)) return;
 
-	setThrottler(dispatchParams, throttleParams, abortController);
-
-	let request = createRequest(dispatchParams, requestParams, abortController);
-	if (!request) return;
-
-	let { action } = requestParams;
-	let fetchParams: HtmlRequestInterface = {
-		action,
-		request,
-		abortController,
-	};
-
-	let queueParams = getQueueParams(dispatchParams);
-	if (queueParams) {
-		let { queueTarget } = queueParams;
-
-		dispatchParams.target.dispatchEvent(
-			new HtmlEvent({ status: "queued", queueTarget, ...fetchParams }),
-		);
-
-		return enqueue({
-			fetchCallback: fetchHtml,
-			fetchParams,
-			dispatchParams,
-			queueParams,
-			abortController,
-		});
-	}
-
-	fetchHtml(fetchParams, dispatchParams, abortController);
+	htmlFetch.fetch();
 }
 
 function fetchHtml(
-	fetchParams: HtmlRequestInterface,
 	dispatchParams: DispatchParams,
-	abortController: AbortController,
+	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	if (abortController.signal.aborted) return;
+	if (fetchParams.abortController.signal.aborted) return;
 
 	let { target, composed } = dispatchParams;
 

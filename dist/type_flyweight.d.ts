@@ -6,11 +6,9 @@ export interface DispatchParams {
     sourceEvent: Event;
     target: EventTarget;
 }
-export interface RequestParams {
+export interface FetchParamsInterface {
+    abortController: AbortController;
     action: string;
-    method: string;
-    timeoutMs?: number;
-    url: string;
+    request: Request;
 }
-export declare function getRequestParams(dispatchParams: DispatchParams): RequestParams | undefined;
-export declare function createRequest(dispatchParams: DispatchParams, requestParams: RequestParams, abortController: AbortController): Request | undefined;
+export declare function createFetchParams(dispatchParams: DispatchParams): FetchParamsInterface | undefined;

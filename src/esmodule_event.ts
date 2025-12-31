@@ -34,7 +34,9 @@ export interface EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 }
 
-// map {url: RequestState }
+interface EsImportParams {
+	url: string;
+}
 
 let moduleMap = new Map<string, EsModuleRequestState>();
 
@@ -82,7 +84,7 @@ class EsModuleImport implements QueableAtom {
 	#dispatchParams;
 	#importParams;
 
-	constructor(dispatchParams: DispatchParams, importParams: ImportParams) {
+	constructor(dispatchParams: DispatchParams, importParams: EsImportParams) {
 		this.#dispatchParams = dispatchParams;
 		this.#importParams = importParams;
 	}
@@ -104,7 +106,7 @@ class EsModuleImport implements QueableAtom {
 
 function getImportParams(
 	dispatchParams: DispatchParams,
-): ImportParams | undefined {
+): EsImportParams | undefined {
 	let { el, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
@@ -113,29 +115,14 @@ function getImportParams(
 
 	return {
 		url,
-		abortController: new AbortController(),
 	};
-}
-
-interface ImportParams {
-	url: string;
-	abortController: AbortController;
 }
 
 function importEsModule(
 	dispatchParams: DispatchParams,
-	importParams: ImportParams,
+	importParams: EsImportParams,
 ): Promise<void> | undefined {
-	let { url, abortController } = importParams;
-	if (abortController.signal.aborted) {
-		let rejected: EsModuleErrorInterface = {
-			status: "rejected",
-			url,
-			error: new Error("EsModule import was aborted."),
-		};
-		moduleMap.set(url, rejected);
-	}
-
+	let { url } = importParams;
 	let requested: EsModuleRequestedInterface = { status: "requested", url };
 	moduleMap.set(url, requested);
 

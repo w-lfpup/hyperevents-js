@@ -92,7 +92,6 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 		if ("rejected" !== status) return;
 	}
 
-	// create object
 	let moduleImport = new EsModuleImport(dispatchParams, { url });
 	if (queued(dispatchParams, moduleImport)) return;
 

@@ -11,7 +11,7 @@ declare global {
 const _hyperEvents = new HyperEvents({
 	host: document,
 	connected: true,
-	eventNames: ["click", "pointerover"],
+	eventNames: ["pointerover"],
 });
 
 document.addEventListener("#esmodule", function (e) {

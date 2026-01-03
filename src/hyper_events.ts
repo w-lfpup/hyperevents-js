@@ -70,6 +70,9 @@ export class HyperEvents {
 					});
 				}
 
+				if (node.hasAttribute(`${type}:once`))
+					node.setAttribute(`${type}:`, `${kind}-resolved_once"`);
+
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;
 			}
 		}

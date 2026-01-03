@@ -61,17 +61,17 @@ export class HyperEvents {
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
 					dispatchEvent({
-						el: node,
 						composed: node.hasAttribute(`${type}:composed`),
-						kind,
-						target: this.#target,
-						sourceEvent,
+						el: node,
 						formData,
+						kind,
+						sourceEvent,
+						target: this.#target,
 					});
-				}
 
-				if (node.hasAttribute(`${type}:once`))
-					node.setAttribute(`${type}:`, `${kind}-resolved_once"`);
+					if (node.hasAttribute(`${type}:once`))
+						node.setAttribute(`${type}:`, `${kind}-resolved_once"`);
+				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;
 			}

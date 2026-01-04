@@ -70,7 +70,7 @@ export class HyperEvents {
 					});
 
 					if (node.hasAttribute(`${type}:once`))
-						node.setAttribute(`${type}:`, `${kind}-resolved_once"`);
+						queueResolvedOnce(node, type, kind);
 				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;
@@ -87,4 +87,10 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_html" === kind) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
+}
+
+function queueResolvedOnce(el: Element, type: string, kind: string) {
+	queueMicrotask(function () {
+		el.setAttribute(`${type}:`, `${kind}-resolved_once`);
+	});
 }

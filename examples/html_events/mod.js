@@ -4,10 +4,13 @@ const _hyperEvents = new HyperEvents({
     connected: true,
     eventNames: ["click"],
 });
+let figure = document.querySelector("figure");
 document.addEventListener("#html", function (e) {
     let { requestState: rs } = e;
+    if ("queued" === rs.status) {
+        console.log("queued!!", rs);
+    }
     if ("update_showcase" === rs.action && "resolved" === rs.status) {
-        let template = document.createElement("template");
-        template.setHTMLUnsafe(rs.html);
+        figure?.setHTMLUnsafe(rs.html);
     }
 });

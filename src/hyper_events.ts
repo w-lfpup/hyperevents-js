@@ -1,4 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
+
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";

@@ -3,8 +3,8 @@ import type { DispatchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
 
 export interface ActionInterface {
-	sourceEvent: Event;
 	action: string;
+	sourceEvent: Event;
 }
 
 export interface ActionEventInterface {

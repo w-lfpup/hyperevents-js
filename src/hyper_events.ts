@@ -1,4 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
+
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
@@ -61,13 +62,16 @@ export class HyperEvents {
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
 					dispatchEvent({
-						el: node,
 						composed: node.hasAttribute(`${type}:composed`),
-						kind,
-						target: this.#target,
-						sourceEvent,
+						el: node,
 						formData,
+						kind,
+						sourceEvent,
+						target: this.#target,
 					});
+
+					if (node.hasAttribute(`${type}:once`))
+						queueResolvedOnce(node, type, kind);
 				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;
@@ -84,4 +88,10 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_html" === kind) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
+}
+
+function queueResolvedOnce(el: Element, type: string, kind: string) {
+	queueMicrotask(function () {
+		el.setAttribute(`${type}:`, `${kind}-resolved_once`);
+	});
 }

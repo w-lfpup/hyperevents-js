@@ -3,8 +3,8 @@ import type { DispatchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
 
 export interface ActionInterface {
-	sourceEvent: Event;
 	action: string;
+	sourceEvent: Event;
 }
 
 export interface ActionEventInterface {
@@ -40,5 +40,5 @@ function getActionParams(
 
 	let action = "_action" === kind ? el.getAttribute(`${type}:action`) : kind;
 
-	if (action) return { action, sourceEvent };
+	if (action !== null) return { action, sourceEvent };
 }

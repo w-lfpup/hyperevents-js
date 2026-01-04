@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<script type="importmap">
+			{
+				"imports": {
+					"hyperevents": "../../dist/mod.js"
+				}
+			}
+		</script>
+		<script type=module src="./mod.js"></script>
+	</head>
+	<body>
+		<main>
+			<menu>
+				<li
+					click:="_esmodule"
+					click:url="./bear.js">
+						bear
+				</li>
+				<li
+					click:="_esmodule"
+					click:url="./wolf.js">
+					wolf
+				</li>
+				<li
+					click:="_esmodule"
+					click:url="./crow.js">
+					crow
+				</li>
+				<li
+					click:="_esmodule"
+					click:url="./copperhead.js">
+					copperhead
+				</li>
+			</menu>
+			<figure>
+				<bear-el>undefined bear element</bear-el>
+				<wolf-el>undefined wolf element</wolf-el>
+				<crow-el>undefined crow element</crow-el>
+				<copperhead-el>undefined copperhead element</copperhead-el>
+			</figure>
+		</main>
+	</body>
+</html>

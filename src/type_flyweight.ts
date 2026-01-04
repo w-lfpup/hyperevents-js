@@ -8,7 +8,7 @@ export interface DispatchParams {
 }
 
 interface RequestParams {
-	action: string;
+	action?: string;
 	method: string;
 	timeoutMs?: number;
 	url: string;
@@ -16,7 +16,7 @@ interface RequestParams {
 
 export interface FetchParamsInterface {
 	abortController: AbortController;
-	action: string;
+	action?: string;
 	request: Request;
 }
 

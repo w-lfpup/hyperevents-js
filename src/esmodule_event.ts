@@ -85,14 +85,12 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 
 	let url = new URL(urlAttr, location.href).toString();
 	let moduleState = moduleMap.get(url);
-
 	if (moduleState) {
 		let { status } = moduleState;
 		if ("resolved" === status) queueUpdateAsResolved(el, sourceEvent);
 		if ("rejected" !== status) return;
 	}
 
-	// create object
 	let moduleImport = new EsModuleImport(dispatchParams, { url });
 	if (queued(dispatchParams, moduleImport)) return;
 
@@ -122,18 +120,21 @@ function importEsModule(
 			queueUpdateAsResolved(el, sourceEvent);
 		})
 		.catch(function (error: any) {
-			moduleMap.delete(url);
+			let rejected: EsModuleErrorInterface = { status: "rejected", url, error };
+			moduleMap.set(url, rejected);
 
-			let event = new EsModuleEvent(
-				{ status: "rejected", url, error },
-				{ bubbles: true, composed },
-			);
+			let event = new EsModuleEvent(rejected, { bubbles: true, composed });
 			target.dispatchEvent(event);
 		});
 }
 
 function queueUpdateAsResolved(el: Element, sourceEvent: Event) {
+	let { type } = sourceEvent;
 	queueMicrotask(function () {
-		el.setAttribute(`${sourceEvent.type}:`, "_esmodule_resolved");
+		// IS IT BETTER TO REMOVE OR UPDATE ATTIBUTE?
+		el.removeAttribute(`${type}:`);
+		el.removeAttribute(`${type}:url`);
+
+		// el.setAttribute(`${type}:`, "_esmodule-resolved")
 	});
 }

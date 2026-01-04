@@ -40,5 +40,5 @@ function getActionParams(
 
 	let action = "_action" === kind ? el.getAttribute(`${type}:action`) : kind;
 
-	if (action) return { action, sourceEvent };
+	if (action !== null) return { action, sourceEvent };
 }

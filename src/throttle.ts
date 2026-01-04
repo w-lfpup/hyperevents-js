@@ -62,7 +62,6 @@ function shouldThrottle(
 	let throttler = elementMap.get(throttleEl);
 	if (throttler) {
 		let delta = performance.now() - throttler.timeStamp;
-
 		if (sourceEvent.type === throttler.type && delta < windowMs) return true;
 
 		throttler.abortParams?.abortController.abort();

@@ -85,7 +85,6 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 
 	let url = new URL(urlAttr, location.href).toString();
 	let moduleState = moduleMap.get(url);
-
 	if (moduleState) {
 		let { status } = moduleState;
 		if ("resolved" === status) queueUpdateAsResolved(el, sourceEvent);

@@ -58,7 +58,6 @@ function shouldThrottle(
 	let { windowMs } = throttleParams;
 
 	let throttleEl: EventTarget = sourceEl;
-	
 
 	let throttler = elementMap.get(throttleEl);
 	if (throttler) {

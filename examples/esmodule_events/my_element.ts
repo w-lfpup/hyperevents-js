@@ -4,7 +4,9 @@ class MyElement extends HTMLElement {
 	constructor() {
 		super();
 
-		this.#sd.appendChild(document.createTextNode("The my-element component is now defined!"));
+		this.#sd.appendChild(
+			document.createTextNode("The my-element component is now defined!"),
+		);
 	}
 }
 

@@ -4,7 +4,7 @@ import { throttled } from "./throttle.js";
 
 export interface ActionInterface {
 	action: string;
-	sourceEl: Element,
+	sourceEl: Element;
 	sourceEvent: Event;
 }
 
@@ -39,7 +39,8 @@ function getActionParams(
 	let { sourceEl, kind, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
-	let action = "_action" === kind ? sourceEl.getAttribute(`${type}:action`) : kind;
+	let action =
+		"_action" === kind ? sourceEl.getAttribute(`${type}:action`) : kind;
 
 	if (action !== null) return { action, sourceEl, sourceEvent };
 }

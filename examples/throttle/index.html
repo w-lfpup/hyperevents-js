@@ -10,18 +10,17 @@
 				}
 			}
 		</script>
-		<script src="./mod.js"></script>
+		<script type=module src="./mod.js"></script>
 	</head>
 	<body>
 		<main>
-			<li
-				click:="_html"
-				click:action="update_showcase"
-				click:url="./bear.html">
-					bear
-			</li>
-			<figure>
-				<p>click menu items to load different content!</p>	
+			<figure
+				pointerdown:=""
+
+				pointermove:=""
+				pointermove:throttle-ms="500"
+				
+				pointerup:="">
 			</figure>
 		</main>
 	</body>

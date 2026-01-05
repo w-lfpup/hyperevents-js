@@ -69,9 +69,9 @@ export function queued(
 function getQueueParams(
 	dispatchParams: DispatchParams,
 ): QueueParamsInterface | undefined {
-	let { el, target, sourceEvent } = dispatchParams;
+	let { sourceEl, target, sourceEvent } = dispatchParams;
 
-	let queueAttr = el.getAttribute(`${sourceEvent.type}:queue`);
+	let queueAttr = sourceEl.getAttribute(`${sourceEvent.type}:queue`);
 	if (null === queueAttr) return;
 
 	let queueTarget: EventTarget = document;

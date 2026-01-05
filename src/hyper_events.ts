@@ -17,6 +17,8 @@ export interface HyperEventsInterface {
 	disconnect(): void;
 }
 
+// CLEARER LANGUAGE ON HOST, DISPATCH_TARGET, SOURCE_EL, sourceEvent,
+
 export class HyperEvents {
 	#boundDispatch = this.#dispatch.bind(this);
 	#params: HyperEventsParamsInterface;
@@ -63,7 +65,7 @@ export class HyperEvents {
 				if (kind) {
 					dispatchEvent({
 						composed: node.hasAttribute(`${type}:composed`),
-						el: node,
+						sourceEl: node,
 						formData,
 						kind,
 						sourceEvent,
@@ -92,6 +94,7 @@ function dispatchEvent(params: DispatchParams) {
 
 function queueResolvedOnce(el: Element, type: string, kind: string) {
 	queueMicrotask(function () {
-		el.setAttribute(`${type}:`, `${kind}-resolved_once`);
+		// el.setAttribute(`${type}:`, `${kind}-resolved_once`);
+		el.removeAttribute(`${type}:`);
 	});
 }

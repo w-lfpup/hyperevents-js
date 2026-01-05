@@ -78,16 +78,16 @@ class EsModuleImport implements QueableAtom {
 }
 
 export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
-	let { el, sourceEvent } = dispatchParams;
+	let { sourceEl, sourceEvent } = dispatchParams;
 
-	let urlAttr = el.getAttribute(`${sourceEvent.type}:url`);
+	let urlAttr = sourceEl.getAttribute(`${sourceEvent.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
 	let moduleState = moduleMap.get(url);
 	if (moduleState) {
 		let { status } = moduleState;
-		if ("resolved" === status) queueUpdateAsResolved(el, sourceEvent);
+		if ("resolved" === status) queueUpdateAsResolved(sourceEl, sourceEvent);
 		if ("rejected" !== status) return;
 	}
 
@@ -105,7 +105,7 @@ function importEsModule(
 	let requested: EsModuleRequestedInterface = { status: "requested", url };
 	moduleMap.set(url, requested);
 
-	let { el, target, composed, sourceEvent } = dispatchParams;
+	let { sourceEl, target, composed, sourceEvent } = dispatchParams;
 	let event = new EsModuleEvent(requested, { bubbles: true, composed });
 	target.dispatchEvent(event);
 
@@ -117,7 +117,7 @@ function importEsModule(
 			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
 			target.dispatchEvent(event);
 
-			queueUpdateAsResolved(el, sourceEvent);
+			queueUpdateAsResolved(sourceEl, sourceEvent);
 		})
 		.catch(function (error: any) {
 			let rejected: EsModuleErrorInterface = { status: "rejected", url, error };
@@ -131,10 +131,6 @@ function importEsModule(
 function queueUpdateAsResolved(el: Element, sourceEvent: Event) {
 	let { type } = sourceEvent;
 	queueMicrotask(function () {
-		// IS IT BETTER TO REMOVE OR UPDATE ATTIBUTE?
 		el.removeAttribute(`${type}:`);
-		el.removeAttribute(`${type}:url`);
-
-		// el.setAttribute(`${type}:`, "_esmodule-resolved")
 	});
 }

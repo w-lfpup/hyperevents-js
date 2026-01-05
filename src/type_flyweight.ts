@@ -1,6 +1,6 @@
 export interface DispatchParams {
 	composed: boolean;
-	el: Element;
+	sourceEl: Element;
 	formData?: FormData;
 	kind: string;
 	sourceEvent: Event;
@@ -41,17 +41,17 @@ export function createFetchParams(
 function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
-	let { el, sourceEvent } = dispatchParams;
+	let { sourceEl, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
-	let action = el.getAttribute(`${type}:action`);
+	let action = sourceEl.getAttribute(`${type}:action`);
 	if (!action) return;
 
-	let url = el.getAttribute(`${type}:url`);
+	let url = sourceEl.getAttribute(`${type}:url`);
 	if (!url) return;
 
-	let method = el.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
+	let method = sourceEl.getAttribute(`${type}:method`) ?? "GET";
+	let timeoutMsAttr = sourceEl.getAttribute(`${type}:timeout-ms`);
 	let timeoutMs = parseInt(timeoutMsAttr ?? "");
 
 	return {

@@ -30,7 +30,7 @@ Add a `target` and some `eventNames` on instantiation.
 
 ```ts
 let _hyperEvents = new HyperEvents({
-	target: document,
+	host: document,
 	connected: true,
 	eventNames: ["click", "pointerover", "pointerdown", "input"],
 });
@@ -80,7 +80,6 @@ Fetch html using the following syntax:
 ```html
 <input
 	input:="_html"
-	input:action="get_entries"
 	input:url="/fetch/some.html"
 >
 ```
@@ -91,7 +90,7 @@ Then listen for request state with `#html` events in javascript-land.
 document.addEventListener("#html", function (e: HtmlEvent) {
 	let { requestState: rs } = e;
 
-	if ("get_entries" === rs.action && "resolved" === rs.status) {
+	if ("resolved" === rs.status) {
 		let { html } = rs;
 	}
 });
@@ -104,7 +103,6 @@ Fetch and dispatch JSON using the following syntax:
 ```html
 <span
 	pointerdown:="_json"
-	pointerdown:action="ping_api"
 	pointerdown:url="/ping/api.json"
 ></span>
 ```
@@ -115,7 +113,7 @@ Then listen for request state with `#json` events in javascript-land.
 document.addEventListener("#json", function (e: JsonEvent) {
 	let { requestState: rs } = e;
 
-	if ("ping_api" === rs.action && "resolved" === rs.status) {
+	if ("resolved" === rs.status) {
 		let { json } = rs;
 	}
 });

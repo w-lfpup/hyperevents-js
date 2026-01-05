@@ -14,34 +14,17 @@
 	</head>
 	<body>
 		<main>
-			<menu>
-				<li
-					click:="_esmodule"
-					click:url="./bear.js">
-						bear
-				</li>
-				<li
-					click:="_esmodule"
-					click:url="./wolf.js">
-					wolf
-				</li>
-				<li
-					click:="_esmodule"
-					click:url="./crow.js">
-					crow
-				</li>
-				<li
-					click:="_esmodule"
-					click:url="./copperhead.js">
-					copperhead
-				</li>
-			</menu>
-			<figure>
-				<bear-el>undefined bear element</bear-el>
-				<wolf-el>undefined wolf element</wolf-el>
-				<crow-el>undefined crow element</crow-el>
-				<copperhead-el>undefined copperhead element</copperhead-el>
-			</figure>
+			<button
+				click:="_esmodule"
+				click:url="./my_element.js">
+				lazy-load
+			</button>
+			
+			a component.
+
+			<my-element>
+				this element is undefined
+			</my-element>
 		</main>
 	</body>
 </html>

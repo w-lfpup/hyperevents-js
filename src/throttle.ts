@@ -25,10 +25,10 @@ export function throttled(
 
 	if (shouldThrottle(params, throttleParams)) return true;
 
-	let { el, sourceEvent } = params;
+	let { sourceEl, sourceEvent } = params;
 	let { timeStamp, type } = sourceEvent;
 
-	elementMap.set(el, { timeStamp, type, abortParams });
+	elementMap.set(sourceEl, { timeStamp, type, abortParams });
 
 	return false;
 }
@@ -36,10 +36,10 @@ export function throttled(
 function getThrottleParams(
 	dispatchParams: DispatchParams,
 ): ThrottleParams | undefined {
-	let { el, sourceEvent } = dispatchParams;
+	let { sourceEl, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
-	let windowMsAttr = el.getAttribute(`${type}:throttle-ms`);
+	let windowMsAttr = sourceEl.getAttribute(`${type}:throttle-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);
@@ -54,10 +54,11 @@ function shouldThrottle(
 	dispatchParams: DispatchParams,
 	throttleParams: ThrottleParams,
 ): boolean {
-	let { el, sourceEvent } = dispatchParams;
+	let { sourceEl, sourceEvent } = dispatchParams;
 	let { windowMs } = throttleParams;
 
-	let throttleEl: EventTarget = el;
+	let throttleEl: EventTarget = sourceEl;
+	
 
 	let throttler = elementMap.get(throttleEl);
 	if (throttler) {

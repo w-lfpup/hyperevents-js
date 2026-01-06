@@ -14,13 +14,22 @@
 	</head>
 	<body>
 		<main>
-			<li
+			<section
 				click:="_html"
-				click:action="update_showcase"
-				click:url="./bear.html">
-					bear
-			</li>
+				click:url="./wolf.html"
+				click:queue>
+
+				<button
+					click:="_html"
+					click:url="./bear.html"
+					click:queue>
+					Queue multiple html actions!
+				</button>
+			</section>
+			
+			<p>Responses will output in the order they were queued!</p>
 			<figure>
+
 			</figure>
 		</main>
 	</body>

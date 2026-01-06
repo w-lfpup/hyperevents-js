@@ -14,8 +14,8 @@ interface QueuableInterface {
 }
 
 interface Queue {
-	incoming: QueuableInterface[];
-	outgoing: QueuableInterface[];
+	inbound: QueuableInterface[];
+	outbound: QueuableInterface[];
 }
 
 // MODULE WIDE MEMORY
@@ -28,14 +28,9 @@ class QueuedAtom implements QueuableInterface {
 		this.#atom = atom;
 	}
 
-	dispatch(queueTarget: EventTarget) {
-		let promise = this.#atom.fetch();
-
-		promise
-			? promise.finally(function () {
-					queueNext(queueTarget);
-				})
-			: queueNext(queueTarget);
+	async dispatch(queueTarget: EventTarget) {
+		await this.#atom.fetch();
+		queueNext(queueTarget);
 	}
 }
 
@@ -50,8 +45,8 @@ export function queued(
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
 		let freshQueue: Queue = {
-			incoming: [],
-			outgoing: [],
+			inbound: [],
+			outbound: [],
 		};
 		queueMap.set(queueTarget, freshQueue);
 		queue = freshQueue;
@@ -60,7 +55,7 @@ export function queued(
 	atom.dispatchQueueEvent();
 
 	let entry = new QueuedAtom(atom);
-	queue.incoming.push(entry);
+	queue.inbound.push(entry);
 	queueNext(queueTarget);
 
 	return true;
@@ -84,12 +79,12 @@ function queueNext(el: EventTarget) {
 	let queue = queueMap.get(el);
 	if (!queue) return;
 
-	if (!queue.outgoing.length) {
-		while (queue.incoming.length) {
-			let pip = queue.incoming.pop();
-			if (pip) queue.outgoing.push(pip);
+	if (!queue.outbound.length) {
+		while (queue.inbound.length) {
+			let pip = queue.inbound.pop();
+			if (pip) queue.outbound.push(pip);
 		}
 	}
 
-	queue.outgoing.pop()?.dispatch(el);
+	queue.outbound.pop()?.dispatch(el);
 }

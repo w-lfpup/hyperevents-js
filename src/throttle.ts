@@ -57,9 +57,7 @@ function shouldThrottle(
 	let { sourceEl, sourceEvent } = dispatchParams;
 	let { windowMs } = throttleParams;
 
-	let throttleEl: EventTarget = sourceEl;
-
-	let throttler = elementMap.get(throttleEl);
+	let throttler = elementMap.get(sourceEl);
 	if (throttler) {
 		let delta = performance.now() - throttler.timeStamp;
 		if (sourceEvent.type === throttler.type && delta < windowMs) return true;

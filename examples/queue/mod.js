@@ -4,19 +4,27 @@ const _hyperEvents = new HyperEvents({
     connected: true,
     eventNames: ["click"],
 });
-let figure = document.querySelector("figure");
+let ul = document.querySelector("ul");
 document.addEventListener("#action", function (e) {
+    console.log("action:", e);
     let { action } = e.dispatchParams;
     if ("clear_queue_list" === action) {
-        figure?.replaceChildren();
+        ul?.replaceChildren();
     }
 });
 document.addEventListener("#html", function (e) {
     let { requestState: rs } = e;
     if ("queued" === rs.status) {
-        console.log("queued!!", rs);
+        let li = document.createElement("li");
+        let p = document.createElement("p");
+        p.textContent = `queued: ${rs.request.url}`;
+        li.append(p);
+        ul?.append(li);
     }
     if ("resolved" === rs.status) {
-        figure?.setHTMLUnsafe(rs.html);
+        console.log("resolved!", rs);
+        let li = document.createElement("li");
+        li.setHTMLUnsafe(rs.html);
+        ul?.append(li);
     }
 });

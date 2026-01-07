@@ -1,6 +1,6 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-export interface QueableAtom {
+export interface Queueable {
 	dispatchQueueEvent(): void;
 	fetch(): Promise<void> | undefined;
 }
@@ -22,9 +22,9 @@ interface Queue {
 let queueMap = new WeakMap<EventTarget, Queue>();
 
 class QueuedAtom implements QueuableInterface {
-	#atom: QueableAtom;
+	#atom: Queueable;
 
-	constructor(atom: QueableAtom) {
+	constructor(atom: Queueable) {
 		this.#atom = atom;
 	}
 
@@ -36,26 +36,26 @@ class QueuedAtom implements QueuableInterface {
 
 export function queued(
 	dispatchParams: DispatchParams,
-	atom: QueableAtom,
+	atom: Queueable,
 ): boolean {
+	console.log("queued:", dispatchParams);
+
 	let queueParams = getQueueParams(dispatchParams);
 	if (!queueParams) return false;
 
 	let { queueTarget } = queueParams;
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
-		let freshQueue: Queue = {
+		queue = {
 			inbound: [],
 			outbound: [],
 		};
-		queueMap.set(queueTarget, freshQueue);
-		queue = freshQueue;
+		queueMap.set(queueTarget, queue);
 	}
 
 	atom.dispatchQueueEvent();
 
-	let entry = new QueuedAtom(atom);
-	queue.inbound.push(entry);
+	queue.inbound.push(new QueuedAtom(atom));
 	queueNext(queueTarget);
 
 	return true;

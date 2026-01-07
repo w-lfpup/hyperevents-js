@@ -1,5 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
-import type { QueableAtom } from "./queue.js";
+import type { Queueable } from "./queue.js";
 
 import { removeActionAttr } from "./type_flyweight.js";
 import { queued } from "./queue.js";
@@ -50,7 +50,7 @@ export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	}
 }
 
-class EsModuleImport implements QueableAtom {
+class EsModuleImport implements Queueable {
 	#dispatchParams;
 	#importParams;
 

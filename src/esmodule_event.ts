@@ -78,16 +78,17 @@ class EsModuleImport implements QueableAtom {
 }
 
 export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
-	let { sourceEl, sourceEvent } = dispatchParams;
+	let { originElement, originEvent } = dispatchParams;
 
-	let urlAttr = sourceEl.getAttribute(`${sourceEvent.type}:url`);
+	let urlAttr = originElement.getAttribute(`${originEvent.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
 	let moduleState = moduleMap.get(url);
 	if (moduleState) {
 		let { status } = moduleState;
-		if ("resolved" === status) queueUpdateAsResolved(sourceEl, sourceEvent);
+		if ("resolved" === status)
+			queueUpdateAsResolved(originElement, originEvent);
 		if ("rejected" !== status) return;
 	}
 
@@ -105,7 +106,7 @@ function importEsModule(
 	let requested: EsModuleRequestedInterface = { status: "requested", url };
 	moduleMap.set(url, requested);
 
-	let { sourceEl, target, composed, sourceEvent } = dispatchParams;
+	let { originElement, target, composed, originEvent } = dispatchParams;
 	let event = new EsModuleEvent(requested, { bubbles: true, composed });
 	target.dispatchEvent(event);
 
@@ -117,7 +118,7 @@ function importEsModule(
 			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
 			target.dispatchEvent(event);
 
-			queueUpdateAsResolved(sourceEl, sourceEvent);
+			queueUpdateAsResolved(originElement, originEvent);
 		})
 		.catch(function (error: any) {
 			let rejected: EsModuleErrorInterface = { status: "rejected", url, error };
@@ -128,8 +129,8 @@ function importEsModule(
 		});
 }
 
-function queueUpdateAsResolved(el: Element, sourceEvent: Event) {
-	let { type } = sourceEvent;
+function queueUpdateAsResolved(el: Element, originEvent: Event) {
+	let { type } = originEvent;
 	queueMicrotask(function () {
 		el.removeAttribute(`${type}:`);
 	});

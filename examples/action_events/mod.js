@@ -5,5 +5,5 @@ const _hyperEvents = new HyperEvents({
     eventNames: ["click", "pointerover"],
 });
 document.addEventListener("#action", function (e) {
-    console.log("#action", e.actionParams);
+    console.log("#action", e.dispatchParams);
 });

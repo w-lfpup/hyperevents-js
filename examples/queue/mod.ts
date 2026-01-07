@@ -1,4 +1,4 @@
-import type { HtmlEventInterface } from "hyperevents";
+import type { ActionEventInterface, HtmlEventInterface } from "hyperevents";
 
 import { HyperEvents } from "hyperevents";
 
@@ -16,6 +16,13 @@ const _hyperEvents = new HyperEvents({
 
 let figure = document.querySelector("figure");
 
+document.addEventListener("#action", function (e: ActionEventInterface) {
+	let { action } = e.dispatchParams;
+	if ("clear_queue_list" === action) {
+		figure?.replaceChildren();
+	}
+});
+
 document.addEventListener("#html", function (e: HtmlEventInterface) {
 	let { requestState: rs } = e;
 
@@ -24,7 +31,7 @@ document.addEventListener("#html", function (e: HtmlEventInterface) {
 		// add p saying "action" and "request.url" have been queued
 	}
 
-	if ("update_showcase" === rs.action && "resolved" === rs.status) {
+	if ("resolved" === rs.status) {
 		figure?.setHTMLUnsafe(rs.html);
 	}
 });

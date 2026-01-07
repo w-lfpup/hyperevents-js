@@ -47,17 +47,17 @@ export class HyperEvents {
 		}
 	}
 
-	#dispatch(sourceEvent: Event) {
-		let { type, currentTarget, target } = sourceEvent;
+	#dispatch(originEvent: Event) {
+		let { type, currentTarget, target } = originEvent;
 		if (!currentTarget) return;
 
 		let formData: FormData | undefined;
 		if (target instanceof HTMLFormElement) formData = new FormData(target);
 
-		for (let node of sourceEvent.composedPath()) {
+		for (let node of originEvent.composedPath()) {
 			if (node instanceof Element) {
 				if (node.hasAttribute(`${type}:prevent-default`))
-					sourceEvent.preventDefault();
+					originEvent.preventDefault();
 
 				if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
@@ -65,10 +65,10 @@ export class HyperEvents {
 				if (kind) {
 					dispatchEvent({
 						composed: node.hasAttribute(`${type}:composed`),
-						sourceEl: node,
+						originElement: node,
 						formData,
 						kind,
-						sourceEvent,
+						originEvent,
 						target: this.#target,
 					});
 

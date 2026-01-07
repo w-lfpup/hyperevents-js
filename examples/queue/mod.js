@@ -5,12 +5,18 @@ const _hyperEvents = new HyperEvents({
     eventNames: ["click"],
 });
 let figure = document.querySelector("figure");
+document.addEventListener("#action", function (e) {
+    let { action } = e.dispatchParams;
+    if ("clear_queue_list" === action) {
+        figure?.replaceChildren();
+    }
+});
 document.addEventListener("#html", function (e) {
     let { requestState: rs } = e;
     if ("queued" === rs.status) {
         console.log("queued!!", rs);
     }
-    if ("update_showcase" === rs.action && "resolved" === rs.status) {
+    if ("resolved" === rs.status) {
         figure?.setHTMLUnsafe(rs.html);
     }
 });

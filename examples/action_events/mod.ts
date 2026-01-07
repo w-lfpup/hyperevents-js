@@ -15,5 +15,5 @@ const _hyperEvents = new HyperEvents({
 });
 
 document.addEventListener("#action", function (e) {
-	console.log("#action", e.actionParams);
+	console.log("#action", e.dispatchParams);
 });

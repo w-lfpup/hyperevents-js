@@ -7,7 +7,10 @@ const _hyperEvents = new HyperEvents({
 let figure = document.querySelector("figure");
 document.addEventListener("#html", function (e) {
     let { requestState: rs } = e;
-    if ("resolved" === rs.status) {
+    if ("queued" === rs.status) {
+        console.log("queued!!", rs);
+    }
+    if ("update_showcase" === rs.action && "resolved" === rs.status) {
         figure?.setHTMLUnsafe(rs.html);
     }
 });

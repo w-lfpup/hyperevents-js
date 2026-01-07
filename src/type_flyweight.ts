@@ -8,7 +8,7 @@ export interface DispatchParams {
 }
 
 interface RequestParams {
-	action?: string;
+	action: ReturnType<Element["getAttribute"]>;
 	method: string;
 	timeoutMs?: number;
 	url: string;
@@ -16,7 +16,7 @@ interface RequestParams {
 
 export interface FetchParamsInterface {
 	abortController: AbortController;
-	action?: string;
+	action: ReturnType<Element["getAttribute"]>;
 	request: Request;
 }
 
@@ -44,12 +44,10 @@ function getRequestParams(
 	let { sourceEl, sourceEvent } = dispatchParams;
 	let { type } = sourceEvent;
 
-	let action = sourceEl.getAttribute(`${type}:action`);
-	if (!action) return;
-
 	let url = sourceEl.getAttribute(`${type}:url`);
 	if (!url) return;
 
+	let action = sourceEl.getAttribute(`${type}:action`);
 	let method = sourceEl.getAttribute(`${type}:method`) ?? "GET";
 	let timeoutMsAttr = sourceEl.getAttribute(`${type}:timeout-ms`);
 	let timeoutMs = parseInt(timeoutMsAttr ?? "");

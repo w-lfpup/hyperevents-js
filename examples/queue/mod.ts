@@ -21,6 +21,7 @@ document.addEventListener("#html", function (e: HtmlEventInterface) {
 
 	if ("queued" === rs.status) {
 		console.log("queued!!", rs);
+		// add p saying "action" and "request.url" have been queued
 	}
 
 	if ("update_showcase" === rs.action && "resolved" === rs.status) {

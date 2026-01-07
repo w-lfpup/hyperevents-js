@@ -27,7 +27,7 @@ let figure = document.querySelector("figure");
 document.addEventListener("#html", function (e: HtmlEventInterface) {
 	let { requestState: rs } = e;
 
-	if ("update_showcase" === rs.action && "resolved" === rs.status) {
+	if ("resolved" === rs.status) {
 		figure?.setHTMLUnsafe(rs.html);
 	}
 });

@@ -14,6 +14,16 @@ const _hyperEvents = new HyperEvents({
 	eventNames: ["click", "pointerover"],
 });
 
+let count = 0;
+let span = document.querySelector("span");
+
 document.addEventListener("#action", function (e) {
-	console.log("#action", e.dispatchParams);
+	if (!span) return;
+
+	let { action } = e.dispatchParams;
+
+	if ("increase_count" === action) {
+		count += 1;
+		span.textContent = count.toString();
+	}
 });

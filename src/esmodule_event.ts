@@ -1,6 +1,7 @@
 import type { DispatchParams } from "./type_flyweight.js";
 import type { QueableAtom } from "./queue.js";
 
+import { removeActionAttr } from "./type_flyweight.js";
 import { queued } from "./queue.js";
 
 interface EsModuleQueuedInterface {
@@ -87,8 +88,7 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	let moduleState = moduleMap.get(url);
 	if (moduleState) {
 		let { status } = moduleState;
-		if ("resolved" === status)
-			queueUpdateAsResolved(originElement, originEvent);
+		if ("resolved" === status) removeActionAttr(originElement, originEvent);
 		if ("rejected" !== status) return;
 	}
 
@@ -118,7 +118,7 @@ function importEsModule(
 			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
 			target.dispatchEvent(event);
 
-			queueUpdateAsResolved(originElement, originEvent);
+			removeActionAttr(originElement, originEvent);
 		})
 		.catch(function (error: any) {
 			let rejected: EsModuleErrorInterface = { status: "rejected", url, error };
@@ -127,11 +127,4 @@ function importEsModule(
 			let event = new EsModuleEvent(rejected, { bubbles: true, composed });
 			target.dispatchEvent(event);
 		});
-}
-
-function queueUpdateAsResolved(el: Element, originEvent: Event) {
-	let { type } = originEvent;
-	queueMicrotask(function () {
-		el.removeAttribute(`${type}:`);
-	});
 }

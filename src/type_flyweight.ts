@@ -20,6 +20,13 @@ export interface FetchParamsInterface {
 	request: Request;
 }
 
+export function removeActionAttr(el: Element, originEvent: Event) {
+	let { type } = originEvent;
+	queueMicrotask(function () {
+		el.removeAttribute(`${type}:`);
+	});
+}
+
 export function createFetchParams(
 	dispatchParams: DispatchParams,
 ): FetchParamsInterface | undefined {

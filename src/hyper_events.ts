@@ -1,5 +1,6 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
+import { removeActionAttr } from "./type_flyweight.js";
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
@@ -73,7 +74,7 @@ export class HyperEvents {
 					});
 
 					if (node.hasAttribute(`${type}:once`))
-						queueResolvedOnce(node, type, kind);
+						removeActionAttr(node, originEvent);
 				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;
@@ -90,11 +91,4 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_html" === kind) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
-}
-
-function queueResolvedOnce(el: Element, type: string, kind: string) {
-	queueMicrotask(function () {
-		// el.setAttribute(`${type}:`, `${kind}-resolved_once`);
-		el.removeAttribute(`${type}:`);
-	});
 }

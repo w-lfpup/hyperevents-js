@@ -14,20 +14,26 @@
 	</head>
 	<body>
 		<main>
-			<section
-				click:="_html"
-				click:url="./wolf.html"
-				click:queue>
-
-				<button
-					click:="_html"
-					click:url="./bear.html"
-					click:queue>
-					Queue multiple html actions!
-				</button>
-			</section>
+			<p>Click the following button to queue multiple ordered html fetches.</p>
 			
-			<p>Responses will output in the order they were queued!</p>
+			<menu
+				click:="_html"
+				click:url="../html_events/wolf.html"
+				click:queue>
+				<li
+					click:="_html"
+					click:url="../html_events/bear.html"
+					click:queue>
+					<button
+						click:="_html"
+						click:url="../html_events/snow_owl.html"
+						click:queue>
+						Queue multiple html actions!
+					</button>
+				</li>
+			</menu>
+			
+			<p>Responses will <i>always</i> output in the order they were queued!</p>
 			<figure>
 
 			</figure>

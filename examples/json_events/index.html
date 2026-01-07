@@ -14,14 +14,43 @@
 	</head>
 	<body>
 		<main>
-				<li
-					click:="_json"
-					click:action="update_showcase"
-					click:url="./fox.json">
-						fox
+			<menu>
+				<li>
+					<button
+						type="radio"
+						name="showcase"
+	
+						click:="_json"
+						click:action="update_figure_with_json"
+						click:url="./bobcat.html">
+							bobcat
+					</button>
 				</li>
+				<li>
+					<button
+						type="radio"
+						name="showcase"
+						
+						click:="_json"
+						click:action="update_figure_with_json"
+						click:url="./prairie_dog.html">
+							prairie dog
+					</button>
+				</li>
+				<li>
+					<button
+						type="radio"
+						name="showcase"
+						
+						click:="_json"
+						click:action="update_figure_with_json"
+						click:url="./fox.html">
+							fox
+					</button>
+				</li>
+			</menu>
 			<figure>
-				<p>click menu items to load different content!</p>	
+				<p>Click menu items to load different content!</p>	
 			</figure>
 		</main>
 	</body>

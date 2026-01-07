@@ -1,4 +1,4 @@
-import type { ActionEventInterface, HtmlEventInterface } from "hyperevents";
+import type { HtmlEventInterface } from "hyperevents";
 
 import { HyperEvents } from "hyperevents";
 

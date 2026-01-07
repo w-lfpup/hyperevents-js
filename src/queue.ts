@@ -14,6 +14,7 @@ interface QueuableInterface {
 }
 
 interface Queue {
+	inUse: boolean;
 	inbound: QueuableInterface[];
 	outbound: QueuableInterface[];
 }
@@ -45,6 +46,7 @@ export function queued(
 	let queue = queueMap.get(queueTarget);
 	if (!queue) {
 		queue = {
+			inUse: false,
 			inbound: [],
 			outbound: [],
 		};
@@ -54,7 +56,9 @@ export function queued(
 	atom.dispatchQueueEvent();
 
 	queue.inbound.push(new QueuedAtom(atom));
-	queueNext(queueTarget);
+	if (!queue.inUse) {
+		queueNext(queueTarget);
+	}
 
 	return true;
 }
@@ -76,6 +80,13 @@ function getQueueParams(
 function queueNext(el: EventTarget) {
 	let queue = queueMap.get(el);
 	if (!queue) return;
+
+	if (0 === queue.inbound.length + queue.outbound.length) {
+		queue.inUse = false;
+		return;
+	}
+
+	queue.inUse = true;
 
 	if (!queue.outbound.length) {
 		while (queue.inbound.length) {

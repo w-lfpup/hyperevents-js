@@ -38,8 +38,6 @@ export function queued(
 	dispatchParams: DispatchParams,
 	atom: Queueable,
 ): boolean {
-	console.log("queued:", dispatchParams);
-
 	let queueParams = getQueueParams(dispatchParams);
 	if (!queueParams) return false;
 

@@ -118,6 +118,8 @@ function fetchJson(
 		});
 }
 
-function resolveResponseBody(response: Response): Promise<[Response, any]> {
+function resolveResponseBody(
+	response: Response,
+): Promise<[Response, ReturnType<Response["json"]>]> {
 	return Promise.all([response, response.json()]);
 }

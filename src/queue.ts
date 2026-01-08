@@ -21,7 +21,7 @@ class Queue {
 		if (!this.#inRoute) this.#queueAtom();
 	}
 
-	async #queueAtom() {
+	#queueAtom() {
 		if (!this.#outbound.length) {
 			while (this.#inbound.length) {
 				let pip = this.#inbound.pop();
@@ -30,8 +30,12 @@ class Queue {
 		}
 
 		this.#inRoute = this.#outbound.pop();
+		this.#execAtom();
+	}
+
+	async #execAtom() {
 		if (this.#inRoute) {
-			await this.#inRoute.fetch();
+			await this.#inRoute?.fetch();
 			this.#queueAtom();
 		}
 	}

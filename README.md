@@ -10,6 +10,8 @@ HyperEvents enables HTML to declaratively:
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
+- throttle events
+- queue (and order) events
 
 HyperEvents is built for modern web standards making it ideal for:
 
@@ -54,9 +56,9 @@ document.addEventListener("#action", function (e: ActionEvent) {
 });
 ```
 
-## Event concepts
+## Event behavior
 
-HyperEvents leapfrogs familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
+HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
 
 Below is an example of a subset of the Event API reflected in hyperevent syntax:
 
@@ -67,10 +69,15 @@ Below is an example of a subset of the Event API reflected in hyperevent syntax:
 	click:once
 	click:prevent-default
 	click:stop-immediate-propagation
-	click:stop-propagation
->
+	click:stop-propagation>
 	hai :3!
 </button>
+```
+
+Other ancillary attributes can throttle and queue hyperevents:
+
+```html
+<button click:throttle-ms="500" click:queue></button>
 ```
 
 ## ES Modules
@@ -80,8 +87,8 @@ Fetch esmodules using the following syntax:
 ```html
 <div
 	pointerover:="_esmodule"
-	pointerover:url="/components/yet-another-button.js"
-></div>
+	pointerover:url="/components/yet-another-button.js">
+</div>
 ```
 
 Then listen for request state with `#esmodule` events in javascript-land.
@@ -98,6 +105,7 @@ Fetch html using the following syntax:
 
 ```html
 <input
+	type="button"
 	input:="_html"
 	input:url="/fetch/some.html"
 >
@@ -122,8 +130,8 @@ Fetch and dispatch JSON using the following syntax:
 ```html
 <span
 	pointerdown:="_json"
-	pointerdown:url="/ping/api.json"
-></span>
+	pointerdown:url="/ping/api.json">
+</span>
 ```
 
 Then listen for request state with `#json` events in javascript-land.

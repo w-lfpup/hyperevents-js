@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<script type="importmap">
+			{
+				"imports": {
+					"hyperevents": "../../dist/mod.js"
+				}
+			}
+		</script>
+		<script type=module src="./mod.js"></script>
+	</head>
+	<body>
+		<main>
+			<menu>
+				<li>
+					<button	
+						click:="_json"
+						click:url="./bobcat.json">
+						bobcat
+					</button>
+				</li>
+				<li>
+					<button						
+						click:="_json"
+						click:url="./prairie_dog.json">
+						prairie dog
+					</button>
+				</li>
+				<li>
+					<button						
+						click:="_json"
+						click:url="./fox.json">
+						fox
+					</button>
+				</li>
+			</menu>
+			<ul>
+				<p>Click menu items to load different content!</p>	
+			</ul>
+		</main>
+	</body>
+</html>

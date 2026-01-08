@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset=utf-8 />
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<script type="importmap">
+			{
+				"imports": {
+					"hyperevents": "../../dist/mod.js"
+				}
+			}
+		</script>
+		<script type=module src="./mod.js"></script>
+	</head>
+	<body>
+		<main>
+			<p
+				click:="_html"
+				click:url="../html_events/wolf.html"
+				click:queue>
+				Click the following button to
+				<span
+					click:="_html"
+					click:url="../html_events/bear.html"
+					click:queue>
+					<button
+						click:="_html"
+						click:url="../html_events/snow_owl.html"
+						click:queue>
+						queue
+					</button>
+				</span>
+				multiple html actions.</p>
+			<ul>
+				<p>Responses will <i>always</i> output in the order they were queued!</p>
+			</ul>
+		</main>
+	</body>
+</html>

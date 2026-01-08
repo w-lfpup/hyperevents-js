@@ -14,12 +14,21 @@
 	</head>
 	<body>
 		<main>
-			You have clicked
+			Click the folowing button to
+			
 			<button
-				click:="increase_count">
-				this button
+				click:="_esmodule"
+				click:url="./my_element.js">
+				lazy-load
 			</button>
-			<span>0</span> times.
+			
+			an esmodule.
+
+			<figure>
+				<my-element>
+					This element is currently undefined!
+				</my-element>
+			</figure>
 		</main>
 	</body>
 </html>

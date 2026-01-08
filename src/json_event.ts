@@ -1,5 +1,5 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
-import type { QueableAtom } from "./queue.js";
+import type { Queueable } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
@@ -47,7 +47,7 @@ export class JsonEvent extends Event implements JsonEventInterface {
 	}
 }
 
-class JsonFetch implements QueableAtom {
+class JsonFetch implements Queueable {
 	#dispatchParams;
 	#fetchParams;
 
@@ -118,6 +118,8 @@ function fetchJson(
 		});
 }
 
-function resolveResponseBody(response: Response): Promise<[Response, any]> {
+function resolveResponseBody(
+	response: Response,
+): Promise<[Response, ReturnType<Response["json"]>]> {
 	return Promise.all([response, response.json()]);
 }

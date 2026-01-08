@@ -6,10 +6,12 @@ A hypertext extension for the browser.
 
 HyperEvents enables HTML to declaratively:
 
+- dispatch meaningful actions
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
-- dispatch action events (think redux actions)
+- throttle events
+- queue (and order) events
 
 HyperEvents is built for modern web standards making it ideal for:
 
@@ -30,7 +32,7 @@ Add a `target` and some `eventNames` on instantiation.
 
 ```ts
 let _hyperEvents = new HyperEvents({
-	target: document,
+	host: document,
 	connected: true,
 	eventNames: ["click", "pointerover", "pointerdown", "input"],
 });
@@ -50,8 +52,32 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { action, sourceEvent } = e.actionParams;
+	let { action, originEvent } = e.actionParams;
 });
+```
+
+## Event behavior
+
+HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
+
+Below is an example of a subset of the Event API reflected in hyperevent syntax:
+
+```html
+<button
+	click:="update_something"
+	click:composed
+	click:once
+	click:prevent-default
+	click:stop-immediate-propagation
+	click:stop-propagation>
+	hai :3!
+</button>
+```
+
+Other ancillary attributes can throttle and queue hyperevents:
+
+```html
+<button click:throttle-ms="500" click:queue></button>
 ```
 
 ## ES Modules
@@ -61,8 +87,8 @@ Fetch esmodules using the following syntax:
 ```html
 <div
 	pointerover:="_esmodule"
-	pointerover:url="/components/yet-another-button.js"
-></div>
+	pointerover:url="/components/yet-another-button.js">
+</div>
 ```
 
 Then listen for request state with `#esmodule` events in javascript-land.
@@ -79,8 +105,8 @@ Fetch html using the following syntax:
 
 ```html
 <input
+	type="button"
 	input:="_html"
-	input:action="get_entries"
 	input:url="/fetch/some.html"
 >
 ```
@@ -91,7 +117,7 @@ Then listen for request state with `#html` events in javascript-land.
 document.addEventListener("#html", function (e: HtmlEvent) {
 	let { requestState: rs } = e;
 
-	if ("get_entries" === rs.action && "resolved" === rs.status) {
+	if ("resolved" === rs.status) {
 		let { html } = rs;
 	}
 });
@@ -104,9 +130,8 @@ Fetch and dispatch JSON using the following syntax:
 ```html
 <span
 	pointerdown:="_json"
-	pointerdown:action="ping_api"
-	pointerdown:url="/ping/api.json"
-></span>
+	pointerdown:url="/ping/api.json">
+</span>
 ```
 
 Then listen for request state with `#json` events in javascript-land.
@@ -115,7 +140,7 @@ Then listen for request state with `#json` events in javascript-land.
 document.addEventListener("#json", function (e: JsonEvent) {
 	let { requestState: rs } = e;
 
-	if ("ping_api" === rs.action && "resolved" === rs.status) {
+	if ("resolved" === rs.status) {
 		let { json } = rs;
 	}
 });

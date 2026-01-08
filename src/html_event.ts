@@ -1,5 +1,5 @@
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
-import type { QueableAtom } from "./queue.js";
+import type { Queueable } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
@@ -47,7 +47,7 @@ export class HtmlEvent extends Event implements HtmlEventInterface {
 	}
 }
 
-class HtmlFetch implements QueableAtom {
+class HtmlFetch implements Queueable {
 	#dispatchParams;
 	#fetchParams;
 

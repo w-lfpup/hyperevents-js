@@ -25,10 +25,10 @@ export function throttled(
 
 	if (shouldThrottle(params, throttleParams)) return true;
 
-	let { el, sourceEvent } = params;
-	let { timeStamp, type } = sourceEvent;
+	let { originElement, originEvent } = params;
+	let { timeStamp, type } = originEvent;
 
-	elementMap.set(el, { timeStamp, type, abortParams });
+	elementMap.set(originElement, { timeStamp, type, abortParams });
 
 	return false;
 }
@@ -36,10 +36,10 @@ export function throttled(
 function getThrottleParams(
 	dispatchParams: DispatchParams,
 ): ThrottleParams | undefined {
-	let { el, sourceEvent } = dispatchParams;
-	let { type } = sourceEvent;
+	let { originElement, originEvent } = dispatchParams;
+	let { type } = originEvent;
 
-	let windowMsAttr = el.getAttribute(`${type}:throttle-ms`);
+	let windowMsAttr = originElement.getAttribute(`${type}:throttle-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);
@@ -54,20 +54,15 @@ function shouldThrottle(
 	dispatchParams: DispatchParams,
 	throttleParams: ThrottleParams,
 ): boolean {
-	let { el, sourceEvent } = dispatchParams;
+	let { originElement, originEvent } = dispatchParams;
 	let { windowMs } = throttleParams;
 
-	let throttleEl: EventTarget = el;
-
-	let throttler = elementMap.get(throttleEl);
+	let throttler = elementMap.get(originElement);
 	if (throttler) {
 		let delta = performance.now() - throttler.timeStamp;
+		if (originEvent.type === throttler.type && delta < windowMs) return true;
 
-		if (sourceEvent.type === throttler.type) {
-			if (delta < windowMs) return true;
-
-			throttler.abortParams?.abortController.abort();
-		}
+		throttler.abortParams?.abortController.abort();
 	}
 
 	return false;

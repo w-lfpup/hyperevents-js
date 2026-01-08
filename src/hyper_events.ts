@@ -1,4 +1,6 @@
 import type { DispatchParams } from "./type_flyweight.js";
+
+import { removeActionAttr } from "./type_flyweight.js";
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
@@ -15,6 +17,8 @@ export interface HyperEventsInterface {
 	connect(): void;
 	disconnect(): void;
 }
+
+// CLEARER LANGUAGE ON HOST, DISPATCH_TARGET, SOURCE_EL, sourceEvent,
 
 export class HyperEvents {
 	#boundDispatch = this.#dispatch.bind(this);
@@ -44,30 +48,33 @@ export class HyperEvents {
 		}
 	}
 
-	#dispatch(sourceEvent: Event) {
-		let { type, currentTarget, target } = sourceEvent;
+	#dispatch(originEvent: Event) {
+		let { type, currentTarget, target } = originEvent;
 		if (!currentTarget) return;
 
 		let formData: FormData | undefined;
 		if (target instanceof HTMLFormElement) formData = new FormData(target);
 
-		for (let node of sourceEvent.composedPath()) {
+		for (let node of originEvent.composedPath()) {
 			if (node instanceof Element) {
 				if (node.hasAttribute(`${type}:prevent-default`))
-					sourceEvent.preventDefault();
+					originEvent.preventDefault();
 
 				if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
 					dispatchEvent({
-						el: node,
 						composed: node.hasAttribute(`${type}:composed`),
-						kind,
-						target: this.#target,
-						sourceEvent,
+						originElement: node,
 						formData,
+						kind,
+						originEvent,
+						target: this.#target,
 					});
+
+					if (node.hasAttribute(`${type}:once`))
+						removeActionAttr(node, originEvent);
 				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;

@@ -1,14 +1,14 @@
 export interface DispatchParams {
 	composed: boolean;
-	el: Element;
+	originElement: Element;
 	formData?: FormData;
 	kind: string;
-	sourceEvent: Event;
+	originEvent: Event;
 	target: EventTarget;
 }
 
 interface RequestParams {
-	action: string;
+	action: ReturnType<Element["getAttribute"]>;
 	method: string;
 	timeoutMs?: number;
 	url: string;
@@ -16,8 +16,15 @@ interface RequestParams {
 
 export interface FetchParamsInterface {
 	abortController: AbortController;
-	action: string;
+	action: ReturnType<Element["getAttribute"]>;
 	request: Request;
+}
+
+export function removeActionAttr(el: Element, originEvent: Event) {
+	let { type } = originEvent;
+	queueMicrotask(function () {
+		el.removeAttribute(`${type}:`);
+	});
 }
 
 export function createFetchParams(
@@ -41,17 +48,15 @@ export function createFetchParams(
 function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
-	let { el, sourceEvent } = dispatchParams;
-	let { type } = sourceEvent;
+	let { originElement, originEvent } = dispatchParams;
+	let { type } = originEvent;
 
-	let action = el.getAttribute(`${type}:action`);
-	if (!action) return;
-
-	let url = el.getAttribute(`${type}:url`);
+	let url = originElement.getAttribute(`${type}:url`);
 	if (!url) return;
 
-	let method = el.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutMsAttr = el.getAttribute(`${type}:timeout-ms`);
+	let action = originElement.getAttribute(`${type}:action`);
+	let method = originElement.getAttribute(`${type}:method`) ?? "GET";
+	let timeoutMsAttr = originElement.getAttribute(`${type}:timeout-ms`);
 	let timeoutMs = parseInt(timeoutMsAttr ?? "");
 
 	return {

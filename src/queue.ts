@@ -9,10 +9,6 @@ interface QueueParamsInterface {
 	queueTarget: EventTarget;
 }
 
-interface QueuableInterface {
-	dispatch(): void;
-}
-
 class Queue {
 	#inUse: boolean = false;
 	#inbound: Queueable[] = [];

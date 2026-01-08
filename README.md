@@ -6,10 +6,10 @@ A hypertext extension for the browser.
 
 HyperEvents enables HTML to declaratively:
 
+- dispatch meaningful actions
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
-- dispatch action events (think redux actions)
 
 HyperEvents is built for modern web standards making it ideal for:
 
@@ -52,6 +52,25 @@ Then listen for `#action` events in javascript-land.
 document.addEventListener("#action", function (e: ActionEvent) {
 	let { action, originEvent } = e.actionParams;
 });
+```
+
+## Event concepts
+
+HyperEvents leapfrogs familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
+
+Below is an example of a subset of the Event API reflected in hyperevent syntax:
+
+```html
+<button
+	click:="update_something"
+	click:composed
+	click:once
+	click:prevent-default
+	click:stop-immediate-propagation
+	click:stop-propagation
+>
+	hai :3!
+</button>
 ```
 
 ## ES Modules

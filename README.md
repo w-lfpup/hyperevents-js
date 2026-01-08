@@ -50,7 +50,7 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { action, sourceEvent } = e.actionParams;
+	let { action, originEvent } = e.actionParams;
 });
 ```
 

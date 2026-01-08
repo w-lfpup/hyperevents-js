@@ -10,13 +10,15 @@ interface QueueParamsInterface {
 }
 
 class Queue {
-	#inUse: boolean = false;
+	#inRoute: Queueable | undefined;
 	#inbound: Queueable[] = [];
 	#outbound: Queueable[] = [];
 
 	enqueue(atom: Queueable) {
 		this.#inbound.push(atom);
-		if (!this.#inUse) this.#queueAtom();
+		atom.dispatchQueueEvent();
+
+		if (!this.#inRoute) this.#queueAtom();
 	}
 
 	async #queueAtom() {
@@ -27,14 +29,10 @@ class Queue {
 			}
 		}
 
-		let pip = this.#outbound.pop();
-		if (pip) {
-			this.#inUse = true;
-
-			await pip.fetch();
+		this.#inRoute = this.#outbound.pop();
+		if (this.#inRoute) {
+			await this.#inRoute.fetch();
 			this.#queueAtom();
-		} else {
-			this.#inUse = false;
 		}
 	}
 }
@@ -55,8 +53,6 @@ export function queued(
 		queue = new Queue();
 		queueMap.set(queueTarget, queue);
 	}
-
-	atom.dispatchQueueEvent();
 	queue.enqueue(atom);
 
 	return true;

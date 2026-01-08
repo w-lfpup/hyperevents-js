@@ -70,8 +70,6 @@ class HtmlFetch implements Queueable {
 	}
 
 	fetch(): Promise<void> | undefined {
-		if (this.#fetchParams.abortController.signal.aborted) return;
-
 		return fetchHtml(this.#dispatchParams, this.#fetchParams);
 	}
 }
@@ -92,7 +90,7 @@ function fetchHtml(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	// if (fetchParams.abortController.signal.aborted) return;
+	if (fetchParams.abortController.signal.aborted) return;
 
 	let { target, composed } = dispatchParams;
 

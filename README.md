@@ -38,7 +38,33 @@ let _hyperEvents = new HyperEvents({
 });
 ```
 
-## Actions
+## Event behavior
+
+HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
+
+Below is an example of a subset of the Event API reflected in hyperevent syntax:
+
+```html
+<button
+	click:composed
+	click:once
+	click:prevent-default
+	click:stop-immediate-propagation
+	click:stop-propagation
+>
+	hai :3!
+</button>
+```
+
+All of the attributes mentioned above are valid for any hyperevent.
+
+Other ancillary attributes can throttle and queue hyperevents but they are only available with certain hyperevents
+
+```html
+<button click:throttle-ms="500" click:queue></button>
+```
+
+## Action events
 
 Action events connect DOM Events to local state.
 
@@ -56,31 +82,9 @@ document.addEventListener("#action", function (e: ActionEvent) {
 });
 ```
 
-## Event behavior
+Action events can be throttled. Action events cannot be queued.
 
-HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
-
-Below is an example of a subset of the Event API reflected in hyperevent syntax:
-
-```html
-<button
-	click:="update_something"
-	click:composed
-	click:once
-	click:prevent-default
-	click:stop-immediate-propagation
-	click:stop-propagation>
-	hai :3!
-</button>
-```
-
-Other ancillary attributes can throttle and queue hyperevents:
-
-```html
-<button click:throttle-ms="500" click:queue></button>
-```
-
-## ES Modules
+## ES module events
 
 Fetch esmodules using the following syntax:
 
@@ -98,6 +102,8 @@ document.addEventListener("#esmodule", function (e: EsModuleEvent) {
 	let { status, url } = e.requestState;
 });
 ```
+
+Esmodule events can be queued. Action events cannot be throttled.
 
 ## HTML
 
@@ -123,6 +129,8 @@ document.addEventListener("#html", function (e: HtmlEvent) {
 });
 ```
 
+Html events can be throttled and queued.
+
 ## JSON
 
 Fetch and dispatch JSON using the following syntax:
@@ -145,6 +153,8 @@ document.addEventListener("#json", function (e: JsonEvent) {
 	}
 });
 ```
+
+Json events can be throttled and queued.
 
 ## Typescript
 

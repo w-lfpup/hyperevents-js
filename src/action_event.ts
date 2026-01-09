@@ -3,31 +3,33 @@ import type { DispatchParams } from "./type_flyweight.js";
 import { throttled } from "./throttle.js";
 
 export interface ActionInterface {
-	action: string;
+	kind: string;
+	formData?: FormData;
 	originElement: Element;
 	originEvent: Event;
 }
 
 export interface ActionEventInterface extends Event {
-	dispatchParams: ActionInterface;
+	action: ActionInterface;
 }
 
 export class ActionEvent extends Event implements ActionEventInterface {
-	dispatchParams: ActionInterface;
+	action: ActionInterface;
 
 	constructor(dispatchParams: ActionInterface, eventInit?: EventInit) {
 		super("#action", eventInit);
-		this.dispatchParams = dispatchParams;
+		this.action = dispatchParams;
 	}
 }
 
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	if (throttled(dispatchParams)) return;
 
-	let { target, composed, kind, originElement, originEvent } = dispatchParams;
+	let { composed, formData, kind, originElement, originEvent, target } =
+		dispatchParams;
 
 	let event = new ActionEvent(
-		{ action: kind, originElement, originEvent },
+		{ kind, formData, originElement, originEvent },
 		{ bubbles: true, composed },
 	);
 	target.dispatchEvent(event);

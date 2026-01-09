@@ -78,7 +78,7 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { action, originEvent } = e.actionParams;
+	let { kind, originEvent } = e.action;
 });
 ```
 

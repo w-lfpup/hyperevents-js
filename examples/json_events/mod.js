@@ -6,7 +6,6 @@ const _hyperEvents = new HyperEvents({
 });
 let ul = document.querySelector("ul");
 document.addEventListener("#json", function (e) {
-    console.log("#json", e.requestState);
     let { requestState: rs } = e;
     if ("resolved" === rs.status) {
         let li = document.createElement("li");

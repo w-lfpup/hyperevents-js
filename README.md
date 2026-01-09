@@ -13,16 +13,19 @@ HyperEvents enables HTML to declaratively:
 - throttle events
 - queue (and order) events
 
-HyperEvents is built for modern web standards making it ideal for:
-
-- SSR
-- SSG
-- HTML template elements
-- Declarative shadow DOM
+HyperEvents is built for modern web standards making it ideal for anything rendered on the server.
 
 ## Install
 
-```html
+Install via npm:
+
+```bash
+npm install @w-lfpup/hyperevents
+```
+
+Or directly from github:
+
+```bash
 npm install https://github.com/wolfpup-software/hyperevents-js
 ```
 
@@ -38,37 +41,9 @@ let _hyperEvents = new HyperEvents({
 });
 ```
 
-## Event behavior
-
-HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
-
-Below is an example of a subset of the Event API reflected in hyperevent syntax:
-
-```html
-<button
-	click:composed
-	click:once
-	click:prevent-default
-	click:stop-immediate-propagation
-	click:stop-propagation
->
-	hai :3!
-</button>
-```
-
-All of the attributes mentioned above are valid for any hyperevent.
-
-Other ancillary attributes can throttle and queue hyperevents but they are only available with certain hyperevents
-
-```html
-<button click:throttle-ms="500" click:queue></button>
-```
-
 ## Action events
 
-Action events connect DOM Events to local state.
-
-Dsipatch actions with the following syntax:
+Dsipatch an action to with the following syntax to connect a UI Event to local state:
 
 ```html
 <button click:="update_something"></button>
@@ -155,6 +130,48 @@ document.addEventListener("#json", function (e: JsonEvent) {
 ```
 
 Json events can be throttled and queued.
+
+## Event behavior
+
+HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
+
+Below is an example of a subset of the Event API reflected in hyperevent syntax:
+
+```html
+<button
+	click:composed
+	click:once
+	click:prevent-default
+	click:stop-immediate-propagation
+	click:stop-propagation
+>
+	hai :3!
+</button>
+```
+
+All of the attributes mentioned above are valid for any hyperevent.
+
+## Throttle events
+
+```html
+<button click:throttle-ms="500"></button>
+```
+
+## Queue events
+
+```html
+<button click:queue></button>
+```
+
+## Request behavior
+
+```html
+<button
+	click:method="POST"
+	click:timeout-ms="<number>"
+	click:url="<url>"
+></button>
+```
 
 ## Typescript
 

@@ -4,6 +4,11 @@ import type { Queueable } from "./queue.js";
 import { removeActionAttr } from "./type_flyweight.js";
 import { queued } from "./queue.js";
 
+// Should this not be queuable?
+// javascript modules resolve themselves? so if something depended
+// on other modules theyd be okay it would just fan out.
+//
+
 interface EsModuleQueuedInterface {
 	status: "queued";
 	url: string;
@@ -37,6 +42,8 @@ export interface EsModuleEventInterface {
 
 interface EsImportParams {
 	url: string;
+	originEvent: Event;
+	originElement: EventTarget;
 }
 
 let moduleMap = new Map<string, EsModuleRequestState>();
@@ -92,7 +99,11 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 		if ("rejected" !== status) return;
 	}
 
-	let moduleImport = new EsModuleImport(dispatchParams, { url });
+	let moduleImport = new EsModuleImport(dispatchParams, {
+		url,
+		originElement,
+		originEvent,
+	});
 	if (queued(dispatchParams, moduleImport)) return;
 
 	moduleImport.fetch();

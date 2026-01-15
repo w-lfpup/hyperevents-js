@@ -12,6 +12,8 @@ interface RequestParams {
 	method: string;
 	timeoutMs?: number;
 	url: string;
+	originElement: EventTarget;
+	originEvent: Event;
 }
 
 export interface FetchParamsInterface {
@@ -64,6 +66,8 @@ function getRequestParams(
 		action,
 		url,
 		method,
+		originElement,
+		originEvent,
 	};
 }
 

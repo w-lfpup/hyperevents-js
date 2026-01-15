@@ -17,7 +17,7 @@ const _hyperEvents = new HyperEvents({
 const ul = document.querySelector("ul");
 
 document.addEventListener("#action", function (e) {
-	let { timeStamp, type } = e.dispatchParams.originEvent;
+	let { timeStamp, type } = e.action.originEvent;
 
 	const li = document.createElement("li");
 	li.textContent = `action occured at <${timeStamp.toFixed(2)}> on <${type}>`;

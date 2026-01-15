@@ -35,7 +35,7 @@ class Queue {
 
 	async #execAtom() {
 		if (this.#inRoute) {
-			await this.#inRoute?.fetch();
+			await this.#inRoute.fetch();
 			this.#queueAtom();
 		}
 	}

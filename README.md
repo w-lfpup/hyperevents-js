@@ -13,16 +13,19 @@ HyperEvents enables HTML to declaratively:
 - throttle events
 - queue (and order) events
 
-HyperEvents is built for modern web standards making it ideal for:
-
-- SSR
-- SSG
-- HTML template elements
-- Declarative shadow DOM
+HyperEvents is built for modern web standards making it ideal for anything rendered on the server.
 
 ## Install
 
-```html
+Install via npm:
+
+```bash
+npm install @w-lfpup/hyperevents
+```
+
+Or directly from github:
+
+```bash
 npm install https://github.com/wolfpup-software/hyperevents-js
 ```
 
@@ -38,11 +41,9 @@ let _hyperEvents = new HyperEvents({
 });
 ```
 
-## Actions
+## Action events
 
-Action events connect DOM Events to local state.
-
-Dsipatch actions with the following syntax:
+Dsipatch an action to with the following syntax to connect a UI Event to local state:
 
 ```html
 <button click:="update_something"></button>
@@ -52,35 +53,13 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { action, originEvent } = e.actionParams;
+	let { kind, originEvent } = e.action;
 });
 ```
 
-## Event behavior
+Action events can be throttled. Action events cannot be queued.
 
-HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
-
-Below is an example of a subset of the Event API reflected in hyperevent syntax:
-
-```html
-<button
-	click:="update_something"
-	click:composed
-	click:once
-	click:prevent-default
-	click:stop-immediate-propagation
-	click:stop-propagation>
-	hai :3!
-</button>
-```
-
-Other ancillary attributes can throttle and queue hyperevents:
-
-```html
-<button click:throttle-ms="500" click:queue></button>
-```
-
-## ES Modules
+## ESModule events
 
 Fetch esmodules using the following syntax:
 
@@ -98,6 +77,8 @@ document.addEventListener("#esmodule", function (e: EsModuleEvent) {
 	let { status, url } = e.requestState;
 });
 ```
+
+Esmodule events can be queued. Action events cannot be throttled.
 
 ## HTML
 
@@ -123,6 +104,8 @@ document.addEventListener("#html", function (e: HtmlEvent) {
 });
 ```
 
+Html events can be throttled and queued.
+
 ## JSON
 
 Fetch and dispatch JSON using the following syntax:
@@ -146,26 +129,69 @@ document.addEventListener("#json", function (e: JsonEvent) {
 });
 ```
 
-## Typescript
+Json events can be throttled and queued.
 
-For typed events, please add the following to your app somewhere thoughtful.
+## Event behavior
 
-```ts
-import type {
-	ActionEventInterface,
-	EsModuleEventInterface,
-	HtmlEventInterface,
-	JsonEventInterface,
-} from "hyperevents";
+HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
 
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#action"]: ActionEventInterface;
-		["#esmodule"]: EsModuleEventInterface;
-		["#html"]: HtmlEventInterface;
-		["#json"]: JsonEventInterface;
-	}
-}
+Below is an example of a subset of the Event API reflected in hyperevent syntax:
+
+```html
+<button
+	click:composed
+	click:once
+	click:prevent-default
+	click:stop-immediate-propagation
+	click:stop-propagation
+>
+	hai :3!
+</button>
+```
+
+All of the attributes mentioned above are valid for any hyperevent.
+
+## Request behavior
+
+JSON and HTML events can modify their requests using the following attributes.
+
+```html
+<form
+	submit:="_html"
+	submit:url="get_some.html"
+	submit:method="POST"
+	submit:timeout-ms="2500"
+	submit:prevent-default>
+	<button type=submit>bark!</button>
+</form>
+```
+
+If any form is involed in the `originEvent`, the correlated form data is sent as the request body.
+
+## Throttle events
+
+Any hyperevent can be throttled.
+
+The example below below will throttle clicks on the `<button>` element every 500 ms under two conditions:
+(1) the same hyperevent occured on (2) the same element.
+
+```html
+<button
+	click:="showcase_throttle"
+	click:throttle-ms="500">
+</button>
+```
+
+## Queue events
+
+All hyperevents, except action events, can be queued with the following syntax:
+
+```html
+<button
+	click:="_html"
+	click:url="./get_some.html"
+	click:queue>
+</button>
 ```
 
 ## License

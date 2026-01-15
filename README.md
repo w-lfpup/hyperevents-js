@@ -59,7 +59,7 @@ document.addEventListener("#action", function (e: ActionEvent) {
 
 Action events can be throttled. Action events cannot be queued.
 
-## ES module events
+## ESModule events
 
 Fetch esmodules using the following syntax:
 
@@ -151,48 +151,47 @@ Below is an example of a subset of the Event API reflected in hyperevent syntax:
 
 All of the attributes mentioned above are valid for any hyperevent.
 
-## Throttle events
+## Request behavior
+
+JSON and HTML events can modify their requests using the following attributes.
 
 ```html
-<button click:throttle-ms="500"></button>
+<form
+	submit:="_html"
+	submit:url="get_some.html"
+	submit:method="POST"
+	submit:timeout-ms="2500"
+	submit:prevent-default>
+	<button type=submit>bark!</button>
+</form>
+```
+
+If any form is involed in the `originEvent`, the correlated form data is sent as the request body.
+
+## Throttle events
+
+Any hyperevent can be throttled.
+
+The example below below will throttle clicks on the `<button>` element every 500 ms under two conditions:
+(1) the same hyperevent occured on (2) the same element.
+
+```html
+<button
+	click:="showcase_throttle"
+	click:throttle-ms="500">
+</button>
 ```
 
 ## Queue events
 
-```html
-<button click:queue></button>
-```
-
-## Request behavior
+All hyperevents, except action events, can be queued with the following syntax:
 
 ```html
 <button
-	click:method="POST"
-	click:timeout-ms="<number>"
-	click:url="<url>"
-></button>
-```
-
-## Typescript
-
-For typed events, please add the following to your app somewhere thoughtful.
-
-```ts
-import type {
-	ActionEventInterface,
-	EsModuleEventInterface,
-	HtmlEventInterface,
-	JsonEventInterface,
-} from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#action"]: ActionEventInterface;
-		["#esmodule"]: EsModuleEventInterface;
-		["#html"]: HtmlEventInterface;
-		["#json"]: JsonEventInterface;
-	}
-}
+	click:="_html"
+	click:url="./get_some.html"
+	click:queue>
+</button>
 ```
 
 ## License

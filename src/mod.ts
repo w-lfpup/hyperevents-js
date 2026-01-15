@@ -1,14 +1,22 @@
-export type { ActionEventInterface, ActionInterface } from "./action_event.ts";
-export type {
-	EsModuleEventInterface,
-	EsModuleRequestState,
-} from "./esmodule_event.ts";
-export type { JsonEventInterface, JsonRequestState } from "./json_event.ts";
-export type { HtmlEventInterface, HtmlRequestState } from "./html_event.ts";
-export type {
-	HyperEventsInterface,
-	HyperEventsParamsInterface,
-} from "./hyper_events.ts";
+import type { ActionEventInterface } from "./action_event.js";
+import type { EsModuleEventInterface } from "./esmodule_event.js";
+import type { HtmlEventInterface } from "./html_event.js";
+import type { JsonEventInterface } from "./json_event.js";
+
+declare global {
+	interface GlobalEventHandlersEventMap {
+		["#action"]: ActionEventInterface;
+		["#esmodule"]: EsModuleEventInterface;
+		["#html"]: HtmlEventInterface;
+		["#json"]: JsonEventInterface;
+	}
+}
+
+export type * from "./action_event.ts";
+export type * from "./esmodule_event.ts";
+export type * from "./json_event.ts";
+export type * from "./html_event.ts";
+export type * from "./hyper_events.ts";
 
 export { ActionEvent } from "./action_event.js";
 export { EsModuleEvent } from "./esmodule_event.js";

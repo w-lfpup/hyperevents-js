@@ -1,3 +1,9 @@
+declare global {
+	interface GlobalEventHandlersEventMap {
+		["#json"]: JsonEventInterface;
+	}
+}
+
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 

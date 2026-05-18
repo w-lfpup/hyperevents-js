@@ -1,3 +1,9 @@
+declare global {
+	interface GlobalEventHandlersEventMap {
+		["#esmodule"]: EsModuleEventInterface;
+	}
+}
+
 import type { DispatchParams } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 

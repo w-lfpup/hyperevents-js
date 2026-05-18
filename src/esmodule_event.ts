@@ -42,8 +42,8 @@ export interface EsModuleEventInterface {
 
 interface EsImportParams {
 	url: string;
-	originEvent: Event;
-	originElement: EventTarget;
+	element: Element;
+	event: Event;
 }
 
 let moduleMap = new Map<string, EsModuleRequestState>();
@@ -86,23 +86,23 @@ class EsModuleImport implements Queueable {
 }
 
 export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
-	let { originElement, originEvent } = dispatchParams;
+	let { element, event } = dispatchParams;
 
-	let urlAttr = originElement.getAttribute(`${originEvent.type}:url`);
+	let urlAttr = element.getAttribute(`${event.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
 	let moduleState = moduleMap.get(url);
 	if (moduleState) {
 		let { status } = moduleState;
-		if ("resolved" === status) removeActionAttr(originElement, originEvent);
+		if ("resolved" === status) removeActionAttr(element, event);
 		if ("rejected" !== status) return;
 	}
 
 	let moduleImport = new EsModuleImport(dispatchParams, {
 		url,
-		originElement,
-		originEvent,
+		element,
+		event,
 	});
 	if (queued(dispatchParams, moduleImport)) return;
 
@@ -117,25 +117,33 @@ function importEsModule(
 	let requested: EsModuleRequestedInterface = { status: "requested", url };
 	moduleMap.set(url, requested);
 
-	let { originElement, target, composed, originEvent } = dispatchParams;
-	let event = new EsModuleEvent(requested, { bubbles: true, composed });
-	target.dispatchEvent(event);
+	let { element, target, composed, event } = dispatchParams;
+	let esmoduleEvent = new EsModuleEvent(requested, { bubbles: true, composed });
+	target.dispatchEvent(esmoduleEvent);
 
 	return import(url)
 		.then(function () {
 			let resolved: EsModuleResolvedInterface = { status: "resolved", url };
 			moduleMap.set(url, resolved);
 
-			let event = new EsModuleEvent(resolved, { bubbles: true, composed });
-			target.dispatchEvent(event);
+			let esmoduleEvent = new EsModuleEvent(resolved, {
+				bubbles: true,
+				composed,
+			});
+			target.dispatchEvent(esmoduleEvent);
 
-			removeActionAttr(originElement, originEvent);
+			// removeActionAttr(originElement, originEvent);
 		})
 		.catch(function (error: any) {
 			let rejected: EsModuleErrorInterface = { status: "rejected", url, error };
 			moduleMap.set(url, rejected);
 
-			let event = new EsModuleEvent(rejected, { bubbles: true, composed });
-			target.dispatchEvent(event);
+			let esmoduleEvent = new EsModuleEvent(rejected, {
+				bubbles: true,
+				composed,
+			});
+			target.dispatchEvent(esmoduleEvent);
+
+			// add the attribute back if :once is around
 		});
 }

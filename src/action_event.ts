@@ -1,12 +1,18 @@
+declare global {
+	interface GlobalEventHandlersEventMap {
+		["#action"]: ActionEventInterface;
+	}
+}
+
 import type { DispatchParams } from "./type_flyweight.js";
 
 import { throttled } from "./throttle.js";
 
 export interface ActionInterface {
-	kind: string;
+	type: string;
 	formData?: FormData;
-	originElement: Element;
-	originEvent: Event;
+	element: Element;
+	event: Event;
 }
 
 export interface ActionEventInterface extends Event {
@@ -25,12 +31,17 @@ export class ActionEvent extends Event implements ActionEventInterface {
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	if (throttled(dispatchParams)) return;
 
-	let { composed, formData, kind, originElement, originEvent, target } =
-		dispatchParams;
+	let { composed, formData, kind, element, event, target } = dispatchParams;
 
-	let event = new ActionEvent(
-		{ kind, formData, originElement, originEvent },
+	let type = kind;
+	if ("_action" === kind) {
+		let attr = element.getAttribute(`${event.type}:type`);
+		if (attr) type = attr;
+	}
+
+	let actionEvent = new ActionEvent(
+		{ type, formData, element, event },
 		{ bubbles: true, composed },
 	);
-	target.dispatchEvent(event);
+	target.dispatchEvent(actionEvent);
 }

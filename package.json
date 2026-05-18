@@ -8,7 +8,8 @@
 	"license": "BSD-3-Clause",
 	"scripts": {
 		"prepare": "npm run build",
-		"build": "npx tsc --project ./src",
+		"build": "npm run build:src && npm run build:examples",
+		"build:src": "npx tsc --project ./src",
 		"build:examples": "npx tsc --project ./examples",
 		"format": "npx prettier ./ --write"
 	},

@@ -20,9 +20,9 @@ let span = document.querySelector("span");
 document.addEventListener("#action", function (e) {
 	if (!span) return;
 
-	let { kind } = e.action;
+	let { type } = e.action;
 
-	if ("increase_count" === kind) {
+	if ("increase_count" === type) {
 		count += 1;
 		span.textContent = count.toString();
 	}

@@ -48,33 +48,36 @@ export class HyperEvents {
 		}
 	}
 
-	#dispatch(originEvent: Event) {
-		let { type, currentTarget, target } = originEvent;
+	#dispatch(event: Event) {
+		let { type, currentTarget, target } = event;
 		if (!currentTarget) return;
 
 		let formData: FormData | undefined;
 		if (target instanceof HTMLFormElement) formData = new FormData(target);
 
-		for (let node of originEvent.composedPath()) {
+		for (let node of event.composedPath()) {
 			if (node instanceof Element) {
 				if (node.hasAttribute(`${type}:prevent-default`))
-					originEvent.preventDefault();
+					event.preventDefault();
 
 				if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
+					let composed = node.hasAttribute(`${type}:composed`);
+					let actionType = node.getAttribute(`${type}:type`) ?? undefined;
+
 					dispatchEvent({
-						composed: node.hasAttribute(`${type}:composed`),
-						originElement: node,
+						element: node,
+						target: this.#target,
+						type: actionType,
+						composed,
 						formData,
 						kind,
-						originEvent,
-						target: this.#target,
+						event,
 					});
 
-					if (node.hasAttribute(`${type}:once`))
-						removeActionAttr(node, originEvent);
+					if (node.hasAttribute(`${type}:once`)) removeActionAttr(node, event);
 				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;

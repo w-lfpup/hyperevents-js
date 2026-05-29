@@ -59,12 +59,14 @@ export class HyperEvents {
 				if (node.hasAttribute(`${type}:prevent-default`))
 					event.preventDefault();
 
-				if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
+				if (node.hasAttribute(`${type}:stop-immediate-propagation`))
+					return;
 
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
 					let composed = node.hasAttribute(`${type}:composed`);
-					let actionType = node.getAttribute(`${type}:type`) ?? undefined;
+					let actionType =
+						node.getAttribute(`${type}:type`) ?? undefined;
 
 					dispatchEvent({
 						element: node,
@@ -89,7 +91,7 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_esmodule" === kind) return dispatchEsModuleEvent(params);
 	if ("_json" === kind) return dispatchJsonEvent(params);
 	if ("_html" === kind) return dispatchHtmlEvent(params);
-	// if ("_bytes" === kind) return dispatchHtmlEvent(params);
+	// if ("_arrayBuffer" === kind) return dispatchArrayBufferEvent(params);
 
 	return dispatchActionEvent(params);
 }

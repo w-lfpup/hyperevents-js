@@ -84,12 +84,14 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
 
+	// Debounce from herer {
 	if (throttled(dispatchParams, fetchParams)) return;
 
 	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
 	if (queued(dispatchParams, jsonFetch)) return;
 
 	jsonFetch.fetch();
+	// to here } !!!!
 }
 
 function fetchJson(

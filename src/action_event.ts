@@ -31,14 +31,15 @@ export class ActionEvent extends Event implements ActionEventInterface {
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	if (throttled(dispatchParams)) return;
 
+	// difference between target and host?
 	let { composed, formData, kind, type, element, event, target } =
 		dispatchParams;
-
-	// if debounced?
 
 	let actionType = type;
 	if (undefined === actionType) actionType = kind;
 	if ("_action" === actionType) return;
+
+	// if debounced?
 
 	let actionEvent = new ActionEvent(
 		{ type: actionType, formData, target, event },

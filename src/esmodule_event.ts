@@ -64,6 +64,9 @@ class EsModuleImport implements Queueable {
 	constructor(dispatchParams: DispatchParams, importParams: EsImportParams) {
 		this.#dispatchParams = dispatchParams;
 		this.#importParams = importParams;
+
+		let { url } = this.#importParams;
+		moduleMap.add(url);
 	}
 
 	dispatchQueueEvent(): void {
@@ -73,11 +76,15 @@ class EsModuleImport implements Queueable {
 			...this.#importParams,
 		};
 
-		let { url } = this.#importParams;
-		moduleMap.add(url);
+		// let { url } = this.#importParams;
+		// moduleMap.add(url);
 
-		let event = new EsModuleEvent(moduleQueued, { bubbles: true, composed });
-		target.dispatchEvent(event);
+		let event = new EsModuleEvent(moduleQueued, {
+			bubbles: true,
+			composed,
+		});
+		// target.dispatchEvent(event);
+		document.dispatchEvent(event);
 	}
 
 	fetch(): Promise<void> | undefined {
@@ -99,40 +106,61 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 		element,
 		event,
 	});
+
+	// debounce here?
+
 	if (queued(dispatchParams, moduleImport)) return;
 
 	moduleImport.fetch();
 }
 
+// es modules are document wide?
+
+// host vs target?
 function importEsModule(
 	dispatchParams: DispatchParams,
 	esImportParams: EsImportParams,
 ): Promise<void> | undefined {
 	let { url } = esImportParams;
-	let requested: EsModuleRequestedInterface = { status: "requested", url };
-	moduleMap.add(url);
+	// moduleMap.add(url);
 
-	let { element, target, composed, event } = dispatchParams;
-	let esmoduleEvent = new EsModuleEvent(requested, { bubbles: true, composed });
-	target.dispatchEvent(esmoduleEvent);
+	// let { target, composed } = dispatchParams;
+	let { composed } = dispatchParams;
+
+	let requested: EsModuleRequestedInterface = { status: "requested", url };
+	let esmoduleEvent = new EsModuleEvent(requested, {
+		bubbles: true,
+		composed,
+	});
+	document.dispatchEvent(esmoduleEvent);
+	// target.dispatchEvent(esmoduleEvent);
 
 	return import(url)
 		.then(function () {
-			let resolved: EsModuleResolvedInterface = { status: "resolved", url };
+			let resolved: EsModuleResolvedInterface = {
+				status: "resolved",
+				url,
+			};
 			let esmoduleEvent = new EsModuleEvent(resolved, {
 				bubbles: true,
 				composed,
 			});
-			target.dispatchEvent(esmoduleEvent);
+			document.dispatchEvent(esmoduleEvent);
+			// target.dispatchEvent(esmoduleEvent);
 		})
 		.catch(function (error: any) {
 			moduleMap.delete(url);
 
-			let rejected: EsModuleErrorInterface = { status: "rejected", url, error };
+			let rejected: EsModuleErrorInterface = {
+				status: "rejected",
+				url,
+				error,
+			};
 			let esmoduleEvent = new EsModuleEvent(rejected, {
 				bubbles: true,
 				composed,
 			});
-			target.dispatchEvent(esmoduleEvent);
+			document.dispatchEvent(esmoduleEvent);
+			// target.dispatchEvent(esmoduleEvent);
 		});
 }

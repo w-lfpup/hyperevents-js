@@ -140,7 +140,6 @@ Below is an example of a subset of the Event API reflected in hyperevent syntax:
 ```html
 <button
 	click:composed
-	click:once
 	click:prevent-default
 	click:stop-immediate-propagation
 	click:stop-propagation

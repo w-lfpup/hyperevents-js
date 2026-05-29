@@ -62,8 +62,6 @@ class EsModuleImport implements Queueable {
 
 	constructor(importParams: EsImportParams) {
 		this.#importParams = importParams;
-
-		moduleMap.add(this.#importParams.url);
 	}
 
 	dispatchQueueEvent(): void {
@@ -87,7 +85,9 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
+
 	if (moduleMap.has(url)) return;
+	moduleMap.add(url);
 
 	let moduleImport = new EsModuleImport({
 		url,
@@ -95,16 +95,11 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 		event,
 	});
 
-	// debounce here?
-
 	if (queued(dispatchParams, moduleImport)) return;
 
 	moduleImport.fetch();
 }
 
-// es modules are document wide?
-
-// host vs target?
 function importEsModule(
 	esImportParams: EsImportParams,
 ): Promise<void> | undefined {

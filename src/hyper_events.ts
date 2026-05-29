@@ -8,8 +8,8 @@ import { dispatchHtmlEvent } from "./html_event.js";
 export interface HyperEventsParamsInterface {
 	connected?: boolean;
 	eventNames: string[];
-	host: EventTarget;
-	target?: EventTarget;
+	host: EventTarget; // alwyas document
+	target?: EventTarget; // could be a web component, template, shadow dom, fragment
 }
 
 export interface HyperEventsInterface {
@@ -18,6 +18,11 @@ export interface HyperEventsInterface {
 }
 
 // CLEARER LANGUAGE ON HOST, DISPATCH_TARGET, SOURCE_EL, sourceEvent,
+
+// What i want is to dispatch events to the document
+
+// And I want to connect event targets to the UI / person
+//
 
 export class HyperEvents {
 	#params: HyperEventsParamsInterface;
@@ -53,6 +58,13 @@ export class HyperEvents {
 
 		let formData: FormData | undefined;
 		if (target instanceof HTMLFormElement) formData = new FormData(target);
+
+		// here we could block the event
+
+		// if aaalll events dispatch on document
+		// then this "watcher" can stop the initial event propagation
+		//
+		// this would be useful to let other events pass
 
 		for (let node of event.composedPath()) {
 			if (node instanceof Element) {

@@ -29,8 +29,6 @@ export class ActionEvent extends Event implements ActionEventInterface {
 }
 
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
-	if (throttled(dispatchParams)) return;
-
 	// difference between target and host?
 	let { composed, formData, kind, type, element, event, target } =
 		dispatchParams;
@@ -40,6 +38,10 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	if ("_action" === actionType) return;
 
 	// if debounced?
+
+	// if debounced? it means push stuff off till later
+
+	if (throttled(dispatchParams)) return;
 
 	let actionEvent = new ActionEvent(
 		{ type: actionType, formData, target, event },

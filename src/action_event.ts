@@ -11,7 +11,7 @@ import { throttled } from "./throttle.js";
 export interface ActionInterface {
 	type: string;
 	formData?: FormData;
-	element: Element;
+	target: EventTarget;
 	event: Event;
 }
 
@@ -31,17 +31,19 @@ export class ActionEvent extends Event implements ActionEventInterface {
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	if (throttled(dispatchParams)) return;
 
-	let { composed, formData, kind, element, event, target } = dispatchParams;
+	let { composed, formData, kind, type, element, event, target } =
+		dispatchParams;
 
-	let type = kind;
-	if ("_action" === kind) {
-		let attr = element.getAttribute(`${event.type}:type`);
-		if (attr) type = attr;
-	}
+	// if debounced?
+
+	let actionType = type;
+	if (undefined === actionType) actionType = kind;
+	if ("_action" === actionType) return;
 
 	let actionEvent = new ActionEvent(
-		{ type, formData, element, event },
+		{ type: actionType, formData, target, event },
 		{ bubbles: true, composed },
 	);
+
 	target.dispatchEvent(actionEvent);
 }

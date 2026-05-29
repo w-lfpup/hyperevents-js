@@ -6,14 +6,14 @@ A hypertext extension for the browser.
 
 HyperEvents enables HTML to declaratively:
 
-- dispatch meaningful actions
 - query JSON APIs
 - fetch html fragments
 - lazy-load esmodules
+- dispatch actions
 - throttle events
 - queue (and order) events
 
-HyperEvents is built for modern web standards making it ideal for anything rendered on the server.
+HyperEvents is built for modern web standards making it ideal for anything rendered on the server or the client.
 
 ## Install
 

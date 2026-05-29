@@ -1,6 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-import { removeActionAttr } from "./type_flyweight.js";
 import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
@@ -21,7 +20,6 @@ export interface HyperEventsInterface {
 // CLEARER LANGUAGE ON HOST, DISPATCH_TARGET, SOURCE_EL, sourceEvent,
 
 export class HyperEvents {
-	#boundDispatch = this.#dispatch.bind(this);
 	#params: HyperEventsParamsInterface;
 	#target: EventTarget;
 
@@ -36,7 +34,7 @@ export class HyperEvents {
 		let { host, eventNames } = this.#params;
 
 		for (let name of eventNames) {
-			host.addEventListener(name, this.#boundDispatch);
+			host.addEventListener(name, this.#dispatch);
 		}
 	}
 
@@ -44,11 +42,12 @@ export class HyperEvents {
 		let { host, eventNames } = this.#params;
 
 		for (let name of eventNames) {
-			host.removeEventListener(name, this.#boundDispatch);
+			host.removeEventListener(name, this.#dispatch);
 		}
 	}
 
-	#dispatch(event: Event) {
+	#dispatch = this.#unboundDispatch.bind(this);
+	#unboundDispatch(event: Event) {
 		let { type, currentTarget, target } = event;
 		if (!currentTarget) return;
 
@@ -76,8 +75,6 @@ export class HyperEvents {
 						kind,
 						event,
 					});
-
-					if (node.hasAttribute(`${type}:once`)) removeActionAttr(node, event);
 				}
 
 				if (node.hasAttribute(`${type}:stop-propagation`)) return;
@@ -92,6 +89,7 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_esmodule" === kind) return dispatchEsModuleEvent(params);
 	if ("_json" === kind) return dispatchJsonEvent(params);
 	if ("_html" === kind) return dispatchHtmlEvent(params);
+	// if ("_bytes" === kind) return dispatchHtmlEvent(params);
 
 	return dispatchActionEvent(params);
 }

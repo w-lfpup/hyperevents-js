@@ -2,9 +2,9 @@ export interface DispatchParams {
 	composed: boolean;
 	formData?: FormData;
 	kind: string;
-	element: Element;
+	element: Element; // host ? necessary?
 	event: Event;
-	target: EventTarget;
+	target: EventTarget; // element that has the action
 	type?: string;
 }
 
@@ -13,7 +13,7 @@ interface RequestParams {
 	method: string;
 	timeoutMs?: number;
 	url: string;
-	element: Element;
+	element: Element; // needed?
 	event: Event;
 }
 

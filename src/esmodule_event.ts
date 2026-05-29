@@ -51,18 +51,16 @@ let moduleMap = new Set<string>();
 export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 
-	constructor(requestState: EsModuleRequestState, eventInitDict: EventInit) {
+	constructor(requestState: EsModuleRequestState, eventInitDict?: EventInit) {
 		super("#esmodule", eventInitDict);
 		this.requestState = requestState;
 	}
 }
 
 class EsModuleImport implements Queueable {
-	#dispatchParams;
 	#importParams;
 
-	constructor(dispatchParams: DispatchParams, importParams: EsImportParams) {
-		this.#dispatchParams = dispatchParams;
+	constructor(importParams: EsImportParams) {
 		this.#importParams = importParams;
 
 		let { url } = this.#importParams;
@@ -70,25 +68,17 @@ class EsModuleImport implements Queueable {
 	}
 
 	dispatchQueueEvent(): void {
-		let { target, composed } = this.#dispatchParams;
 		let moduleQueued: EsModuleQueuedInterface = {
 			status: "queued",
 			...this.#importParams,
 		};
 
-		// let { url } = this.#importParams;
-		// moduleMap.add(url);
-
-		let event = new EsModuleEvent(moduleQueued, {
-			bubbles: true,
-			composed,
-		});
-		// target.dispatchEvent(event);
+		let event = new EsModuleEvent(moduleQueued);
 		document.dispatchEvent(event);
 	}
 
 	fetch(): Promise<void> | undefined {
-		return importEsModule(this.#dispatchParams, this.#importParams);
+		return importEsModule(this.#importParams);
 	}
 }
 
@@ -101,7 +91,7 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	let url = new URL(urlAttr, location.href).toString();
 	if (moduleMap.has(url)) return;
 
-	let moduleImport = new EsModuleImport(dispatchParams, {
+	let moduleImport = new EsModuleImport({
 		url,
 		element,
 		event,
@@ -118,49 +108,31 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 
 // host vs target?
 function importEsModule(
-	dispatchParams: DispatchParams,
 	esImportParams: EsImportParams,
 ): Promise<void> | undefined {
 	let { url } = esImportParams;
-	// moduleMap.add(url);
 
-	// let { target, composed } = dispatchParams;
-	let { composed } = dispatchParams;
-
-	let requested: EsModuleRequestedInterface = { status: "requested", url };
-	let esmoduleEvent = new EsModuleEvent(requested, {
-		bubbles: true,
-		composed,
-	});
+	let esmoduleEvent = new EsModuleEvent({ status: "requested", url });
 	document.dispatchEvent(esmoduleEvent);
-	// target.dispatchEvent(esmoduleEvent);
 
 	return import(url)
 		.then(function () {
-			let resolved: EsModuleResolvedInterface = {
+			let esmoduleEvent = new EsModuleEvent({
 				status: "resolved",
 				url,
-			};
-			let esmoduleEvent = new EsModuleEvent(resolved, {
-				bubbles: true,
-				composed,
 			});
+
 			document.dispatchEvent(esmoduleEvent);
-			// target.dispatchEvent(esmoduleEvent);
 		})
 		.catch(function (error: any) {
 			moduleMap.delete(url);
 
-			let rejected: EsModuleErrorInterface = {
+			let esmoduleEvent = new EsModuleEvent({
 				status: "rejected",
 				url,
 				error,
-			};
-			let esmoduleEvent = new EsModuleEvent(rejected, {
-				bubbles: true,
-				composed,
 			});
+
 			document.dispatchEvent(esmoduleEvent);
-			// target.dispatchEvent(esmoduleEvent);
 		});
 }

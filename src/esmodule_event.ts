@@ -63,17 +63,15 @@ class EsModuleImport implements Queueable {
 	constructor(importParams: EsImportParams) {
 		this.#importParams = importParams;
 
-		let { url } = this.#importParams;
-		moduleMap.add(url);
+		moduleMap.add(this.#importParams.url);
 	}
 
 	dispatchQueueEvent(): void {
-		let moduleQueued: EsModuleQueuedInterface = {
+		let event = new EsModuleEvent({
 			status: "queued",
 			...this.#importParams,
-		};
+		});
 
-		let event = new EsModuleEvent(moduleQueued);
 		document.dispatchEvent(event);
 	}
 

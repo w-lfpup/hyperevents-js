@@ -43,6 +43,10 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 
 	if (throttled(dispatchParams)) return;
 
+	// or debounce after a throttle?
+
+	// feels like after a throttle
+
 	let actionEvent = new ActionEvent(
 		{ type: actionType, formData, target, event },
 		{ bubbles: true, composed },

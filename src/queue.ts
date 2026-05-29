@@ -1,8 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-// queue should just be document wide
-// all doucment all queue
-
 export interface Queueable {
 	dispatchQueueEvent(): void;
 	fetch(): Promise<void> | undefined;
@@ -44,11 +41,6 @@ class Queue {
 	}
 }
 
-// QUEUE should just be document wide
-// could be a set
-
-// MODULE WIDE MEMORY
-// let queueMap = new WeakMap<EventTarget, Queue>();
 let queueMap = new Queue();
 
 export function queued(
@@ -60,16 +52,6 @@ export function queued(
 
 	queueMap.enqueue(atom);
 	return true;
-
-	// let { queueTarget } = queueParams;
-	// let queue = queueMap.get(queueTarget);
-	// if (!queue) {
-	// 	queue = new Queue();
-	// 	queueMap.set(queueTarget, queue);
-	// }
-	// queue.enqueue(atom);
-
-	// return true;
 }
 
 function getQueueParams(

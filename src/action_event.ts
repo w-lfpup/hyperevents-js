@@ -30,7 +30,7 @@ export class ActionEvent extends Event implements ActionEventInterface {
 
 export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	// difference between target and host?
-	let { composed, formData, kind, type, element, event, target } =
+	let { formData, kind, type, dispatchTarget, event, target } =
 		dispatchParams;
 
 	let actionType = type;
@@ -44,13 +44,15 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	if (throttled(dispatchParams)) return;
 
 	// or debounce after a throttle?
+	// if (debounced(dispatchParams)) {}
 
 	// feels like after a throttle
-
+	// action should be a function
+	//
 	let actionEvent = new ActionEvent(
 		{ type: actionType, formData, target, event },
-		{ bubbles: true, composed },
+		{ bubbles: true },
 	);
 
-	target.dispatchEvent(actionEvent);
+	dispatchTarget.dispatchEvent(actionEvent);
 }

@@ -94,6 +94,7 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	// to here } !!!!
 }
 
+// just put this in the object above?
 function fetchJson(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,

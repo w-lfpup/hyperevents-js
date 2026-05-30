@@ -76,15 +76,15 @@ export class HyperEvents {
 
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
-					let composed = node.hasAttribute(`${type}:composed`);
+					// let composed = node.hasAttribute(`${type}:composed`);
 					let actionType =
 						node.getAttribute(`${type}:type`) ?? undefined;
 
 					dispatchEvent({
-						element: node,
-						target: this.#target,
+						target: node, // target
+						dispatchTarget: this.#target, // dispatchTarget
 						type: actionType,
-						composed,
+						// composed,
 						formData,
 						kind,
 						event,

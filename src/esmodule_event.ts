@@ -42,7 +42,7 @@ export interface EsModuleEventInterface {
 
 interface EsImportParams {
 	url: string;
-	element: Element;
+	dispatchTarget: EventTarget;
 	event: Event;
 }
 
@@ -79,9 +79,9 @@ class EsModuleImport implements Queueable {
 }
 
 export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
-	let { element, event } = dispatchParams;
+	let { target, dispatchTarget, event } = dispatchParams;
 
-	let urlAttr = element.getAttribute(`${event.type}:url`);
+	let urlAttr = target.getAttribute(`${event.type}:url`);
 	if (null === urlAttr) return;
 
 	let url = new URL(urlAttr, location.href).toString();
@@ -89,9 +89,11 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	if (moduleMap.has(url)) return;
 	moduleMap.add(url);
 
+	// debounce
+	
 	let moduleImport = new EsModuleImport({
 		url,
-		element,
+		dispatchTarget,
 		event,
 	});
 

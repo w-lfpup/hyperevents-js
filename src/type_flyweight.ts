@@ -1,10 +1,9 @@
 export interface DispatchParams {
-	composed: boolean;
 	formData?: FormData;
 	kind: string;
-	element: Element; // host ? necessary?
+	target: Element;
 	event: Event;
-	target: EventTarget; // element that has the action
+	dispatchTarget: EventTarget;
 	type?: string;
 }
 
@@ -12,8 +11,6 @@ interface RequestParams {
 	method: string;
 	timeoutMs: number;
 	url: string;
-	element: Element; // needed?
-	event: Event;
 }
 
 export interface FetchParamsInterface {
@@ -42,14 +39,14 @@ export function createFetchParams(
 function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
-	let { element, event } = dispatchParams;
+	let { target, event } = dispatchParams;
 	let { type } = event;
 
-	let url = element.getAttribute(`${type}:url`);
+	let url = target.getAttribute(`${type}:url`);
 	if (!url) return;
 
-	let method = element.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutMsAttr = element.getAttribute(`${type}:timeout-ms`);
+	let method = target.getAttribute(`${type}:method`) ?? "GET";
+	let timeoutMsAttr = target.getAttribute(`${type}:timeout-ms`);
 	let timeoutMs = parseInt(timeoutMsAttr ?? "");
 	if (Number.isNaN(timeoutMs)) timeoutMs = FALLBACK_TIMEOUT_MS;
 
@@ -57,8 +54,6 @@ function getRequestParams(
 		timeoutMs,
 		url,
 		method,
-		element,
-		event,
 	};
 }
 

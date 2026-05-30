@@ -6,12 +6,16 @@ A hypertext extension for the browser.
 
 HyperEvents enables HTML to declaratively:
 
-- query JSON APIs
-- fetch html fragments
-- lazy-load esmodules
-- dispatch actions
-- throttle events
-- queue (and order) events
+- Query JSON APIs
+- Fetch html fragments
+- Lazy-load esmodules
+- Throttle expensive interactions 
+- Queue (and order) interactions
+- Debounce lazy interactions
+- Retrieve ArrayBuffers
+- Dispatch redux-like actions
+
+It's everything a dev would build themselves.
 
 HyperEvents is built for modern web standards making it ideal for anything rendered on the server or the client.
 
@@ -178,6 +182,20 @@ The example below below will throttle clicks on the `<button>` element every 500
 <button
 	click:="showcase_throttle"
 	click:throttle-ms="500">
+</button>
+```
+
+## Debounce events
+
+Any hyperevent can be debounced.
+
+The example below below will debounce clicks on the `<button>` element every 500 ms under two conditions:
+(1) the same hyperevent occured on (2) the same element.
+
+```html
+<button
+	click:="showcase_throttle"
+	click:debounce-ms="300">
 </button>
 ```
 

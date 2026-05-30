@@ -27,9 +27,8 @@ export function createFetchParams(
 	if (!requestParams) return;
 
 	let abortController = new AbortController();
-
 	let request = createRequest(dispatchParams, requestParams, abortController);
-
+	
 	return {
 		request,
 		abortController,

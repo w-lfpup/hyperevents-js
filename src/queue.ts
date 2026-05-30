@@ -5,10 +5,6 @@ export interface Queueable {
 	fetch(): Promise<void> | undefined;
 }
 
-interface QueueParamsInterface {
-	queueTarget: EventTarget;
-}
-
 class Queue {
 	#inRoute: Queueable | undefined;
 	#inbound: Queueable[] = [];
@@ -43,27 +39,17 @@ class Queue {
 
 let queueMap = new Queue();
 
+// For now, queue target is ALWAYS the document.
 export function queued(
 	dispatchParams: DispatchParams,
 	atom: Queueable,
 ): boolean {
-	let queueParams = getQueueParams(dispatchParams);
-	if (!queueParams) return false;
+	let { target, event } = dispatchParams;
 
-	queueMap.enqueue(atom);
-	return true;
-}
+	if (target.hasAttribute(`${event.type}:queue`)) {
+		queueMap.enqueue(atom);
+		return true;
+	}
 
-function getQueueParams(
-	dispatchParams: DispatchParams,
-): QueueParamsInterface | undefined {
-	let { element, target, event } = dispatchParams;
-
-	let queueAttr = element.getAttribute(`${event.type}:queue`);
-	if (null === queueAttr) return;
-
-	let queueTarget: EventTarget = document;
-	if ("_target" === queueAttr) queueTarget = target;
-
-	return { queueTarget };
+	return false;
 }

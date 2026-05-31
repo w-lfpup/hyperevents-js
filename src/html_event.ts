@@ -66,11 +66,11 @@ class HtmlFetch implements Queueable {
 	}
 
 	dispatchQueueEvent(): void {
-		let { target, composed } = this.#dispatchParams;
+		let { target } = this.#dispatchParams;
 
 		let event = new HtmlEvent(
 			{ status: "queued", ...this.#fetchParams },
-			{ bubbles: true, composed },
+			{ bubbles: true },
 		);
 		target.dispatchEvent(event);
 	}
@@ -98,11 +98,11 @@ function fetchHtml(
 ): Promise<void> | undefined {
 	if (fetchParams.abortController.signal.aborted) return;
 
-	let { target, composed } = dispatchParams;
+	let { target } = dispatchParams;
 
 	let event = new HtmlEvent(
 		{ status: "requested", ...fetchParams },
-		{ bubbles: true, composed },
+		{ bubbles: true },
 	);
 	target.dispatchEvent(event);
 
@@ -111,14 +111,14 @@ function fetchHtml(
 		.then(function ([response, html]) {
 			let event = new HtmlEvent(
 				{ status: "resolved", response, html, ...fetchParams },
-				{ bubbles: true, composed },
+				{ bubbles: true },
 			);
 			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new HtmlEvent(
 				{ status: "rejected", error, ...fetchParams },
-				{ bubbles: true, composed },
+				{ bubbles: true },
 			);
 			target.dispatchEvent(event);
 		});

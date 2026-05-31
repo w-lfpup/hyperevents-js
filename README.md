@@ -9,7 +9,7 @@ HyperEvents enables HTML to declaratively:
 - Query JSON APIs
 - Fetch html fragments
 - Lazy-load esmodules
-- Throttle expensive interactions 
+- Throttle expensive interactions
 - Queue (and order) interactions
 - Debounce lazy interactions
 - Retrieve ArrayBuffers

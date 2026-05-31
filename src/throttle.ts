@@ -25,10 +25,12 @@ export function throttled(
 
 	if (shouldThrottle(params, throttleParams)) return true;
 
-	let { element, event } = params;
+	let { dispatchTarget, event } = params;
 	let { timeStamp, type } = event;
 
-	elementMap.set(element, { timeStamp, type, abortParams });
+	// same event:action ? like click:
+
+	elementMap.set(dispatchTarget, { timeStamp, type, abortParams });
 
 	return false;
 }
@@ -36,9 +38,9 @@ export function throttled(
 function getThrottleParams(
 	dispatchParams: DispatchParams,
 ): ThrottleParams | undefined {
-	let { element, event } = dispatchParams;
+	let { target, event } = dispatchParams;
 
-	let windowMsAttr = element.getAttribute(`${event.type}:throttle-ms`);
+	let windowMsAttr = target.getAttribute(`${event.type}:throttle-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);
@@ -53,10 +55,10 @@ function shouldThrottle(
 	dispatchParams: DispatchParams,
 	throttleParams: ThrottleParams,
 ): boolean {
-	let { element, event } = dispatchParams;
+	let { dispatchTarget, event } = dispatchParams;
 	let { windowMs } = throttleParams;
 
-	let throttler = elementMap.get(element);
+	let throttler = elementMap.get(dispatchTarget);
 	if (throttler) {
 		let delta = performance.now() - throttler.timeStamp;
 		if (event.type === throttler.type && delta < windowMs) return true;

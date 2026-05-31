@@ -90,7 +90,7 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	moduleMap.add(url);
 
 	// debounce
-	
+
 	let moduleImport = new EsModuleImport({
 		url,
 		dispatchTarget,

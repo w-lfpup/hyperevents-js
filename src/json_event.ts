@@ -66,11 +66,11 @@ class JsonFetch implements Queueable {
 	}
 
 	dispatchQueueEvent(): void {
-		let { target, composed } = this.#dispatchParams;
+		let { target } = this.#dispatchParams;
 
 		let event = new JsonEvent(
 			{ status: "queued", ...this.#fetchParams },
-			{ bubbles: true, composed },
+			{ bubbles: true },
 		);
 		target.dispatchEvent(event);
 	}
@@ -101,11 +101,11 @@ function fetchJson(
 ): Promise<void> | undefined {
 	if (fetchParams.abortController.signal.aborted) return;
 
-	let { target, composed } = dispatchParams;
+	let { target } = dispatchParams;
 
 	let event = new JsonEvent(
 		{ status: "requested", ...fetchParams },
-		{ bubbles: true, composed },
+		{ bubbles: true },
 	);
 	target.dispatchEvent(event);
 
@@ -114,14 +114,14 @@ function fetchJson(
 		.then(function ([response, json]) {
 			let event = new JsonEvent(
 				{ status: "resolved", response, json, ...fetchParams },
-				{ bubbles: true, composed },
+				{ bubbles: true },
 			);
 			target.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new JsonEvent(
 				{ status: "rejected", error, ...fetchParams },
-				{ bubbles: true, composed },
+				{ bubbles: true },
 			);
 			target.dispatchEvent(event);
 		});

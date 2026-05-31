@@ -1,3 +1,15 @@
+/*
+	For now the queue resides in module scope.
+
+	I don't know why this makes sense right now. But I feel like queues
+	are a way to throttle resource consumption as well as order resource
+	consumption. And even if different hosts queued different resources
+	I'd want them to stack regardless and see a progression occur.
+
+	So a module-scoped queue is useful at the moment.
+	Multiple bundles would mean multiple queues however.
+*/
+
 import type { DispatchParams } from "./type_flyweight.js";
 
 export interface Queueable {
@@ -39,17 +51,14 @@ class Queue {
 
 let queueMap = new Queue();
 
-// For now, queue target is ALWAYS the document.
 export function queued(
 	dispatchParams: DispatchParams,
 	atom: Queueable,
 ): boolean {
 	let { target, event } = dispatchParams;
 
-	if (target.hasAttribute(`${event.type}:queue`)) {
-		queueMap.enqueue(atom);
-		return true;
-	}
+	let queueAttr = target.hasAttribute(`${event.type}:queue`);
+	if (queueAttr) queueMap.enqueue(atom);
 
-	return false;
+	return queueAttr;
 }

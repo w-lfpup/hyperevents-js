@@ -6,8 +6,7 @@ interface AbortParams {
 
 interface Throttler {
 	abortParams?: AbortParams;
-	type: string;
-	timeStamp: DOMHighResTimeStamp;
+	event: Event;
 }
 
 interface ThrottleParams {
@@ -26,11 +25,8 @@ export function throttled(
 	if (shouldThrottle(params, throttleParams)) return true;
 
 	let { dispatchTarget, event } = params;
-	let { timeStamp, type } = event;
 
-	// same event:action ? like click:
-
-	elementMap.set(dispatchTarget, { timeStamp, type, abortParams });
+	elementMap.set(dispatchTarget, { event, abortParams });
 
 	return false;
 }
@@ -60,10 +56,11 @@ function shouldThrottle(
 
 	let throttler = elementMap.get(dispatchTarget);
 	if (throttler) {
-		let delta = performance.now() - throttler.timeStamp;
-		if (event.type === throttler.type && delta < windowMs) return true;
+		let { event, abortParams } = throttler;
+		let delta = performance.now() - event.timeStamp;
+		if (event.type === event.type && delta < windowMs) return true;
 
-		throttler.abortParams?.abortController.abort();
+		abortParams?.abortController.abort();
 	}
 
 	return false;

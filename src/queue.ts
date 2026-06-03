@@ -13,7 +13,7 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
 export interface Queueable {
-	dispatchQueueEvent(): void;
+	queued(): void;
 	fetch(): Promise<void> | undefined;
 }
 
@@ -24,7 +24,7 @@ class Queue {
 
 	enqueue(atom: Queueable) {
 		this.#inbound.push(atom);
-		atom.dispatchQueueEvent();
+		atom.queued();
 
 		if (!this.#inRoute) this.#queueAtom();
 	}

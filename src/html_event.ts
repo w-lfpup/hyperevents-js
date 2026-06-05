@@ -7,7 +7,7 @@ declare global {
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
-import { createFetchParams } from "./type_flyweight.js";
+import { createFetch } from "./type_flyweight.js";
 import { queued } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
@@ -54,36 +54,34 @@ export class HtmlEvent extends Event implements HtmlEventInterface {
 
 class HtmlFetch implements Queueable {
 	#dispatchParams;
-	#fetchParams;
+	#request;
 
-	constructor(
-		dispatchParams: DispatchParams,
-		fetchParams: FetchParamsInterface,
-	) {
+	constructor(dispatchParams: DispatchParams, request: Request) {
 		this.#dispatchParams = dispatchParams;
-		this.#fetchParams = fetchParams;
+		this.#request = request;
 	}
 
 	queued(): void {
 		let { dispatchTarget } = this.#dispatchParams;
+		let { url, method } = this.#request;
 
 		let event = new HtmlEvent(
-			{ status: "queued", ...this.#fetchParams },
+			{ status: "queued", url, method },
 			{ bubbles: true },
 		);
 		dispatchTarget.dispatchEvent(event);
 	}
 
 	fetch(): Promise<void> | undefined {
-		return fetchHtml(this.#dispatchParams, this.#fetchParams);
+		return fetchHtml(this.#dispatchParams, this.#request);
 	}
 }
 
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
-	let fetchParams = createFetchParams(dispatchParams);
-	if (!fetchParams) return;
+	let htmlRequest = createFetch(dispatchParams);
+	if (!htmlRequest) return;
 
-	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
+	let htmlFetch = new HtmlFetch(dispatchParams, htmlRequest);
 	if (queued(dispatchParams, htmlFetch)) return;
 
 	htmlFetch.fetch();
@@ -91,32 +89,35 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 
 function fetchHtml(
 	dispatchParams: DispatchParams,
-	fetchParams: FetchParamsInterface,
+	request: Request,
 ): Promise<void> | undefined {
 	if (dispatchParams.abortController?.signal.aborted) return;
 
 	let { dispatchTarget } = dispatchParams;
+	let { url, method } = request;
 
-	let event = new HtmlEvent(
-		{ status: "requested", ...fetchParams },
-		{ bubbles: true },
-	);
+	let event = new HtmlEvent({ status: "requested", url, method });
 	dispatchTarget.dispatchEvent(event);
 
-	return fetch(fetchParams.request)
+	return fetch(request)
 		.then(resolveResponseBody)
 		.then(function ([response, html]) {
-			let event = new HtmlEvent(
-				{ status: "resolved", response, html, ...fetchParams },
-				{ bubbles: true },
-			);
+			let event = new HtmlEvent({
+				status: "resolved",
+				response,
+				html,
+				url,
+				method,
+			});
 			dispatchTarget.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
-			let event = new HtmlEvent(
-				{ status: "rejected", error, ...fetchParams },
-				{ bubbles: true },
-			);
+			let event = new HtmlEvent({
+				status: "rejected",
+				error,
+				url,
+				method,
+			});
 			dispatchTarget.dispatchEvent(event);
 		});
 }

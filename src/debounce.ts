@@ -18,10 +18,10 @@ export function debounced(params: DispatchParams, cb: Callback) {
 		elementMap.set(target, debounceMap);
 	}
 
-	let prevInterval = debounceMap.get(event.type);
-	if (prevInterval) window.clearTimeout(prevInterval);
+	let prevReceipt = debounceMap.get(event.type);
+	if (prevReceipt) window.clearTimeout(prevReceipt);
 
-	let interval = window.setTimeout(function () {
+	let receipt = window.setTimeout(function () {
 		cb(params);
 
 		// clean up after
@@ -29,7 +29,7 @@ export function debounced(params: DispatchParams, cb: Callback) {
 		if (!debounceMap.size) elementMap.delete(target);
 	}, windowMs);
 
-	debounceMap.set(event.type, interval);
+	debounceMap.set(event.type, receipt);
 }
 
 function getDebouncedParams(

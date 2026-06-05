@@ -14,22 +14,22 @@ interface RequestParams {
 }
 
 export interface FetchParamsInterface {
-	request: Request;
+	url: string;
+	method: string;
+	// request: Request;
 }
 
 const FALLBACK_TIMEOUT_MS = 10000;
 
-export function createFetchParams(
+export function createFetch(
 	dispatchParams: DispatchParams,
-): FetchParamsInterface | undefined {
+): Request | undefined {
 	let requestParams = getRequestParams(dispatchParams);
 	if (!requestParams) return;
 
 	let request = createRequest(dispatchParams, requestParams);
 
-	return {
-		request,
-	};
+	return request;
 }
 
 function getRequestParams(

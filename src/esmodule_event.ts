@@ -64,7 +64,7 @@ class EsModuleImport implements Queueable {
 		this.#importParams = importParams;
 	}
 
-	dispatchQueueEvent(): void {
+	queued(): void {
 		let event = new EsModuleEvent({
 			status: "queued",
 			...this.#importParams,

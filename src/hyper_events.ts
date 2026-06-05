@@ -17,12 +17,40 @@ export interface HyperEventsInterface {
 	disconnect(): void;
 }
 
-// CLEARER LANGUAGE ON HOST, DISPATCH_TARGET, SOURCE_EL, sourceEvent,
+// Order of operations
+// |
+// V
+// Throttle
+// Debounce
+// Queue
+// Fetch
 
-// What i want is to dispatch events to the document
-
-// And I want to connect event targets to the UI / person
+// Map with type:action
 //
+// throttle / debounce
+// not in map
+// if debounce add dispatch
+// if throttle throttle
+// else debounce
+// add to queue
+
+// if queue
+// add to queue
+
+// then fetch
+
+// We need a map for throttle
+// should we throttle? no?
+//
+// We
+
+class HyperEvent {
+	queue() {}
+
+	fetch() {
+		//
+	}
+}
 
 export class HyperEvents {
 	#params: HyperEventsParamsInterface;
@@ -56,16 +84,6 @@ export class HyperEvents {
 		let { type, currentTarget, target } = event;
 		if (!currentTarget) return;
 
-		let formData: FormData | undefined;
-		if (target instanceof HTMLFormElement) formData = new FormData(target);
-
-		// here we could block the event
-
-		// if aaalll events dispatch on document
-		// then this "watcher" can stop the initial event propagation
-		//
-		// this would be useful to let other events pass
-
 		for (let node of event.composedPath()) {
 			if (node instanceof Element) {
 				if (node.hasAttribute(`${type}:prevent-default`))
@@ -76,7 +94,10 @@ export class HyperEvents {
 
 				let kind = node.getAttribute(`${type}:`);
 				if (kind) {
-					// let composed = node.hasAttribute(`${type}:composed`);
+					let formData: FormData | undefined;
+					if (target instanceof HTMLFormElement)
+						formData = new FormData(target);
+
 					let actionType =
 						node.getAttribute(`${type}:type`) ?? undefined;
 
@@ -84,7 +105,6 @@ export class HyperEvents {
 						target: node, // target
 						dispatchTarget: this.#target, // dispatchTarget
 						type: actionType,
-						// composed,
 						formData,
 						kind,
 						event,
@@ -103,7 +123,6 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_esmodule" === kind) return dispatchEsModuleEvent(params);
 	if ("_json" === kind) return dispatchJsonEvent(params);
 	if ("_html" === kind) return dispatchHtmlEvent(params);
-	// if ("_arrayBuffer" === kind) return dispatchArrayBufferEvent(params);
 
 	return dispatchActionEvent(params);
 }

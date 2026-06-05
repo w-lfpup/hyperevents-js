@@ -4,6 +4,10 @@ export interface DispatchParams {
 	target: Element;
 	event: Event;
 	dispatchTarget: EventTarget;
+	// throttleMs: number;
+	// debounceMs: number;
+	// abortController: number;
+	// queued: boolean;
 	type?: string;
 }
 

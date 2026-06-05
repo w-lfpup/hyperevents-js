@@ -65,7 +65,7 @@ class HtmlFetch implements Queueable {
 		this.#fetchParams = fetchParams;
 	}
 
-	dispatchQueueEvent(): void {
+	queued(): void {
 		let { target } = this.#dispatchParams;
 
 		let event = new HtmlEvent(

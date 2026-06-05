@@ -65,7 +65,7 @@ class JsonFetch implements Queueable {
 		this.#fetchParams = fetchParams;
 	}
 
-	dispatchQueueEvent(): void {
+	queued(): void {
 		let { target } = this.#dispatchParams;
 
 		let event = new JsonEvent(
@@ -87,11 +87,29 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	// Debounce from herer {
 	if (throttled(dispatchParams, fetchParams)) return;
 
+	// this is the part to debounce.
+
 	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+
+	// if (debounced(dispatchParams, jsonFetch)) return;
+
 	if (queued(dispatchParams, jsonFetch)) return;
 
 	jsonFetch.fetch();
 	// to here } !!!!
+}
+
+function debouncedPath(
+	dispatchParams: DispatchParams,
+	fetchParams: FetchParamsInterface,
+) {
+	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
+
+	// if (debounced(dispatchParams, fetchParams)) return
+
+	if (queued(dispatchParams, jsonFetch)) return;
+
+	jsonFetch.fetch();
 }
 
 // just put this in the object above?

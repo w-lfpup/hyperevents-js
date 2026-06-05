@@ -23,18 +23,31 @@ let elementMap = new WeakMap<EventTarget, Throttler>();
 // don't throttle -> no abort controller and FALSE
 // do throttle -> ABORT CONTROLLER and TRUE
 // pass throttle -> ABORT CONTROLLER and FALSE
-export function throttled(params: Params): AbortController | undefined {
-	let throttleParams = getThrottleParams(params);
-	if (!throttleParams) return;
 
-	if (shouldThrottle(params, throttleParams)) return;
+// interface ThrottleResult {
+// 	abortController?: AbortController;
+// 	throttle: boolean;
+// }
+
+interface ThrottleResult {
+	throttle: boolean;
+	abortController?: AbortController;
+}
+
+export function throttled(params: Params): ThrottleResult {
+	let abortController: AbortController | undefined = undefined;
+
+	let throttleParams = getThrottleParams(params);
+	if (!throttleParams) return { throttle: false };
+
+	if (shouldThrottle(params, throttleParams)) return { throttle: true };
 
 	let { dispatchTarget, event } = params;
 
-	let abortController = new AbortController();
+	abortController = new AbortController();
 	elementMap.set(dispatchTarget, { event, abortController });
 
-	return abortController;
+	return { throttle: false, abortController };
 }
 
 function getThrottleParams(dispatchParams: Params): ThrottleParams | undefined {
@@ -55,7 +68,7 @@ function shouldThrottle(
 	dispatchParams: Params,
 	throttleParams: ThrottleParams,
 ): boolean {
-	let { dispatchTarget, target, event: dispatchEvent } = dispatchParams;
+	let { target, event: dispatchEvent } = dispatchParams;
 	let { windowMs } = throttleParams;
 
 	let throttler = elementMap.get(target);
@@ -69,6 +82,25 @@ function shouldThrottle(
 
 	return false;
 }
+
+// function shouldThrottle(
+// 	dispatchParams: Params,
+// 	throttleParams: ThrottleParams,
+// ): boolean {
+// 	let { target, event: dispatchEvent } = dispatchParams;
+// 	let { windowMs } = throttleParams;
+
+// 	let throttler = elementMap.get(target);
+// 	if (!throttler) return false;
+
+// 	let { event, abortController } = throttler;
+// 	let delta = dispatchEvent.timeStamp - event.timeStamp;
+// 	if (dispatchEvent.type === event.type && delta < windowMs) return true;
+
+// 	abortController.abort();
+
+// 	return false;
+// }
 
 // DISCARDED PATH
 // abort controller made because of throttle / debounce

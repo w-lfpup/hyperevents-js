@@ -67,11 +67,13 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 		if (kind) {
 			let actionType = target.getAttribute(`${type}:type`) ?? undefined;
 
-			let abortController = throttled({
+			let { throttle, abortController } = throttled({
 				target,
 				dispatchTarget,
 				event,
 			});
+
+			if (throttle) continue;
 
 			let dispatchParams: DispatchParams = {
 				type: actionType,
@@ -82,6 +84,7 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 				abortController,
 			};
 
+			// debounce
 			if (!debounced(dispatchParams, dispatchEvent))
 				dispatchEvent(dispatchParams);
 		}

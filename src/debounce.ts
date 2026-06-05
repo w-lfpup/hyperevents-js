@@ -1,11 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-interface Params {
-	target: Element;
-	dispatchTarget: EventTarget;
-	event: Event;
-}
-
 interface Debounced {
 	interval: number;
 }
@@ -24,7 +18,7 @@ export function debounced(params: DispatchParams, cb: Debouncer) {
 	let debouncedParams = getDebouncedParams(params);
 	if (!debouncedParams) return false;
 
-	let { type, target, event, dispatchTarget } = params;
+	let { type, target, event } = params;
 
 	let debounceMap = elementMap.get(target);
 	if (!debounceMap) {
@@ -35,7 +29,7 @@ export function debounced(params: DispatchParams, cb: Debouncer) {
 	let key = `${event.type}:${type}`;
 	let debouncer = debounceMap.get(key);
 	if (debouncer) {
-		clearInterval(debouncer.interval);
+		clearTimeout(debouncer.interval);
 	}
 
 	let interval = setTimeout(function () {

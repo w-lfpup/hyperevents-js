@@ -51,14 +51,14 @@ function shouldThrottle(
 	dispatchParams: DispatchParams,
 	throttleParams: ThrottleParams,
 ): boolean {
-	let { dispatchTarget, event } = dispatchParams;
+	let { dispatchTarget, event: dispatchEvent } = dispatchParams;
 	let { windowMs } = throttleParams;
 
 	let throttler = elementMap.get(dispatchTarget);
 	if (throttler) {
 		let { event, abortParams } = throttler;
-		let delta = performance.now() - event.timeStamp;
-		if (event.type === event.type && delta < windowMs) return true;
+		let delta = dispatchEvent.timeStamp - event.timeStamp;
+		if (dispatchEvent.type === event.type && delta < windowMs) return true;
 
 		abortParams?.abortController.abort();
 	}

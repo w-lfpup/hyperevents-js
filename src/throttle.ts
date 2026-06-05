@@ -5,7 +5,7 @@ interface AbortParams {
 }
 
 interface Throttler {
-	abortParams?: AbortParams;
+	abortController: AbortController;
 	event: Event;
 }
 
@@ -15,20 +15,18 @@ interface ThrottleParams {
 
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
-export function throttled(
-	params: DispatchParams,
-	abortParams?: AbortParams,
-): boolean {
+export function throttled(params: DispatchParams): AbortController | undefined {
 	let throttleParams = getThrottleParams(params);
-	if (!throttleParams) return false;
+	if (!throttleParams) return;
 
-	if (shouldThrottle(params, throttleParams)) return true;
+	if (shouldThrottle(params, throttleParams)) return;
 
 	let { dispatchTarget, event } = params;
 
-	elementMap.set(dispatchTarget, { event, abortParams });
+	let abortController = new AbortController();
+	elementMap.set(dispatchTarget, { event, abortController });
 
-	return false;
+	return abortController;
 }
 
 function getThrottleParams(
@@ -55,13 +53,32 @@ function shouldThrottle(
 	let { windowMs } = throttleParams;
 
 	let throttler = elementMap.get(dispatchTarget);
-	if (throttler) {
-		let { event, abortParams } = throttler;
-		let delta = dispatchEvent.timeStamp - event.timeStamp;
-		if (dispatchEvent.type === event.type && delta < windowMs) return true;
+	if (!throttler) return false;
 
-		abortParams?.abortController.abort();
-	}
+	let { event, abortController } = throttler;
+	let delta = dispatchEvent.timeStamp - event.timeStamp;
+	if (dispatchEvent.type === event.type && delta < windowMs) return true;
+
+	abortController.abort();
 
 	return false;
 }
+
+// DISCARDED PATH
+// abort controller made because of throttle / debounce
+
+// export function throttled(
+// 	params: DispatchParams,
+// 	abortParams?: AbortParams,
+// ): boolean {
+// 	let throttleParams = getThrottleParams(params);
+// 	if (!throttleParams) return false;
+
+// 	if (shouldThrottle(params, throttleParams)) return true;
+
+// 	let { dispatchTarget, event } = params;
+
+// 	elementMap.set(dispatchTarget, { event, abortParams });
+
+// 	return false;
+// }

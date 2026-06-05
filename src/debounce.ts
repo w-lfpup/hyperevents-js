@@ -1,9 +1,5 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-interface Debouncer {
-	interval: number;
-}
-
 let elementMap = new WeakMap<EventTarget, Map<string, number>>();
 
 interface Callback {
@@ -12,10 +8,9 @@ interface Callback {
 
 export function debounced(params: DispatchParams, cb: Callback) {
 	let windowMs = getDebouncedParams(params);
-	// 0 or 1 or ??
 	if (!windowMs) return false;
 
-	let { type, target, event } = params;
+	let { target, event } = params;
 
 	let debounceMap = elementMap.get(target);
 	if (!debounceMap) {
@@ -23,15 +18,18 @@ export function debounced(params: DispatchParams, cb: Callback) {
 		elementMap.set(target, debounceMap);
 	}
 
-	let key = `${event.type}:${type}`;
-	let prevInterval = debounceMap.get(key);
+	let prevInterval = debounceMap.get(event.type);
 	if (prevInterval) window.clearTimeout(prevInterval);
 
 	let interval = window.setTimeout(function () {
 		cb(params);
+
+		// clean up after
+		debounceMap.delete(event.type);
+		if (!debounceMap.size) elementMap.delete(target);
 	}, windowMs);
 
-	debounceMap.set(key, interval);
+	debounceMap.set(event.type, interval);
 }
 
 function getDebouncedParams(

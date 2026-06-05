@@ -10,8 +10,8 @@ import { debounced } from "./debounce.js";
 export interface HyperEventsParamsInterface {
 	connected?: boolean;
 	eventNames: string[];
-	host: EventTarget; // alwyas document
-	target?: EventTarget; // could be a web component, template, shadow dom, fragment
+	host: EventTarget;
+	target?: EventTarget;
 }
 
 export interface HyperEventsInterface {
@@ -75,10 +75,9 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 			});
 
 			let dispatchParams: DispatchParams = {
-				target: node, // target
-				dispatchTarget, // dispatchTarget
+				target: node,
+				dispatchTarget,
 				type: actionType,
-				// formData,
 				kind,
 				event,
 				abortController,

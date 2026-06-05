@@ -8,7 +8,6 @@ import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
-// import { throttled } from "./throttle.js";
 import { queued } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
@@ -83,8 +82,6 @@ class HtmlFetch implements Queueable {
 export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
-
-	// if (throttled(dispatchParams, fetchParams)) return;
 
 	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
 	if (queued(dispatchParams, htmlFetch)) return;

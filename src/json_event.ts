@@ -8,7 +8,6 @@ import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
-// import { throttled } from "./throttle.js";
 import { queued } from "./queue.js";
 
 interface JsonRequestQueuedInterface extends FetchParamsInterface {
@@ -90,7 +89,6 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	jsonFetch.fetch();
 }
 
-// just put this in the object above?
 function fetchJson(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,

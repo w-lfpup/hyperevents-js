@@ -6,8 +6,6 @@ declare global {
 
 import type { DispatchParams } from "./type_flyweight.js";
 
-import { throttled } from "./throttle.js";
-
 export interface ActionInterface {
 	type: string;
 	formData?: FormData;
@@ -34,8 +32,6 @@ export function dispatchActionEvent(dispatchParams: DispatchParams) {
 	let actionType = type;
 	if (undefined === actionType) actionType = kind;
 	if ("_action" === actionType) return;
-
-	if (throttled(dispatchParams)) return;
 
 	let formData: FormData | undefined;
 	if (target instanceof HTMLFormElement) formData = new FormData(target);

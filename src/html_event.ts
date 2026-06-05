@@ -65,10 +65,7 @@ class HtmlFetch implements Queueable {
 		let { dispatchTarget } = this.#dispatchParams;
 		let { url, method } = this.#request;
 
-		let event = new HtmlEvent(
-			{ status: "queued", url, method },
-			{ bubbles: true },
-		);
+		let event = new HtmlEvent({ status: "queued", url, method });
 		dispatchTarget.dispatchEvent(event);
 	}
 

@@ -1,22 +1,19 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-interface Debounced {
+interface Debouncer {
 	interval: number;
 }
 
-interface DebounceParams {
-	windowMs: number;
-}
+let elementMap = new WeakMap<EventTarget, Map<string, number>>();
 
-let elementMap = new WeakMap<EventTarget, Map<string, Debounced>>();
-
-interface Debouncer {
+interface Callback {
 	(dispatchParams: DispatchParams): void;
 }
 
-export function debounced(params: DispatchParams, cb: Debouncer) {
-	let debouncedParams = getDebouncedParams(params);
-	if (!debouncedParams) return false;
+export function debounced(params: DispatchParams, cb: Callback) {
+	let windowMs = getDebouncedParams(params);
+	// 0 or 1 or ??
+	if (!windowMs) return false;
 
 	let { type, target, event } = params;
 
@@ -27,32 +24,24 @@ export function debounced(params: DispatchParams, cb: Debouncer) {
 	}
 
 	let key = `${event.type}:${type}`;
-	let debouncer = debounceMap.get(key);
-	if (debouncer) {
-		clearTimeout(debouncer.interval);
-	}
+	let prevInterval = debounceMap.get(key);
+	if (prevInterval) window.clearTimeout(prevInterval);
 
-	let interval = setTimeout(function () {
+	let interval = window.setTimeout(function () {
 		cb(params);
-	}, debouncedParams.windowMs);
+	}, windowMs);
 
-	debounceMap.set(key, {
-		interval,
-	});
+	debounceMap.set(key, interval);
 }
 
 function getDebouncedParams(
 	dispatchParams: DispatchParams,
-): DebounceParams | undefined {
+): number | undefined {
 	let { target, event } = dispatchParams;
 
 	let windowMsAttr = target.getAttribute(`${event.type}:debounce-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);
-	if (Number.isNaN(windowMs)) return;
-
-	return {
-		windowMs,
-	};
+	if (!Number.isNaN(windowMs)) return windowMs;
 }

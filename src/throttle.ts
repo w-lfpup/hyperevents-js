@@ -18,6 +18,11 @@ interface ThrottleParams {
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
 // needs to return. { throttle, abortController }
+// JUST an abort controller and undefined doesn't cover all the use cases
+
+// don't throttle -> no abort controller and FALSE
+// do throttle -> ABORT CONTROLLER and TRUE
+// pass throttle -> ABORT CONTROLLER and FALSE
 export function throttled(params: Params): AbortController | undefined {
 	let throttleParams = getThrottleParams(params);
 	if (!throttleParams) return;

@@ -2,12 +2,15 @@
 	For now the queue resides in module scope.
 
 	I don't know why this makes sense right now. But I feel like queues
-	are a way to throttle resource consumption as well as order resource
-	consumption. And even if different hosts queued different resources
-	I'd want them to stack regardless and see a progression occur.
+	are a way to order as well as throttle resource consumption.
+	
+	And even if different hosts queued different resources
+	I'd expect them to stack document-wide / tab-wide.
 
 	So a module-scoped queue is useful at the moment.
 	Multiple bundles would mean multiple queues however.
+	
+	A stretch-goal might be attaching the queue map to the window itself.
 */
 
 import type { DispatchParams } from "./type_flyweight.js";

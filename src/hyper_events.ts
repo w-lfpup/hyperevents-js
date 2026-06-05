@@ -53,31 +53,30 @@ export class HyperEvents {
 }
 
 function dispatch(event: Event, dispatchTarget: EventTarget) {
-	let { type, currentTarget, target } = event;
-	if (!currentTarget) return;
+	let { type } = event;
 
-	for (let node of event.composedPath()) {
-		if (!(node instanceof Element)) continue;
+	for (let target of event.composedPath()) {
+		if (!(target instanceof Element)) continue;
 
-		if (node.hasAttribute(`${type}:prevent-default`))
+		if (target.hasAttribute(`${type}:prevent-default`))
 			event.preventDefault();
 
-		if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
+		if (target.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
-		let kind = node.getAttribute(`${type}:`);
+		let kind = target.getAttribute(`${type}:`);
 		if (kind) {
-			let actionType = node.getAttribute(`${type}:type`) ?? undefined;
+			let actionType = target.getAttribute(`${type}:type`) ?? undefined;
 
 			let abortController = throttled({
-				target: node,
+				target,
 				dispatchTarget,
 				event,
 			});
 
 			let dispatchParams: DispatchParams = {
-				target: node,
-				dispatchTarget,
 				type: actionType,
+				target,
+				dispatchTarget,
 				kind,
 				event,
 				abortController,
@@ -87,7 +86,7 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 				dispatchEvent(dispatchParams);
 		}
 
-		if (node.hasAttribute(`${type}:stop-propagation`)) return;
+		if (target.hasAttribute(`${type}:stop-propagation`)) return;
 	}
 }
 

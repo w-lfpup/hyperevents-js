@@ -8,7 +8,7 @@ import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
-import { throttled } from "./throttle.js";
+// import { throttled } from "./throttle.js";
 import { queued } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
@@ -66,13 +66,13 @@ class HtmlFetch implements Queueable {
 	}
 
 	queued(): void {
-		let { target } = this.#dispatchParams;
+		let { dispatchTarget } = this.#dispatchParams;
 
 		let event = new HtmlEvent(
 			{ status: "queued", ...this.#fetchParams },
 			{ bubbles: true },
 		);
-		target.dispatchEvent(event);
+		dispatchTarget.dispatchEvent(event);
 	}
 
 	fetch(): Promise<void> | undefined {
@@ -84,7 +84,7 @@ export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
 
-	if (throttled(dispatchParams, fetchParams)) return;
+	// if (throttled(dispatchParams, fetchParams)) return;
 
 	let htmlFetch = new HtmlFetch(dispatchParams, fetchParams);
 	if (queued(dispatchParams, htmlFetch)) return;
@@ -96,15 +96,15 @@ function fetchHtml(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	if (fetchParams.abortController.signal.aborted) return;
+	if (dispatchParams.abortController?.signal.aborted) return;
 
-	let { target } = dispatchParams;
+	let { dispatchTarget } = dispatchParams;
 
 	let event = new HtmlEvent(
 		{ status: "requested", ...fetchParams },
 		{ bubbles: true },
 	);
-	target.dispatchEvent(event);
+	dispatchTarget.dispatchEvent(event);
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
@@ -113,14 +113,14 @@ function fetchHtml(
 				{ status: "resolved", response, html, ...fetchParams },
 				{ bubbles: true },
 			);
-			target.dispatchEvent(event);
+			dispatchTarget.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new HtmlEvent(
 				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true },
 			);
-			target.dispatchEvent(event);
+			dispatchTarget.dispatchEvent(event);
 		});
 }
 

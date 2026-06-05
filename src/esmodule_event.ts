@@ -105,6 +105,8 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 function importEsModule(
 	esImportParams: EsImportParams,
 ): Promise<void> | undefined {
+	// if (dispatchParams.abortController?.signal.aborted) return;
+
 	let { url } = esImportParams;
 
 	let esmoduleEvent = new EsModuleEvent({ status: "requested", url });

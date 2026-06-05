@@ -1,13 +1,9 @@
 export interface DispatchParams {
-	formData?: FormData;
 	kind: string;
 	target: Element;
 	event: Event;
 	dispatchTarget: EventTarget;
-	// throttleMs: number;
-	// debounceMs: number;
-	// abortController: number;
-	// queued: boolean;
+	abortController?: AbortController;
 	type?: string;
 }
 
@@ -18,7 +14,6 @@ interface RequestParams {
 }
 
 export interface FetchParamsInterface {
-	abortController: AbortController;
 	request: Request;
 }
 
@@ -30,12 +25,10 @@ export function createFetchParams(
 	let requestParams = getRequestParams(dispatchParams);
 	if (!requestParams) return;
 
-	let abortController = new AbortController();
-	let request = createRequest(dispatchParams, requestParams, abortController);
+	let request = createRequest(dispatchParams, requestParams);
 
 	return {
 		request,
-		abortController,
 	};
 }
 
@@ -63,17 +56,19 @@ function getRequestParams(
 function createRequest(
 	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
-	abortController: AbortController,
 ): Request {
 	let { url, timeoutMs, method } = requestParams;
 
-	let signal = AbortSignal.any([
-		AbortSignal.timeout(timeoutMs),
-		abortController.signal,
-	]);
+	let { abortController, target } = dispatchParams;
+	let signals = [AbortSignal.timeout(timeoutMs)];
+	if (abortController) signals.push(abortController.signal);
+	let signal = AbortSignal.any(signals);
+
+	let formData: FormData | undefined;
+	if (target instanceof HTMLFormElement) formData = new FormData(target);
 
 	return new Request(url, {
-		body: dispatchParams.formData,
+		body: formData,
 		signal,
 		method,
 	});

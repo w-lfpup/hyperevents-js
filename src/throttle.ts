@@ -1,7 +1,9 @@
-import type { DispatchParams } from "./type_flyweight.js";
+// import type { DispatchParams } from "./type_flyweight.js";
 
-interface AbortParams {
-	abortController: AbortController;
+interface Params {
+	target: Element;
+	dispatchTarget: EventTarget;
+	event: Event;
 }
 
 interface Throttler {
@@ -15,7 +17,8 @@ interface ThrottleParams {
 
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
-export function throttled(params: DispatchParams): AbortController | undefined {
+// needs to return. { throttle, abortController }
+export function throttled(params: Params): AbortController | undefined {
 	let throttleParams = getThrottleParams(params);
 	if (!throttleParams) return;
 
@@ -29,9 +32,7 @@ export function throttled(params: DispatchParams): AbortController | undefined {
 	return abortController;
 }
 
-function getThrottleParams(
-	dispatchParams: DispatchParams,
-): ThrottleParams | undefined {
+function getThrottleParams(dispatchParams: Params): ThrottleParams | undefined {
 	let { target, event } = dispatchParams;
 
 	let windowMsAttr = target.getAttribute(`${event.type}:throttle-ms`);
@@ -46,13 +47,13 @@ function getThrottleParams(
 }
 
 function shouldThrottle(
-	dispatchParams: DispatchParams,
+	dispatchParams: Params,
 	throttleParams: ThrottleParams,
 ): boolean {
-	let { dispatchTarget, event: dispatchEvent } = dispatchParams;
+	let { dispatchTarget, target, event: dispatchEvent } = dispatchParams;
 	let { windowMs } = throttleParams;
 
-	let throttler = elementMap.get(dispatchTarget);
+	let throttler = elementMap.get(target);
 	if (!throttler) return false;
 
 	let { event, abortController } = throttler;

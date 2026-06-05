@@ -8,7 +8,7 @@ import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
 import { createFetchParams } from "./type_flyweight.js";
-import { throttled } from "./throttle.js";
+// import { throttled } from "./throttle.js";
 import { queued } from "./queue.js";
 
 interface JsonRequestQueuedInterface extends FetchParamsInterface {
@@ -84,29 +84,7 @@ export function dispatchJsonEvent(dispatchParams: DispatchParams) {
 	let fetchParams = createFetchParams(dispatchParams);
 	if (!fetchParams) return;
 
-	// Debounce from herer {
-	if (throttled(dispatchParams, fetchParams)) return;
-
-	// this is the part to debounce.
-
 	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
-
-	// if (debounced(dispatchParams, jsonFetch)) return;
-
-	if (queued(dispatchParams, jsonFetch)) return;
-
-	jsonFetch.fetch();
-	// to here } !!!!
-}
-
-function debouncedPath(
-	dispatchParams: DispatchParams,
-	fetchParams: FetchParamsInterface,
-) {
-	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
-
-	// if (debounced(dispatchParams, fetchParams)) return
-
 	if (queued(dispatchParams, jsonFetch)) return;
 
 	jsonFetch.fetch();
@@ -117,15 +95,15 @@ function fetchJson(
 	dispatchParams: DispatchParams,
 	fetchParams: FetchParamsInterface,
 ): Promise<void> | undefined {
-	if (fetchParams.abortController.signal.aborted) return;
+	if (dispatchParams.abortController?.signal.aborted) return;
 
-	let { target } = dispatchParams;
+	let { dispatchTarget } = dispatchParams;
 
 	let event = new JsonEvent(
 		{ status: "requested", ...fetchParams },
 		{ bubbles: true },
 	);
-	target.dispatchEvent(event);
+	dispatchTarget.dispatchEvent(event);
 
 	return fetch(fetchParams.request)
 		.then(resolveResponseBody)
@@ -134,14 +112,14 @@ function fetchJson(
 				{ status: "resolved", response, json, ...fetchParams },
 				{ bubbles: true },
 			);
-			target.dispatchEvent(event);
+			dispatchTarget.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
 			let event = new JsonEvent(
 				{ status: "rejected", error, ...fetchParams },
 				{ bubbles: true },
 			);
-			target.dispatchEvent(event);
+			dispatchTarget.dispatchEvent(event);
 		});
 }
 

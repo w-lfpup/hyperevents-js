@@ -4,6 +4,8 @@ import { dispatchActionEvent } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
+import { throttled } from "./throttle.js";
+import { debounced } from "./debounce.js";
 
 export interface HyperEventsParamsInterface {
 	connected?: boolean;
@@ -15,41 +17,6 @@ export interface HyperEventsParamsInterface {
 export interface HyperEventsInterface {
 	connect(): void;
 	disconnect(): void;
-}
-
-// Order of operations
-// |
-// V
-// Throttle
-// Debounce
-// Queue
-// Fetch
-
-// Map with type:action
-//
-// throttle / debounce
-// not in map
-// if debounce add dispatch
-// if throttle throttle
-// else debounce
-// add to queue
-
-// if queue
-// add to queue
-
-// then fetch
-
-// We need a map for throttle
-// should we throttle? no?
-//
-// We
-
-class HyperEvent {
-	queue() {}
-
-	fetch() {
-		//
-	}
 }
 
 export class HyperEvents {
@@ -81,39 +48,47 @@ export class HyperEvents {
 
 	#dispatch = this.#unboundDispatch.bind(this);
 	#unboundDispatch(event: Event) {
-		let { type, currentTarget, target } = event;
-		if (!currentTarget) return;
+		dispatch(event, this.#target);
+	}
+}
 
-		for (let node of event.composedPath()) {
-			if (node instanceof Element) {
-				if (node.hasAttribute(`${type}:prevent-default`))
-					event.preventDefault();
+function dispatch(event: Event, dispatchTarget: EventTarget) {
+	let { type, currentTarget, target } = event;
+	if (!currentTarget) return;
 
-				if (node.hasAttribute(`${type}:stop-immediate-propagation`))
-					return;
+	for (let node of event.composedPath()) {
+		if (!(node instanceof Element)) continue;
 
-				let kind = node.getAttribute(`${type}:`);
-				if (kind) {
-					let formData: FormData | undefined;
-					if (target instanceof HTMLFormElement)
-						formData = new FormData(target);
+		if (node.hasAttribute(`${type}:prevent-default`))
+			event.preventDefault();
 
-					let actionType =
-						node.getAttribute(`${type}:type`) ?? undefined;
+		if (node.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
-					dispatchEvent({
-						target: node, // target
-						dispatchTarget: this.#target, // dispatchTarget
-						type: actionType,
-						formData,
-						kind,
-						event,
-					});
-				}
+		let kind = node.getAttribute(`${type}:`);
+		if (kind) {
+			let actionType = node.getAttribute(`${type}:type`) ?? undefined;
 
-				if (node.hasAttribute(`${type}:stop-propagation`)) return;
-			}
+			let abortController = throttled({
+				target: node,
+				dispatchTarget,
+				event,
+			});
+
+			let dispatchParams: DispatchParams = {
+				target: node, // target
+				dispatchTarget, // dispatchTarget
+				type: actionType,
+				// formData,
+				kind,
+				event,
+				abortController,
+			};
+
+			if (!debounced(dispatchParams, dispatchEvent))
+				dispatchEvent(dispatchParams);
 		}
+
+		if (node.hasAttribute(`${type}:stop-propagation`)) return;
 	}
 }
 

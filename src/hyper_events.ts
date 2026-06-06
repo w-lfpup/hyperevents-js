@@ -78,13 +78,8 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 
 			if (throttle) continue;
 
-			let formData: FormData | undefined = undefined;
-			if (target instanceof HTMLFormElement)
-				formData = new FormData(target);
-
 			let dispatchParams: DispatchParams = {
 				type: hyperEventType,
-				formData,
 				target,
 				dispatchTarget,
 				kind,

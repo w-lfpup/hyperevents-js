@@ -7,6 +7,6 @@ export * from "./hyper_events.js";
 // place to put document-wide memory
 // declare global {
 // 	interface window {
-// 		["$hEvents"]: {}
+// 		["$h-events"]: {}
 // 	}
 // }

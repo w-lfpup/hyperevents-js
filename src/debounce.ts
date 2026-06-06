@@ -1,10 +1,10 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-let elementMap = new WeakMap<EventTarget, Map<string, number>>();
-
 interface Callback {
 	(dispatchParams: DispatchParams): void;
 }
+
+let elementMap = new WeakMap<EventTarget, Map<string, number>>();
 
 export function debounced(params: DispatchParams, cb: Callback) {
 	let windowMs = getDebouncedParams(params);

@@ -3,7 +3,7 @@ export interface DispatchParams {
 	target: Element;
 	event: Event;
 	dispatchTarget: EventTarget;
-	formData?: FormData;
+	// formData?: FormData;
 	abortController?: AbortController;
 	type?: string;
 }

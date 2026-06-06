@@ -1,12 +1,4 @@
-import type { EsModuleEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#esmodule"]: EsModuleEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,

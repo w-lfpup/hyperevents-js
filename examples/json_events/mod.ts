@@ -1,12 +1,4 @@
-import type { JsonEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#json"]: JsonEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,

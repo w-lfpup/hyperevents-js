@@ -1,12 +1,4 @@
-import type { HtmlEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#html"]: HtmlEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,
@@ -16,7 +8,7 @@ const _hyperEvents = new HyperEvents({
 
 let figure = document.querySelector("figure");
 
-document.addEventListener("#html", function (e: HtmlEventInterface) {
+document.addEventListener("#html", function (e) {
 	let { requestState: rs } = e;
 
 	if ("resolved" === rs.status) {

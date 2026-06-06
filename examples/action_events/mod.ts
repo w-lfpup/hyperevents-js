@@ -1,12 +1,4 @@
-import type { ActionEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#action"]: ActionEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,

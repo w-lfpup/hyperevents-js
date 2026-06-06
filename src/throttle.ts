@@ -30,10 +30,10 @@ export function throttled(params: Params): ThrottleResult {
 
 	if (shouldThrottle(params, windowMs)) return { throttle: true };
 
-	let { dispatchTarget, event } = params;
+	let { target, event } = params;
 
 	abortController = new AbortController();
-	elementMap.set(dispatchTarget, { event, abortController });
+	elementMap.set(target, { event, abortController });
 
 	return { throttle: false, abortController };
 }
@@ -55,8 +55,8 @@ function shouldThrottle(dispatchParams: Params, windowMs: number): boolean {
 	if (throttler) {
 		let { event: prevEvent, abortController } = throttler;
 
-		let delta = event.timeStamp - event.timeStamp;
-		if (prevEvent.type === event.type && delta < windowMs) return true;
+		let delta = Math.max(0, event.timeStamp - prevEvent.timeStamp);
+		if (event.type === prevEvent.type && delta < windowMs) return true;
 
 		abortController.abort();
 	}

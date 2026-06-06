@@ -3,9 +3,8 @@ export interface DispatchParams {
 	target: Element;
 	event: Event;
 	dispatchTarget: EventTarget;
-	// formData?: FormData;
 	abortController?: AbortController;
-	type?: string;
+	type: string;
 }
 
 interface RequestParams {

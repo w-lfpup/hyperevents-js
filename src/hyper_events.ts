@@ -21,6 +21,13 @@ export interface HyperEventsInterface {
 	disconnect(): void;
 }
 
+interface KindAndType {
+	kind: string;
+	htype: string;
+}
+
+const hEventTypes = new Set<string>(["_html", "_json", "_action", "_esmodule"]);
+
 export class HyperEvents {
 	#params: HyperEventsParamsInterface;
 	#target: EventTarget;
@@ -65,21 +72,20 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 
 		if (target.hasAttribute(`${type}:stop-immediate-propagation`)) return;
 
-		let kind = target.getAttribute(`${type}:`);
-		if (kind) {
-			let hyperEventType =
-				target.getAttribute(`${type}:type`) ?? undefined;
-
+		let kindAndType = getKindAndType(event, target);
+		if (kindAndType) {
 			let { throttle, abortController } = throttled({
 				target,
 				dispatchTarget,
 				event,
 			});
 
+			// find out if debounce update
 			if (throttle) continue;
 
+			let { kind, htype } = kindAndType;
 			let dispatchParams: DispatchParams = {
-				type: hyperEventType,
+				type: htype,
 				target,
 				dispatchTarget,
 				kind,
@@ -96,6 +102,22 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 	}
 }
 
+function getKindAndType(
+	event: Event,
+	target: Element,
+): KindAndType | undefined {
+	let { type: eventType } = event;
+
+	let kind = target.getAttribute(`${eventType}:`);
+	if (!kind) return;
+
+	let htype = target.getAttribute(`${eventType}:type`);
+
+	if (hEventTypes.has(kind) && htype) return { kind, htype };
+	if ("_esmodule" === kind) return { kind, htype: htype || "_esmodule" };
+	if (kind && !htype) return { kind: "_action", htype: kind };
+}
+
 // this could just be an object, ergonomics might be better for debounce
 function dispatchEvent(params: DispatchParams) {
 	let { kind } = params;
@@ -104,7 +126,7 @@ function dispatchEvent(params: DispatchParams) {
 	if ("_esmodule" === kind) queueable = composeEsModule(params);
 	if ("_json" === kind) queueable = composeJson(params);
 	if ("_html" === kind) queueable = composeHtml(params);
-	if (!queueable) queueable = composeAction(params);
+	if ("_action" === kind) queueable = composeAction(params);
 
 	if (!queueable) return;
 	if (queued(params, queueable)) return;

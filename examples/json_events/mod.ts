@@ -6,15 +6,12 @@ const _hyperEvents = new HyperEvents({
 	eventNames: ["click"],
 });
 
-let ul = document.querySelector("ul");
+let section = document.querySelector("section");
 
 document.addEventListener("#json", function (e) {
 	let { requestState: rs } = e;
 
 	if ("resolved" === rs.status) {
-		let li = document.createElement("li");
-
-		li.textContent = JSON.stringify(rs.json);
-		ul?.appendChild(li);
+		section?.setHTMLUnsafe(rs.json);
 	}
 });

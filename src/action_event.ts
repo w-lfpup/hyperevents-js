@@ -87,11 +87,5 @@ class ActionFetch implements Queueable {
 export function composeAction(
 	dispatchParams: DispatchParams,
 ): ActionFetch | undefined {
-	let { kind, type } = dispatchParams;
-
-	let actionType = type;
-	if (undefined === actionType) actionType = kind;
-	if ("_action" === actionType) return;
-
-	return new ActionFetch(dispatchParams, actionType);
+	return new ActionFetch(dispatchParams, dispatchParams.type);
 }

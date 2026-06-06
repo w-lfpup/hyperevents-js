@@ -57,9 +57,11 @@ export class EsModuleEvent extends Event implements EsModuleEventInterface {
 
 // needs to be dispatch params and fetch params?
 class EsModuleImport implements Queueable {
+	#dispatchParams: DispatchParams;
 	#importParams;
 
-	constructor(importParams: EsImportParams) {
+	constructor(dispatchParams: DispatchParams, importParams: EsImportParams) {
+		this.#dispatchParams = dispatchParams;
 		this.#importParams = importParams;
 	}
 
@@ -73,7 +75,7 @@ class EsModuleImport implements Queueable {
 	}
 
 	fetch(): Promise<void> | undefined {
-		return importEsModule(this.#importParams);
+		return importEsModule(this.#dispatchParams, this.#importParams);
 	}
 }
 
@@ -90,7 +92,7 @@ export function composeEsModule(
 	if (moduleMap.has(url)) return;
 	moduleMap.add(url);
 
-	return new EsModuleImport({
+	return new EsModuleImport(dispatchParams, {
 		url,
 		dispatchTarget,
 		event,
@@ -98,9 +100,10 @@ export function composeEsModule(
 }
 
 function importEsModule(
+	dispatchParams: DispatchParams,
 	esImportParams: EsImportParams,
 ): Promise<void> | undefined {
-	// if (dispatchParams.abortController?.signal.aborted) return;
+	if (dispatchParams.abortController?.signal.aborted) return;
 
 	let { url } = esImportParams;
 

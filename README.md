@@ -39,7 +39,7 @@ Add a `target` and some `eventNames` on instantiation.
 let _hyperEvents = new HyperEvents({
 	host: document,
 	connected: true,
-	eventNames: ["click", "pointerover", "pointerdown", "input"],
+	eventNames: ["click", "input", "pointerdown", "pointermove"],
 });
 ```
 

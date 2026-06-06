@@ -5,7 +5,9 @@ class MyElement extends HTMLElement {
 		super();
 
 		this.#sd.appendChild(
-			document.createTextNode("An esmodule defined this element!"),
+			document.createTextNode(
+				"An esmodule has now defined this element!",
+			),
 		);
 	}
 }

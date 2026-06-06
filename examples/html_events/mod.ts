@@ -1,12 +1,4 @@
-import type { HtmlEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#html"]: HtmlEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,
@@ -14,12 +6,12 @@ const _hyperEvents = new HyperEvents({
 	eventNames: ["click"],
 });
 
-let figure = document.querySelector("figure");
+let section = document.querySelector("section");
 
-document.addEventListener("#html", function (e: HtmlEventInterface) {
+document.addEventListener("#html", function (e) {
 	let { requestState: rs } = e;
 
 	if ("resolved" === rs.status) {
-		figure?.setHTMLUnsafe(rs.html);
+		section?.setHTMLUnsafe(rs.html);
 	}
 });

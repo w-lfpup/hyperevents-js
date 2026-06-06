@@ -1,12 +1,17 @@
-import type { DispatchParams } from "./type_flyweight.js";
+/*
+	For now the queue-state resides in module scope.
+	
+	A stretch-goal might be attaching the queue map to the window itself.
+*/
 
-export interface Queueable {
-	dispatchQueueEvent(): void;
-	fetch(): Promise<void> | undefined;
+interface Params {
+	target: Element;
+	event: Event;
 }
 
-interface QueueParamsInterface {
-	queueTarget: EventTarget;
+export interface Queueable {
+	queued(): void;
+	fetch(): Promise<void> | undefined;
 }
 
 class Queue {
@@ -16,7 +21,7 @@ class Queue {
 
 	enqueue(atom: Queueable) {
 		this.#inbound.push(atom);
-		atom.dispatchQueueEvent();
+		atom.queued();
 
 		if (!this.#inRoute) this.#queueAtom();
 	}
@@ -41,37 +46,13 @@ class Queue {
 	}
 }
 
-// MODULE WIDE MEMORY
-let queueMap = new WeakMap<EventTarget, Queue>();
+let queueMap = new Queue();
 
-export function queued(
-	dispatchParams: DispatchParams,
-	atom: Queueable,
-): boolean {
-	let queueParams = getQueueParams(dispatchParams);
-	if (!queueParams) return false;
+export function queued(dispatchParams: Params, atom: Queueable): boolean {
+	let { target, event } = dispatchParams;
 
-	let { queueTarget } = queueParams;
-	let queue = queueMap.get(queueTarget);
-	if (!queue) {
-		queue = new Queue();
-		queueMap.set(queueTarget, queue);
-	}
-	queue.enqueue(atom);
+	let queueAttr = target.hasAttribute(`${event.type}:queue`);
+	if (queueAttr) queueMap.enqueue(atom);
 
-	return true;
-}
-
-function getQueueParams(
-	dispatchParams: DispatchParams,
-): QueueParamsInterface | undefined {
-	let { originElement, target, originEvent } = dispatchParams;
-
-	let queueAttr = originElement.getAttribute(`${originEvent.type}:queue`);
-	if (null === queueAttr) return;
-
-	let queueTarget: EventTarget = document;
-	if ("_target" === queueAttr) queueTarget = target;
-
-	return { queueTarget };
+	return queueAttr;
 }

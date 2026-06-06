@@ -1,9 +1,13 @@
+declare global {
+	interface GlobalEventHandlersEventMap {
+		["#json"]: JsonEventInterface;
+	}
+}
+
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
-import { createFetchParams } from "./type_flyweight.js";
-import { throttled } from "./throttle.js";
-import { queued } from "./queue.js";
+import { createFetch } from "./type_flyweight.js";
 
 interface JsonRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";
@@ -49,77 +53,70 @@ export class JsonEvent extends Event implements JsonEventInterface {
 
 class JsonFetch implements Queueable {
 	#dispatchParams;
-	#fetchParams;
+	#request;
 
-	constructor(
-		dispatchParams: DispatchParams,
-		fetchParams: FetchParamsInterface,
-	) {
+	constructor(dispatchParams: DispatchParams, request: Request) {
 		this.#dispatchParams = dispatchParams;
-		this.#fetchParams = fetchParams;
+		this.#request = request;
 	}
 
-	dispatchQueueEvent(): void {
-		let { target, composed } = this.#dispatchParams;
+	queued(): void {
+		let { target } = this.#dispatchParams;
 
-		let event = new JsonEvent(
-			{ status: "queued", ...this.#fetchParams },
-			{ bubbles: true, composed },
-		);
+		let { url, method } = this.#request;
+		let event = new JsonEvent({ status: "queued", url, method });
 		target.dispatchEvent(event);
 	}
 
 	fetch(): Promise<void> | undefined {
-		return fetchJson(this.#dispatchParams, this.#fetchParams);
+		return fetchJson(this.#dispatchParams, this.#request);
 	}
 }
 
-export function dispatchJsonEvent(dispatchParams: DispatchParams) {
-	let fetchParams = createFetchParams(dispatchParams);
-	if (!fetchParams) return;
+export function composeJson(
+	dispatchParams: DispatchParams,
+): JsonFetch | undefined {
+	let request = createFetch(dispatchParams);
+	if (!request) return;
 
-	if (throttled(dispatchParams, fetchParams)) return;
-
-	let jsonFetch = new JsonFetch(dispatchParams, fetchParams);
-	if (queued(dispatchParams, jsonFetch)) return;
-
-	jsonFetch.fetch();
+	return new JsonFetch(dispatchParams, request);
 }
 
 function fetchJson(
 	dispatchParams: DispatchParams,
-	fetchParams: FetchParamsInterface,
+	request: Request,
 ): Promise<void> | undefined {
-	if (fetchParams.abortController.signal.aborted) return;
+	if (dispatchParams.abortController?.signal.aborted) return;
 
-	let { target, composed } = dispatchParams;
+	let { dispatchTarget } = dispatchParams;
+	let { url, method } = request;
 
-	let event = new JsonEvent(
-		{ status: "requested", ...fetchParams },
-		{ bubbles: true, composed },
-	);
-	target.dispatchEvent(event);
+	let event = new JsonEvent({ status: "requested", url, method });
+	dispatchTarget.dispatchEvent(event);
 
-	return fetch(fetchParams.request)
+	return fetch(request)
 		.then(resolveResponseBody)
 		.then(function ([response, json]) {
-			let event = new JsonEvent(
-				{ status: "resolved", response, json, ...fetchParams },
-				{ bubbles: true, composed },
-			);
-			target.dispatchEvent(event);
+			let event = new JsonEvent({
+				status: "resolved",
+				response,
+				json,
+				url,
+				method,
+			});
+			dispatchTarget.dispatchEvent(event);
 		})
 		.catch(function (error: any) {
-			let event = new JsonEvent(
-				{ status: "rejected", error, ...fetchParams },
-				{ bubbles: true, composed },
-			);
-			target.dispatchEvent(event);
+			let event = new JsonEvent({
+				status: "rejected",
+				error,
+				url,
+				method,
+			});
+			dispatchTarget.dispatchEvent(event);
 		});
 }
 
-function resolveResponseBody(
-	response: Response,
-): Promise<[Response, ReturnType<Response["json"]>]> {
-	return Promise.all([response, response.json()]);
+function resolveResponseBody(response: Response): Promise<[Response, string]> {
+	return Promise.all([response, response.text()]);
 }

@@ -1,68 +1,64 @@
-import type { DispatchParams } from "./type_flyweight.js";
+/*
+	For now throttle-state resides in module scope.
+	
+	A stretch-goal might be attaching the queue map to the window itself.
+*/
 
-interface AbortParams {
-	abortController: AbortController;
+interface Params {
+	target: Element;
+	dispatchTarget: EventTarget;
+	event: Event;
 }
 
 interface Throttler {
-	abortParams?: AbortParams;
-	type: string;
-	timeStamp: DOMHighResTimeStamp;
-}
-
-interface ThrottleParams {
-	windowMs: number;
+	abortController: AbortController;
+	event: Event;
 }
 
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
-export function throttled(
-	params: DispatchParams,
-	abortParams?: AbortParams,
-): boolean {
-	let throttleParams = getThrottleParams(params);
-	if (!throttleParams) return false;
-
-	if (shouldThrottle(params, throttleParams)) return true;
-
-	let { originElement, originEvent } = params;
-	let { timeStamp, type } = originEvent;
-
-	elementMap.set(originElement, { timeStamp, type, abortParams });
-
-	return false;
+interface ThrottleResult {
+	throttle: boolean;
+	abortController?: AbortController;
 }
 
-function getThrottleParams(
-	dispatchParams: DispatchParams,
-): ThrottleParams | undefined {
-	let { originElement, originEvent } = dispatchParams;
-	let { type } = originEvent;
+export function throttled(params: Params): ThrottleResult {
+	let abortController: AbortController | undefined = undefined;
 
-	let windowMsAttr = originElement.getAttribute(`${type}:throttle-ms`);
+	let windowMs = getThrottleParams(params);
+	if (!windowMs) return { throttle: false };
+
+	if (shouldThrottle(params, windowMs)) return { throttle: true };
+
+	let { target, event } = params;
+
+	abortController = new AbortController();
+	elementMap.set(target, { event, abortController });
+
+	return { throttle: false, abortController };
+}
+
+function getThrottleParams(dispatchParams: Params): number | undefined {
+	let { target, event } = dispatchParams;
+
+	let windowMsAttr = target.getAttribute(`${event.type}:throttle-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);
-	if (Number.isNaN(windowMs)) return;
-
-	return {
-		windowMs,
-	};
+	if (!Number.isNaN(windowMs)) return windowMs;
 }
 
-function shouldThrottle(
-	dispatchParams: DispatchParams,
-	throttleParams: ThrottleParams,
-): boolean {
-	let { originElement, originEvent } = dispatchParams;
-	let { windowMs } = throttleParams;
+function shouldThrottle(dispatchParams: Params, windowMs: number): boolean {
+	let { target, event } = dispatchParams;
 
-	let throttler = elementMap.get(originElement);
+	let throttler = elementMap.get(target);
 	if (throttler) {
-		let delta = performance.now() - throttler.timeStamp;
-		if (originEvent.type === throttler.type && delta < windowMs) return true;
+		let { event: prevEvent, abortController } = throttler;
 
-		throttler.abortParams?.abortController.abort();
+		let delta = Math.max(0, event.timeStamp - prevEvent.timeStamp);
+		if (event.type === prevEvent.type && delta < windowMs) return true;
+
+		abortController.abort();
 	}
 
 	return false;

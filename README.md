@@ -4,16 +4,18 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperEvents enables HTML to declaratively:
+HyperEvents enables HTML to:
 
-- dispatch meaningful actions
-- query JSON APIs
-- fetch html fragments
-- lazy-load esmodules
-- throttle events
-- queue (and order) events
+- Throttle, queue, and debounce events
+- Query JSON APIs
+- Fetch HTML fragments
+- Lazy-load ESModules
+- Dispatch redux-like actions
+- Retrieve ArrayBuffers
 
-HyperEvents is built for modern web standards making it ideal for anything rendered on the server.
+It's all the requirements of serious frontend without all the callbacks and cruft.
+
+HyperEvents is built for the modern web (2026). It is ideal for server AND client renders.
 
 ## Install
 
@@ -37,13 +39,13 @@ Add a `target` and some `eventNames` on instantiation.
 let _hyperEvents = new HyperEvents({
 	host: document,
 	connected: true,
-	eventNames: ["click", "pointerover", "pointerdown", "input"],
+	eventNames: ["click", "input", "pointerdown", "pointermove"],
 });
 ```
 
 ## Action events
 
-Dsipatch an action to with the following syntax to connect a UI Event to local state:
+Dispatch actions with the following syntax:
 
 ```html
 <button click:="update_something"></button>
@@ -53,34 +55,65 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { kind, originEvent } = e.action;
+	let { type, event, target, formData } = e.action;
 });
 ```
 
-Action events can be throttled. Action events cannot be queued.
+## Event behavior
 
-## ESModule events
+A HyperEvent uses a familiar DOM event jargon to describe its behavior.
 
-Fetch esmodules using the following syntax:
+Below is a subset of the Event API reflected in hyperevent syntax:
 
 ```html
-<div
-	pointerover:="_esmodule"
-	pointerover:url="/components/yet-another-button.js">
-</div>
+<button
+	click:prevent-default
+	click:stop-propagation
+	click:stop-immediate-propagation
+>
+	hai :3!
+</button>
 ```
 
-Then listen for request state with `#esmodule` events in javascript-land.
+## Throttle events
 
-```ts
-document.addEventListener("#esmodule", function (e: EsModuleEvent) {
-	let { status, url } = e.requestState;
-});
+Any hyperevent can be throttled.
+
+The example below below will throttle clicks on the `<button>` element every 500 ms under two conditions:
+(1) the same hyperevent occured on (2) the same element.
+
+```html
+<section
+	pointermove:="showcase_throttle"
+	pointermove:throttle-ms="500">
+</section>
 ```
 
-Esmodule events can be queued. Action events cannot be throttled.
+## Debounce events
 
-## HTML
+Any hyperevent can be debounced.
+
+The example below below will debounce clicks on the `<button>` element every 500 ms under two conditions:
+(1) the same hyperevent occured on (2) the same element.
+
+```html
+<input
+	input:="showcase_debounce"
+	input:debounce-ms="300">
+```
+
+## Queue events
+
+All hyperevents, except action events, can be queued with the following syntax:
+
+```html
+<button
+	click:="showcase_queue"
+	click:queue>
+</button>
+```
+
+## Fetch HTML
 
 Fetch html using the following syntax:
 
@@ -104,9 +137,7 @@ document.addEventListener("#html", function (e: HtmlEvent) {
 });
 ```
 
-Html events can be throttled and queued.
-
-## JSON
+## Fetch JSON
 
 Fetch and dispatch JSON using the following syntax:
 
@@ -129,31 +160,9 @@ document.addEventListener("#json", function (e: JsonEvent) {
 });
 ```
 
-Json events can be throttled and queued.
+## Fetch behavior
 
-## Event behavior
-
-HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
-
-Below is an example of a subset of the Event API reflected in hyperevent syntax:
-
-```html
-<button
-	click:composed
-	click:once
-	click:prevent-default
-	click:stop-immediate-propagation
-	click:stop-propagation
->
-	hai :3!
-</button>
-```
-
-All of the attributes mentioned above are valid for any hyperevent.
-
-## Request behavior
-
-JSON and HTML events can modify their requests using the following attributes.
+JSON and HTML requests are declared with the following attributes:
 
 ```html
 <form
@@ -166,32 +175,25 @@ JSON and HTML events can modify their requests using the following attributes.
 </form>
 ```
 
-If any form is involed in the `originEvent`, the correlated form data is sent as the request body.
+If any form is involed in the original DOM `event`, the correlated form data is sent as the request body.
 
-## Throttle events
+## Import EsModules
 
-Any hyperevent can be throttled.
-
-The example below below will throttle clicks on the `<button>` element every 500 ms under two conditions:
-(1) the same hyperevent occured on (2) the same element.
+Import EsModules using the following syntax:
 
 ```html
-<button
-	click:="showcase_throttle"
-	click:throttle-ms="500">
-</button>
+<div
+	pointerover:="_esmodule"
+	pointerover:url="/components/yet-another-button.js">
+</div>
 ```
 
-## Queue events
+Then listen for request state with `#esmodule` events in javascript-land.
 
-All hyperevents, except action events, can be queued with the following syntax:
-
-```html
-<button
-	click:="_html"
-	click:url="./get_some.html"
-	click:queue>
-</button>
+```ts
+document.addEventListener("#esmodule", function (e: EsModuleEvent) {
+	let { type, status, url } = e.requestState;
+});
 ```
 
 ## License

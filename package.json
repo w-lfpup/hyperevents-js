@@ -8,12 +8,14 @@
 	"license": "BSD-3-Clause",
 	"scripts": {
 		"prepare": "npm run build",
-		"build": "npx tsc --project ./src",
+		"build": "npm run build:src && npm run build:examples",
+		"build:src": "npx tsc --project ./src",
 		"build:examples": "npx tsc --project ./examples",
 		"format": "npx prettier ./ --write"
 	},
 	"devDependencies": {
-		"prettier": "^3.2.5",
-		"typescript": "^5.4.5"
+		"@w-lfpup/jackrabbit": "^0.3.2",
+		"prettier": "^3.8.3",
+		"typescript": "^6.0.3"
 	}
 }

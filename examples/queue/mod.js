@@ -9,7 +9,7 @@ document.addEventListener("#html", function (e) {
     let { requestState: rs } = e;
     if ("queued" === rs.status) {
         let p = document.createElement("p");
-        p.textContent = `queued: ${rs.request.url}`;
+        p.textContent = `queued: ${rs.url}`;
         let li = document.createElement("li");
         li.append(p);
         ul?.append(li);

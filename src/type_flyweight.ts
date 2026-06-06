@@ -1,89 +1,72 @@
 export interface DispatchParams {
-	composed: boolean;
-	originElement: Element;
-	formData?: FormData;
 	kind: string;
-	originEvent: Event;
-	target: EventTarget;
+	target: Element;
+	event: Event;
+	dispatchTarget: EventTarget;
+	abortController?: AbortController;
+	type: string;
 }
 
 interface RequestParams {
-	action: ReturnType<Element["getAttribute"]>;
 	method: string;
-	timeoutMs?: number;
+	timeoutMs: number;
 	url: string;
-	originElement: EventTarget;
-	originEvent: Event;
 }
 
 export interface FetchParamsInterface {
-	abortController: AbortController;
-	action: ReturnType<Element["getAttribute"]>;
-	request: Request;
+	url: string;
+	method: string;
 }
 
-export function removeActionAttr(el: Element, originEvent: Event) {
-	let { type } = originEvent;
-	queueMicrotask(function () {
-		el.removeAttribute(`${type}:`);
-	});
-}
+const FALLBACK_TIMEOUT_MS = 10000;
 
-export function createFetchParams(
+export function createFetch(
 	dispatchParams: DispatchParams,
-): FetchParamsInterface | undefined {
+): Request | undefined {
 	let requestParams = getRequestParams(dispatchParams);
 	if (!requestParams) return;
 
-	let abortController = new AbortController();
-
-	let { action } = requestParams;
-	let request = createRequest(dispatchParams, requestParams, abortController);
-
-	return {
-		action,
-		request,
-		abortController,
-	};
+	return createRequest(dispatchParams, requestParams);
 }
 
 function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
-	let { originElement, originEvent } = dispatchParams;
-	let { type } = originEvent;
+	let { target, event } = dispatchParams;
+	let { type } = event;
 
-	let url = originElement.getAttribute(`${type}:url`);
+	let url = target.getAttribute(`${type}:url`);
 	if (!url) return;
 
-	let action = originElement.getAttribute(`${type}:action`);
-	let method = originElement.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutMsAttr = originElement.getAttribute(`${type}:timeout-ms`);
+	let method = target.getAttribute(`${type}:method`) ?? "GET";
+	let timeoutMsAttr = target.getAttribute(`${type}:timeout-ms`);
 	let timeoutMs = parseInt(timeoutMsAttr ?? "");
+	if (Number.isNaN(timeoutMs)) timeoutMs = FALLBACK_TIMEOUT_MS;
 
 	return {
-		timeoutMs: Number.isNaN(timeoutMs) ? undefined : timeoutMs,
-		action,
+		timeoutMs,
 		url,
 		method,
-		originElement,
-		originEvent,
 	};
 }
 
 function createRequest(
 	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
-	abortController: AbortController,
 ): Request {
+	let { abortController, target } = dispatchParams;
 	let { url, timeoutMs, method } = requestParams;
 
-	let abortSignals = [abortController.signal];
-	if (timeoutMs) abortSignals.push(AbortSignal.timeout(timeoutMs));
+	let signals = [AbortSignal.timeout(timeoutMs)];
+	if (abortController) signals.push(abortController.signal);
+	let signal = AbortSignal.any(signals);
+
+	let formData: FormData | undefined;
+	if (target instanceof HTMLFormElement) formData = new FormData(target);
 
 	return new Request(url, {
-		signal: AbortSignal.any(abortSignals),
-		method: method,
-		body: dispatchParams.formData,
+		body: formData,
+		signal,
+		method,
 	});
 }

@@ -1,12 +1,4 @@
-import type { EsModuleEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#esmodule"]: EsModuleEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,
@@ -17,7 +9,7 @@ const _hyperEvents = new HyperEvents({
 const ul = document.querySelector("ul");
 
 document.addEventListener("#action", function (e) {
-	let { timeStamp, type } = e.action.originEvent;
+	let { timeStamp, type } = e.action.event;
 
 	const li = document.createElement("li");
 	li.textContent = `action occured at <${timeStamp.toFixed(2)}> on <${type}>`;

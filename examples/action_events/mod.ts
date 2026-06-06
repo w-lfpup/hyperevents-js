@@ -1,12 +1,4 @@
-import type { ActionEventInterface } from "hyperevents";
-
 import { HyperEvents } from "hyperevents";
-
-declare global {
-	interface GlobalEventHandlersEventMap {
-		["#action"]: ActionEventInterface;
-	}
-}
 
 const _hyperEvents = new HyperEvents({
 	host: document,
@@ -20,9 +12,9 @@ let span = document.querySelector("span");
 document.addEventListener("#action", function (e) {
 	if (!span) return;
 
-	let { kind } = e.action;
+	let { type } = e.action;
 
-	if ("increase_count" === kind) {
+	if ("increase_count" === type) {
 		count += 1;
 		span.textContent = count.toString();
 	}

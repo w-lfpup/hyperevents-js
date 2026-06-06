@@ -8,7 +8,6 @@ import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
 import { createFetch } from "./type_flyweight.js";
-import { queued } from "./queue.js";
 
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
 	status: "queued";

@@ -7,8 +7,6 @@ declare global {
 import type { DispatchParams } from "./type_flyweight.js";
 import type { Queueable } from "./queue.js";
 
-import { queued } from "./queue.js";
-
 interface EsModuleQueuedInterface {
 	status: "queued";
 	url: string;

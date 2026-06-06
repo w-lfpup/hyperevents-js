@@ -3,6 +3,7 @@ export interface DispatchParams {
 	target: Element;
 	event: Event;
 	dispatchTarget: EventTarget;
+	formData?: FormData;
 	abortController?: AbortController;
 	type?: string;
 }
@@ -16,7 +17,6 @@ interface RequestParams {
 export interface FetchParamsInterface {
 	url: string;
 	method: string;
-	// request: Request;
 }
 
 const FALLBACK_TIMEOUT_MS = 10000;
@@ -27,9 +27,7 @@ export function createFetch(
 	let requestParams = getRequestParams(dispatchParams);
 	if (!requestParams) return;
 
-	let request = createRequest(dispatchParams, requestParams);
-
-	return request;
+	return createRequest(dispatchParams, requestParams);
 }
 
 function getRequestParams(
@@ -57,9 +55,9 @@ function createRequest(
 	dispatchParams: DispatchParams,
 	requestParams: RequestParams,
 ): Request {
+	let { abortController, target } = dispatchParams;
 	let { url, timeoutMs, method } = requestParams;
 
-	let { abortController, target } = dispatchParams;
 	let signals = [AbortSignal.timeout(timeoutMs)];
 	if (abortController) signals.push(abortController.signal);
 	let signal = AbortSignal.any(signals);

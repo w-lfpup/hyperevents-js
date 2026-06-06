@@ -4,7 +4,7 @@ A hypertext extension for the browser.
 
 ## About
 
-HyperEvents enables HTML to declaratively:
+HyperEvents enables HTML to:
 
 - Throttle, queue, and debounce events
 - Query JSON APIs
@@ -13,9 +13,9 @@ HyperEvents enables HTML to declaratively:
 - Dispatch redux-like actions
 - Retrieve ArrayBuffers
 
-It's all the basics any serious frontend needs without all the callbacks and headaches.
+It's all the requirements of serious frontend without all the callbacks and cruft.
 
-HyperEvents is built for modern web standards making it ideal for server or client renders.
+HyperEvents is built for the modern web (2026). It is ideal for server AND client renders.
 
 ## Install
 
@@ -55,11 +55,9 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { kind, originEvent } = e.action;
+	let { type, originEvent } = e.action;
 });
 ```
-
-Action events can be throttled. Action events cannot be queued.
 
 ## ESModule events
 
@@ -76,11 +74,9 @@ Then listen for request state with `#esmodule` events in javascript-land.
 
 ```ts
 document.addEventListener("#esmodule", function (e: EsModuleEvent) {
-	let { status, url } = e.requestState;
+	let { type, status, url } = e.requestState;
 });
 ```
-
-Esmodule events can be queued. Action events cannot be throttled.
 
 ## HTML
 
@@ -106,8 +102,6 @@ document.addEventListener("#html", function (e: HtmlEvent) {
 });
 ```
 
-Html events can be throttled and queued.
-
 ## JSON
 
 Fetch and dispatch JSON using the following syntax:
@@ -131,8 +125,6 @@ document.addEventListener("#json", function (e: JsonEvent) {
 });
 ```
 
-Json events can be throttled and queued.
-
 ## Event behavior
 
 HyperEvents leapfrog familiar DOM event jargon to describe the behavior of an action event. These ancillary attributes behave exactly as their DOM event counterparts.
@@ -153,7 +145,7 @@ All of the attributes mentioned above are valid for any hyperevent.
 
 ## Request behavior
 
-JSON and HTML events can modify their requests using the following attributes.
+JSON and HTML events can declare with using the following attributes:
 
 ```html
 <form

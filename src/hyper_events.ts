@@ -1,11 +1,13 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
-import { dispatchActionEvent } from "./action_event.js";
+import { composeAction } from "./action_event.js";
 import { dispatchEsModuleEvent } from "./esmodule_event.js";
 import { dispatchJsonEvent } from "./json_event.js";
 import { dispatchHtmlEvent } from "./html_event.js";
 import { throttled } from "./throttle.js";
 import { debounced } from "./debounce.js";
+import type { Queueable } from "./queue.js";
+import { queued } from "./queue.js";
 
 export interface HyperEventsParamsInterface {
 	connected?: boolean;
@@ -52,6 +54,16 @@ export class HyperEvents {
 	}
 }
 
+class Dispatcher {
+	#params: DispatchParams;
+	constructor(params: DispatchParams) {
+		this.#params = params;
+	}
+	dispatch() {
+		dispatchEvent(this.#params);
+	}
+}
+
 function dispatch(event: Event, dispatchTarget: EventTarget) {
 	let { type } = event;
 
@@ -65,7 +77,8 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 
 		let kind = target.getAttribute(`${type}:`);
 		if (kind) {
-			let actionType = target.getAttribute(`${type}:type`) ?? undefined;
+			let hyperEventType =
+				target.getAttribute(`${type}:type`) ?? undefined;
 
 			let { throttle, abortController } = throttled({
 				target,
@@ -75,8 +88,13 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 
 			if (throttle) continue;
 
+			let formData: FormData | undefined = undefined;
+			if (target instanceof HTMLFormElement)
+				formData = new FormData(target);
+
 			let dispatchParams: DispatchParams = {
-				type: actionType,
+				type: hyperEventType,
+				formData,
 				target,
 				dispatchTarget,
 				kind,
@@ -93,12 +111,18 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 	}
 }
 
+// this could just be an object, ergonomics might be better for debounce
 function dispatchEvent(params: DispatchParams) {
 	let { kind } = params;
 
+	let queueable: Queueable | undefined = undefined;
 	if ("_esmodule" === kind) return dispatchEsModuleEvent(params);
 	if ("_json" === kind) return dispatchJsonEvent(params);
 	if ("_html" === kind) return dispatchHtmlEvent(params);
 
-	return dispatchActionEvent(params);
+	queueable = composeAction(params);
+	if (!queueable) return;
+
+	if (queued(params, queueable)) return;
+	queueable.fetch();
 }

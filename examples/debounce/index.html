@@ -14,23 +14,12 @@
 	</head>
 	<body>
 		<main>
+			<input
+				input:="display_input"
+				input:debounce-ms="500">
+
 			<section>
-				<p>
-					This  will  
-					
-					<button
-						click:="throttle_me"
-						click:throttle-ms="1000">
-						button
-					</button>
-					
-					will throttle click actions every 1000ms.
-				</p>
-			</section>
-			<section>
-				<p>Click the button a bunch of times!</p>
-				<ul>
-				</ul>
+				Debounced input will display here!
 			</section>
 		</main>
 	</body>

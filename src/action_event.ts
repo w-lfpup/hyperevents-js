@@ -48,13 +48,14 @@ class ActionFetch implements Queueable {
 	}
 
 	queued(): void {
-		let { dispatchTarget, event, target } = this.#dispatchParams;
+		let { dispatchTarget, event, target, formData } = this.#dispatchParams;
 
 		let actionEvent = new ActionEvent({
 			status: "queued",
 			type: this.#actionType,
 			target,
 			event,
+			formData,
 		});
 
 		dispatchTarget.dispatchEvent(actionEvent);
@@ -63,10 +64,7 @@ class ActionFetch implements Queueable {
 	fetch(): Promise<void> | undefined {
 		if (this.#dispatchParams.abortController?.signal.aborted) return;
 
-		let { dispatchTarget, event, target } = this.#dispatchParams;
-
-		let formData: FormData | undefined;
-		if (target instanceof HTMLFormElement) formData = new FormData(target);
+		let { dispatchTarget, event, target, formData } = this.#dispatchParams;
 
 		let actionEvent = new ActionEvent({
 			status: "complete",

@@ -1,3 +1,9 @@
+/*
+	For now throttle-state resides in module scope.
+	
+	A stretch-goal might be attaching the queue map to the window itself.
+*/
+
 interface Params {
 	target: Element;
 	dispatchTarget: EventTarget;
@@ -9,7 +15,6 @@ interface Throttler {
 	event: Event;
 }
 
-// This might need to be in the document
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
 interface ThrottleResult {

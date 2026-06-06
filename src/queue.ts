@@ -1,14 +1,5 @@
 /*
-	For now the queue resides in module scope.
-
-	I don't know why this makes sense right now. But I feel like queues
-	are a way to order as well as throttle resource consumption.
-	
-	And even if different hosts queued different resources
-	I'd expect them to stack document-wide / tab-wide.
-
-	So a module-scoped queue is useful at the moment.
-	Multiple bundles would mean multiple queues however.
+	For now the queue-state resides in module scope.
 	
 	A stretch-goal might be attaching the queue map to the window itself.
 */
@@ -55,7 +46,6 @@ class Queue {
 	}
 }
 
-// this might need to be on the document
 let queueMap = new Queue();
 
 export function queued(dispatchParams: Params, atom: Queueable): boolean {

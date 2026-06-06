@@ -3,15 +3,15 @@ import { HyperEvents } from "hyperevents";
 const _hyperEvents = new HyperEvents({
 	host: document,
 	connected: true,
-	eventNames: ["click"],
+	eventNames: ["input"],
 });
 
-const ul = document.querySelector("ul");
+const section = document.querySelector("section");
 
 document.addEventListener("#action", function (e) {
-	let { timeStamp, type } = e.action.event;
+	let { type, target } = e.action;
 
-	const li = document.createElement("li");
-	li.textContent = `action occured at <${timeStamp.toFixed(2)}> on <${type}>`;
-	ul?.append(li);
+	if ("display_input" === type && target instanceof HTMLInputElement) {
+		section?.setHTMLUnsafe(target.value);
+	}
 });

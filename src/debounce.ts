@@ -6,7 +6,7 @@ interface Callback {
 
 let elementMap = new WeakMap<EventTarget, Map<string, number>>();
 
-export function debounced(params: DispatchParams, cb: Callback) {
+export function debounced(params: DispatchParams, cb: Callback): boolean {
 	let windowMs = getDebouncedParams(params);
 	if (!windowMs) return false;
 
@@ -30,6 +30,7 @@ export function debounced(params: DispatchParams, cb: Callback) {
 	}, windowMs);
 
 	debounceMap.set(event.type, receipt);
+	return true;
 }
 
 function getDebouncedParams(

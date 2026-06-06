@@ -7,7 +7,6 @@ const _hyperEvents = new HyperEvents({
 let section = document.querySelector("section");
 document.addEventListener("#json", function (e) {
     let { requestState: rs } = e;
-    console.log(e);
     if ("resolved" === rs.status) {
         section?.setHTMLUnsafe(rs.json);
     }

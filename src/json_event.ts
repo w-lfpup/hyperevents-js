@@ -74,14 +74,13 @@ class JsonFetch implements Queueable {
 	}
 }
 
-export function dispatchJsonEvent(dispatchParams: DispatchParams) {
+export function composeJson(
+	dispatchParams: DispatchParams,
+): JsonFetch | undefined {
 	let request = createFetch(dispatchParams);
 	if (!request) return;
 
-	let jsonFetch = new JsonFetch(dispatchParams, request);
-	if (queued(dispatchParams, jsonFetch)) return;
-
-	jsonFetch.fetch();
+	return new JsonFetch(dispatchParams, request);
 }
 
 function fetchJson(

@@ -78,7 +78,9 @@ class EsModuleImport implements Queueable {
 	}
 }
 
-export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
+export function composeEsModule(
+	dispatchParams: DispatchParams,
+): EsModuleImport | undefined {
 	let { target, dispatchTarget, event, abortController } = dispatchParams;
 
 	let urlAttr = target.getAttribute(`${event.type}:url`);
@@ -89,16 +91,11 @@ export function dispatchEsModuleEvent(dispatchParams: DispatchParams) {
 	if (moduleMap.has(url)) return;
 	moduleMap.add(url);
 
-	let moduleImport = new EsModuleImport({
+	return new EsModuleImport({
 		url,
 		dispatchTarget,
 		event,
 	});
-
-	// this part can be splite
-	if (queued(dispatchParams, moduleImport)) return;
-
-	moduleImport.fetch();
 }
 
 function importEsModule(

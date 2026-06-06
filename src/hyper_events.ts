@@ -1,12 +1,13 @@
 import type { DispatchParams } from "./type_flyweight.js";
 
+import type { Queueable } from "./queue.js";
+
 import { composeAction } from "./action_event.js";
-import { dispatchEsModuleEvent } from "./esmodule_event.js";
-import { dispatchJsonEvent } from "./json_event.js";
-import { dispatchHtmlEvent } from "./html_event.js";
+import { composeEsModule } from "./esmodule_event.js";
+import { composeJson } from "./json_event.js";
+import { composeHtml } from "./html_event.js";
 import { throttled } from "./throttle.js";
 import { debounced } from "./debounce.js";
-import type { Queueable } from "./queue.js";
 import { queued } from "./queue.js";
 
 export interface HyperEventsParamsInterface {
@@ -51,16 +52,6 @@ export class HyperEvents {
 	#dispatch = this.#unboundDispatch.bind(this);
 	#unboundDispatch(event: Event) {
 		dispatch(event, this.#target);
-	}
-}
-
-class Dispatcher {
-	#params: DispatchParams;
-	constructor(params: DispatchParams) {
-		this.#params = params;
-	}
-	dispatch() {
-		dispatchEvent(this.#params);
 	}
 }
 
@@ -116,13 +107,13 @@ function dispatchEvent(params: DispatchParams) {
 	let { kind } = params;
 
 	let queueable: Queueable | undefined = undefined;
-	if ("_esmodule" === kind) return dispatchEsModuleEvent(params);
-	if ("_json" === kind) return dispatchJsonEvent(params);
-	if ("_html" === kind) return dispatchHtmlEvent(params);
+	if ("_esmodule" === kind) queueable = composeEsModule(params);
+	if ("_json" === kind) queueable = composeJson(params);
+	if ("_html" === kind) queueable = composeHtml(params);
+	if (!queueable) queueable = composeAction(params);
 
-	queueable = composeAction(params);
 	if (!queueable) return;
-
 	if (queued(params, queueable)) return;
+
 	queueable.fetch();
 }

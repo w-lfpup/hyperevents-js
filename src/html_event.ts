@@ -74,14 +74,13 @@ class HtmlFetch implements Queueable {
 	}
 }
 
-export function dispatchHtmlEvent(dispatchParams: DispatchParams) {
+export function composeHtml(
+	dispatchParams: DispatchParams,
+): HtmlFetch | undefined {
 	let htmlRequest = createFetch(dispatchParams);
 	if (!htmlRequest) return;
 
-	let htmlFetch = new HtmlFetch(dispatchParams, htmlRequest);
-	if (queued(dispatchParams, htmlFetch)) return;
-
-	htmlFetch.fetch();
+	return new HtmlFetch(dispatchParams, htmlRequest);
 }
 
 function fetchHtml(

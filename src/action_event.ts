@@ -5,41 +5,90 @@ declare global {
 }
 
 import type { DispatchParams } from "./type_flyweight.js";
+import type { Queueable } from "./queue.js";
 
-export interface ActionInterface {
+export interface ActionQueuedInterface {
+	status: "queued";
 	type: string;
 	formData?: FormData;
 	target: EventTarget;
 	event: Event;
 }
 
+export interface ActionCompleteInterface {
+	status: "complete";
+	type: string;
+	formData?: FormData;
+	target: EventTarget;
+	event: Event;
+}
+
+type ActionStatus = ActionQueuedInterface | ActionCompleteInterface;
+
 export interface ActionEventInterface extends Event {
-	action: ActionInterface;
+	action: ActionStatus;
 }
 
 export class ActionEvent extends Event implements ActionEventInterface {
-	action: ActionInterface;
+	action: ActionStatus;
 
-	constructor(dispatchParams: ActionInterface, eventInit?: EventInit) {
+	constructor(actionStatus: ActionStatus, eventInit?: EventInit) {
 		super("#action", eventInit);
-		this.action = dispatchParams;
+		this.action = actionStatus;
 	}
 }
 
-export function dispatchActionEvent(dispatchParams: DispatchParams) {
-	let { kind, type, dispatchTarget, event, target } = dispatchParams;
+class ActionFetch implements Queueable {
+	#dispatchParams;
+	#actionType;
+
+	constructor(dispatchParams: DispatchParams, actionType: string) {
+		this.#dispatchParams = dispatchParams;
+		this.#actionType = actionType;
+	}
+
+	queued(): void {
+		let { dispatchTarget, event, target } = this.#dispatchParams;
+
+		let actionEvent = new ActionEvent({
+			status: "queued",
+			type: this.#actionType,
+			target,
+			event,
+		});
+
+		dispatchTarget.dispatchEvent(actionEvent);
+	}
+
+	fetch(): Promise<void> | undefined {
+		if (this.#dispatchParams.abortController?.signal.aborted) return;
+
+		let { dispatchTarget, event, target } = this.#dispatchParams;
+
+		let formData: FormData | undefined;
+		if (target instanceof HTMLFormElement) formData = new FormData(target);
+
+		let actionEvent = new ActionEvent({
+			status: "complete",
+			type: this.#actionType,
+			formData,
+			target,
+			event,
+		});
+
+		dispatchTarget.dispatchEvent(actionEvent);
+		return;
+	}
+}
+
+export function composeAction(
+	dispatchParams: DispatchParams,
+): ActionFetch | undefined {
+	let { kind, type } = dispatchParams;
 
 	let actionType = type;
 	if (undefined === actionType) actionType = kind;
 	if ("_action" === actionType) return;
 
-	let formData: FormData | undefined;
-	if (target instanceof HTMLFormElement) formData = new FormData(target);
-
-	let actionEvent = new ActionEvent(
-		{ type: actionType, formData, target, event },
-		{ bubbles: true },
-	);
-
-	dispatchTarget.dispatchEvent(actionEvent);
+	return new ActionFetch(dispatchParams, actionType);
 }

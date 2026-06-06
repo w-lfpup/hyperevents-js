@@ -1,5 +1,4 @@
 import type { DispatchParams } from "./type_flyweight.js";
-
 import type { Queueable } from "./queue.js";
 
 import { composeAction } from "./action_event.js";

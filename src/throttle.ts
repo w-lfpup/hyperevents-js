@@ -1,5 +1,3 @@
-// import type { DispatchParams } from "./type_flyweight.js";
-
 interface Params {
 	target: Element;
 	dispatchTarget: EventTarget;
@@ -11,6 +9,7 @@ interface Throttler {
 	event: Event;
 }
 
+// This might need to be in the document
 let elementMap = new WeakMap<EventTarget, Throttler>();
 
 interface ThrottleResult {
@@ -41,20 +40,21 @@ function getThrottleParams(dispatchParams: Params): number | undefined {
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);
-	if (!Number.isNaN(windowMs)) windowMs;
+	if (!Number.isNaN(windowMs)) return windowMs;
 }
 
 function shouldThrottle(dispatchParams: Params, windowMs: number): boolean {
-	let { target, event: dispatchEvent } = dispatchParams;
+	let { target, event } = dispatchParams;
 
 	let throttler = elementMap.get(target);
-	if (!throttler) return false;
+	if (throttler) {
+		let { event: prevEvent, abortController } = throttler;
 
-	let { event, abortController } = throttler;
-	let delta = dispatchEvent.timeStamp - event.timeStamp;
-	if (dispatchEvent.type === event.type && delta < windowMs) return true;
+		let delta = event.timeStamp - event.timeStamp;
+		if (prevEvent.type === event.type && delta < windowMs) return true;
 
-	abortController.abort();
+		abortController.abort();
+	}
 
 	return false;
 }

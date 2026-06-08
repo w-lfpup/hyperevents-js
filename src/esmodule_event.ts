@@ -2,6 +2,9 @@ declare global {
 	interface GlobalEventHandlersEventMap {
 		["#esmodule"]: EsModuleEventInterface;
 	}
+	interface ElementEventMap {
+		["#esmodule"]: EsModuleEventInterface;
+	}
 }
 
 import type { DispatchParams } from "./type_flyweight.js";

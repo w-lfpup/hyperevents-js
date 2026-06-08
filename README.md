@@ -104,7 +104,9 @@ The example below below will debounce clicks on the `<button>` element every 500
 
 ## Queue events
 
-All hyperevents, except action events, can be queued with the following syntax:
+Any hyperevent can be queued.
+
+The example below will queue a hyperevent with the following syntax:
 
 ```html
 <button

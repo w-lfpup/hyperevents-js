@@ -2,6 +2,9 @@ declare global {
 	interface GlobalEventHandlersEventMap {
 		["#json"]: JsonEventInterface;
 	}
+	interface ElementEventMap {
+		["#json"]: JsonEventInterface;
+	}
 }
 
 import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";

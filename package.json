@@ -4,7 +4,7 @@
 	"type": "module",
 	"main": "dist/mod.js",
 	"author": "Taylor Vann",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"license": "BSD-3-Clause",
 	"scripts": {
 		"prepare": "npm run build",
@@ -14,7 +14,7 @@
 		"format": "npx prettier ./ --write"
 	},
 	"devDependencies": {
-		"@w-lfpup/jackrabbit": "^0.3.2",
+		"@w-lfpup/jackrabbit": "^0.3.3",
 		"prettier": "^3.8.3",
 		"typescript": "^6.0.3"
 	}

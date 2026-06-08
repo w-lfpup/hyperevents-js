@@ -8,6 +8,7 @@ import { composeHtml } from "./html_event.js";
 import { throttled } from "./throttle.js";
 import { debounced } from "./debounce.js";
 import { queued } from "./queue.js";
+import { composeArrayBuffer } from "./arraybuffer_events.js";
 
 export interface HyperEventsParamsInterface {
 	connected?: boolean;
@@ -26,7 +27,17 @@ interface KindAndType {
 	htype: string;
 }
 
-const hEventTypes = new Set<string>(["_html", "_json", "_action", "_esmodule"]);
+interface Callback {
+	(params: DispatchParams): Queueable | undefined;
+}
+
+const hEventReactions = new Map<string, Callback>([
+	["_esmodule", composeEsModule],
+	["_json", composeJson],
+	["_html", composeHtml],
+	["_arraybuffer", composeArrayBuffer],
+	["_action", composeAction],
+]);
 
 export class HyperEvents {
 	#params: HyperEventsParamsInterface;
@@ -113,7 +124,7 @@ function getKindAndType(
 
 	let htype = target.getAttribute(`${eventType}:type`);
 
-	if (hEventTypes.has(kind) && htype) return { kind, htype };
+	if (hEventReactions.has(kind) && htype) return { kind, htype };
 	if ("_esmodule" === kind) return { kind, htype: htype || "_esmodule" };
 	if (kind && !htype) return { kind: "_action", htype: kind };
 }
@@ -122,13 +133,12 @@ function getKindAndType(
 function dispatchEvent(params: DispatchParams) {
 	let { kind } = params;
 
-	let queueable: Queueable | undefined = undefined;
-	if ("_esmodule" === kind) queueable = composeEsModule(params);
-	if ("_json" === kind) queueable = composeJson(params);
-	if ("_html" === kind) queueable = composeHtml(params);
-	if ("_action" === kind) queueable = composeAction(params);
+	let composer = hEventReactions.get(kind);
+	if (!composer) return;
 
+	let queueable = composer(params);
 	if (!queueable) return;
+
 	if (queued(params, queueable)) return;
 
 	queueable.fetch();

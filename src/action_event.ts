@@ -2,6 +2,9 @@ declare global {
 	interface GlobalEventHandlersEventMap {
 		["#action"]: ActionEventInterface;
 	}
+	interface ElementEventMap {
+		["action"]: ActionEventInterface;
+	}
 }
 
 import type { DispatchParams } from "./type_flyweight.js";
@@ -39,9 +42,10 @@ export class ActionEvent extends Event implements ActionEventInterface {
 }
 
 class ActionFetch implements Queueable {
+	#formData: FormData | undefined = undefined;
+
 	#dispatchParams;
 	#actionType;
-	#formData: FormData | undefined = undefined;
 
 	constructor(dispatchParams: DispatchParams, actionType: string) {
 		this.#dispatchParams = dispatchParams;

@@ -14,6 +14,15 @@ interface RequestParams {
 	url: string;
 }
 
+export interface Queueable {
+	queued(): void;
+	fetch(): Promise<void> | undefined;
+}
+
+export interface ComposerCallback {
+	(params: DispatchParams): Queueable | undefined;
+}
+
 export interface FetchParamsInterface {
 	url: string;
 	method: string;

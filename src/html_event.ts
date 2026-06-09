@@ -7,8 +7,11 @@ declare global {
 	}
 }
 
-import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import type {
+	DispatchParams,
+	FetchParamsInterface,
+	Queueable,
+} from "./type_flyweight.js";
 
 import { createFetch } from "./type_flyweight.js";
 
@@ -78,7 +81,7 @@ class HtmlFetch implements Queueable {
 
 export function composeHtml(
 	dispatchParams: DispatchParams,
-): HtmlFetch | undefined {
+): Queueable | undefined {
 	let htmlRequest = createFetch(dispatchParams);
 	if (!htmlRequest) return;
 

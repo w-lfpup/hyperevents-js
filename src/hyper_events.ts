@@ -1,5 +1,4 @@
-import type { DispatchParams } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import type { DispatchParams, ComposerCallback } from "./type_flyweight.js";
 
 import { composeAction } from "./action_event.js";
 import { composeEsModule } from "./esmodule_event.js";
@@ -28,11 +27,7 @@ interface KindAndType {
 	htype: string;
 }
 
-interface Callback {
-	(params: DispatchParams): Queueable | undefined;
-}
-
-const hEventReactions = new Map<string, Callback>([
+const hEventReactions = new Map<string, ComposerCallback>([
 	["_esmodule", composeEsModule],
 	["_json", composeJson],
 	["_html", composeHtml],

@@ -3,12 +3,7 @@
 	
 	A stretch-goal might be attaching the queue map to the window itself.
 */
-import type { DispatchParams } from "./type_flyweight.js";
-
-export interface Queueable {
-	queued(): void;
-	fetch(): Promise<void> | undefined;
-}
+import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
 class Queue {
 	#inRoute: Queueable | undefined;

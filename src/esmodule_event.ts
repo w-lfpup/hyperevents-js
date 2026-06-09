@@ -7,8 +7,7 @@ declare global {
 	}
 }
 
-import type { DispatchParams } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
 interface EsModuleQueuedInterface {
 	status: "queued";
@@ -84,7 +83,7 @@ class EsModuleImport implements Queueable {
 
 export function composeEsModule(
 	dispatchParams: DispatchParams,
-): EsModuleImport | undefined {
+): Queueable | undefined {
 	let { target, dispatchTarget, event, abortController } = dispatchParams;
 
 	let urlAttr = target.getAttribute(`${event.type}:url`);

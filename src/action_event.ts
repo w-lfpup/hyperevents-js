@@ -7,8 +7,7 @@ declare global {
 	}
 }
 
-import type { DispatchParams } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
 export interface ActionQueuedInterface {
 	status: "queued";
@@ -90,6 +89,6 @@ class ActionFetch implements Queueable {
 
 export function composeAction(
 	dispatchParams: DispatchParams,
-): ActionFetch | undefined {
+): Queueable | undefined {
 	return new ActionFetch(dispatchParams, dispatchParams.type);
 }

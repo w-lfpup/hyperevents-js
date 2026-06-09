@@ -9,6 +9,7 @@ declare global {
 }
 
 interface RequiredMemory {
+	version: string;
 	throttler: WeakMap<EventTarget, Throttler>;
 	queue: Queue;
 	debounce: WeakMap<EventTarget, Map<string, number>>;
@@ -23,7 +24,10 @@ if (!memory) {
 			"The property window[$hyperevents] is not configurable.",
 		);
 
+	// Manual version bump required. Reflect package version.
+	// However, the property "version" is not required.
 	memory = Object.freeze({
+		version: "0.2.1",
 		throttler: new WeakMap<EventTarget, Throttler>(),
 		queue: new Queue(),
 		debounce: new WeakMap<EventTarget, Map<string, number>>(),

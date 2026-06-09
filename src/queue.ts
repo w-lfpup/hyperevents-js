@@ -3,11 +3,7 @@
 	
 	A stretch-goal might be attaching the queue map to the window itself.
 */
-
-interface Params {
-	target: Element;
-	event: Event;
-}
+import type { DispatchParams } from "./type_flyweight.js";
 
 export interface Queueable {
 	queued(): void;
@@ -48,10 +44,13 @@ class Queue {
 
 let queueMap = new Queue();
 
-export function queued(dispatchParams: Params, atom: Queueable): boolean {
-	let { target, event } = dispatchParams;
+export function queued(
+	dispatchParams: DispatchParams,
+	atom: Queueable,
+): boolean {
+	let { target, event, infix } = dispatchParams;
 
-	let queueAttr = target.hasAttribute(`${event.type}:queue`);
+	let queueAttr = target.hasAttribute(`${event.type}${infix}queue`);
 	if (queueAttr) queueMap.enqueue(atom);
 
 	return queueAttr;

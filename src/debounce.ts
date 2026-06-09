@@ -36,9 +36,9 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 function getDebouncedParams(
 	dispatchParams: DispatchParams,
 ): number | undefined {
-	let { target, event } = dispatchParams;
+	let { target, event, infix } = dispatchParams;
 
-	let windowMsAttr = target.getAttribute(`${event.type}:debounce-ms`);
+	let windowMsAttr = target.getAttribute(`${event.type}${infix}debounce-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);

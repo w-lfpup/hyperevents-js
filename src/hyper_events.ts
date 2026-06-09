@@ -95,6 +95,7 @@ function dispatch(
 				target,
 				dispatchTarget,
 				event,
+				infix,
 			});
 
 			// find out if debounce update

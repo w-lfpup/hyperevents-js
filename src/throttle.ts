@@ -8,6 +8,7 @@ interface Params {
 	target: Element;
 	dispatchTarget: EventTarget;
 	event: Event;
+	infix: string;
 }
 
 interface Throttler {
@@ -39,9 +40,9 @@ export function throttled(params: Params): ThrottleResult {
 }
 
 function getThrottleParams(dispatchParams: Params): number | undefined {
-	let { target, event } = dispatchParams;
+	let { target, event, infix } = dispatchParams;
 
-	let windowMsAttr = target.getAttribute(`${event.type}:throttle-ms`);
+	let windowMsAttr = target.getAttribute(`${event.type}${infix}throttle-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);

@@ -158,7 +158,7 @@ Fetch and dispatch JSON using the following syntax:
 ```html
 <span
 	pointerdown:="_json"
-	input:type="get_some_json"
+	pointerdown:type="get_some_json"
 	pointerdown:url="/ping/api.json">
 </span>
 ```
@@ -181,14 +181,14 @@ document.addEventListener("#json", function (e: JsonEvent) {
 });
 ```
 
-## Retrieve ArrayBuffer
+## Retrieve ArrayBuffers
 
 Retrieve an array using the following syntax:
 
 ```html
 <span
 	pointerdown:="_arraybuffer"
-	input:type="get_some_data"
+	pointerdown:type="get_some_data"
 	pointerdown:url="/ping/video/api">
 </span>
 ```

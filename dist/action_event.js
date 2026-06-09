@@ -1,0 +1,47 @@
+export class ActionEvent extends Event {
+    action;
+    constructor(actionStatus, eventInit) {
+        super("#action", eventInit);
+        this.action = actionStatus;
+    }
+}
+class ActionFetch {
+    #formData = undefined;
+    #dispatchParams;
+    #actionType;
+    constructor(dispatchParams, actionType) {
+        this.#dispatchParams = dispatchParams;
+        this.#actionType = actionType;
+        let { target } = this.#dispatchParams;
+        if (target instanceof HTMLFormElement)
+            this.#formData = new FormData(target);
+    }
+    queued() {
+        let { dispatchTarget, event, target } = this.#dispatchParams;
+        let actionEvent = new ActionEvent({
+            status: "queued",
+            type: this.#actionType,
+            formData: this.#formData,
+            target,
+            event,
+        });
+        dispatchTarget.dispatchEvent(actionEvent);
+    }
+    fetch() {
+        if (this.#dispatchParams.abortController?.signal.aborted)
+            return;
+        let { dispatchTarget, event, target } = this.#dispatchParams;
+        let actionEvent = new ActionEvent({
+            status: "complete",
+            type: this.#actionType,
+            formData: this.#formData,
+            target,
+            event,
+        });
+        dispatchTarget.dispatchEvent(actionEvent);
+        return;
+    }
+}
+export function composeAction(dispatchParams) {
+    return new ActionFetch(dispatchParams, dispatchParams.type);
+}

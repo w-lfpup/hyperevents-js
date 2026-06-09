@@ -15,6 +15,7 @@ export interface HyperEventsParamsInterface {
 	eventNames: string[];
 	host: EventTarget;
 	target?: EventTarget;
+	infix?: string;
 }
 
 export interface HyperEventsInterface {
@@ -68,22 +69,27 @@ export class HyperEvents {
 
 	#dispatch = this.#unboundDispatch.bind(this);
 	#unboundDispatch(event: Event) {
-		dispatch(event, this.#target);
+		dispatch(event, this.#target, this.#params.infix);
 	}
 }
 
-function dispatch(event: Event, dispatchTarget: EventTarget) {
+function dispatch(
+	event: Event,
+	dispatchTarget: EventTarget,
+	infix: string = ":",
+) {
 	let { type } = event;
 
 	for (let target of event.composedPath()) {
 		if (!(target instanceof Element)) continue;
 
-		if (target.hasAttribute(`${type}:prevent-default`))
+		if (target.hasAttribute(`${type}${infix}prevent-default`))
 			event.preventDefault();
 
-		if (target.hasAttribute(`${type}:stop-immediate-propagation`)) return;
+		if (target.hasAttribute(`${type}${infix}stop-immediate-propagation`))
+			return;
 
-		let kindAndType = getKindAndType(event, target);
+		let kindAndType = getKindAndType(event, target, infix);
 		if (kindAndType) {
 			let { throttle, abortController } = throttled({
 				target,
@@ -100,6 +106,7 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 				target,
 				dispatchTarget,
 				kind,
+				infix,
 				event,
 				abortController,
 			};
@@ -109,20 +116,21 @@ function dispatch(event: Event, dispatchTarget: EventTarget) {
 				dispatchEvent(dispatchParams);
 		}
 
-		if (target.hasAttribute(`${type}:stop-propagation`)) return;
+		if (target.hasAttribute(`${type}${infix}stop-propagation`)) return;
 	}
 }
 
 function getKindAndType(
 	event: Event,
 	target: Element,
+	infix: string,
 ): KindAndType | undefined {
 	let { type: eventType } = event;
 
-	let kind = target.getAttribute(`${eventType}:`);
+	let kind = target.getAttribute(`${eventType}${infix}`);
 	if (!kind) return;
 
-	let htype = target.getAttribute(`${eventType}:type`);
+	let htype = target.getAttribute(`${eventType}${infix}type`);
 
 	if (hEventReactions.has(kind) && htype) return { kind, htype };
 	if ("_esmodule" === kind) return { kind, htype: htype || "_esmodule" };

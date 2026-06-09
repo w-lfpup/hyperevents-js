@@ -19,16 +19,16 @@ HyperEvents is built for the modern web (2026). It is ideal for server AND clien
 
 ## Install
 
+Install directly from github:
+
+```bash
+npm install https://github.com/w-lfpup/hyperevents-js
+```
+
 Install via npm:
 
 ```bash
 npm install @w-lfpup/hyperevents
-```
-
-Or directly from github:
-
-```bash
-npm install https://github.com/wolfpup-software/hyperevents-js
 ```
 
 ## Setup

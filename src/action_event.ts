@@ -18,7 +18,7 @@ export interface ActionQueuedInterface {
 }
 
 export interface ActionCompleteInterface {
-	status: "complete";
+	status: "resolved";
 	type: string;
 	formData?: FormData;
 	target: EventTarget;
@@ -75,7 +75,7 @@ class ActionFetch implements Queueable {
 		let { dispatchTarget, event, target } = this.#dispatchParams;
 
 		let actionEvent = new ActionEvent({
-			status: "complete",
+			status: "resolved",
 			type: this.#actionType,
 			formData: this.#formData,
 			target,

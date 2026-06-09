@@ -55,7 +55,12 @@ Then listen for `#action` events in javascript-land.
 
 ```ts
 document.addEventListener("#action", function (e: ActionEvent) {
-	let { type, event, target, formData } = e.action;
+	let { type, event, target, formData, status } = e.action;
+
+	if ("queued" === status) {
+	}
+	if ("resolved" === status) {
+	}
 });
 ```
 
@@ -123,6 +128,7 @@ Fetch html using the following syntax:
 <input
 	type="button"
 	input:="_html"
+	input:type="get_some_html"
 	input:url="/fetch/some.html"
 >
 ```
@@ -133,8 +139,14 @@ Then listen for request state with `#html` events in javascript-land.
 document.addEventListener("#html", function (e: HtmlEvent) {
 	let { requestState: rs } = e;
 
+	if ("queued" === rs.status) {
+	}
+	if ("requested" === rs.status) {
+	}
 	if ("resolved" === rs.status) {
 		let { html } = rs;
+	}
+	if ("rejected" === rs.status) {
 	}
 });
 ```
@@ -146,6 +158,7 @@ Fetch and dispatch JSON using the following syntax:
 ```html
 <span
 	pointerdown:="_json"
+	input:type="get_some_json"
 	pointerdown:url="/ping/api.json">
 </span>
 ```
@@ -156,28 +169,47 @@ Then listen for request state with `#json` events in javascript-land.
 document.addEventListener("#json", function (e: JsonEvent) {
 	let { requestState: rs } = e;
 
+	if ("queued" === rs.status) {
+	}
+	if ("requested" === rs.status) {
+	}
 	if ("resolved" === rs.status) {
 		let { json } = rs;
+	}
+	if ("rejected" === rs.status) {
 	}
 });
 ```
 
-## Fetch behavior
+## Retrieve ArrayBuffer
 
-JSON and HTML requests are declared with the following attributes:
+Retrieve an array using the following syntax:
 
 ```html
-<form
-	submit:="_html"
-	submit:url="get_some.html"
-	submit:method="POST"
-	submit:timeout-ms="2500"
-	submit:prevent-default>
-	<button type=submit>bark!</button>
-</form>
+<span
+	pointerdown:="_arraybuffer"
+	input:type="get_some_data"
+	pointerdown:url="/ping/video/api">
+</span>
 ```
 
-If any form is involed in the original DOM `event`, the correlated form data is sent as the request body.
+Then listen for request state with `#json` events in javascript-land.
+
+```ts
+document.addEventListener("#arraybuffer", function (e: ArrayBufferEvent) {
+	let { requestState: rs } = e;
+
+	if ("queued" === rs.status) {
+	}
+	if ("requested" === rs.status) {
+	}
+	if ("resolved" === rs.status) {
+		let { arrayBuffer } = rs;
+	}
+	if ("rejected" === rs.status) {
+	}
+});
+```
 
 ## Import EsModules
 
@@ -195,7 +227,31 @@ Then listen for request state with `#esmodule` events in javascript-land.
 ```ts
 document.addEventListener("#esmodule", function (e: EsModuleEvent) {
 	let { type, status, url } = e.requestState;
+
+	if ("queued" === rs.status) {
+	}
+	if ("requested" === rs.status) {
+	}
+	if ("resolved" === rs.status) {
+	}
+	if ("rejected" === rs.status) {
+	}
 });
+```
+
+## Fetch behavior
+
+Json, Html, ArrayBuffer requests are declared with the following attributes:
+
+```html
+<form
+	submit:="_html"
+	submit:url="get_some.html"
+	submit:method="POST"
+	submit:timeout-ms="2500"
+	submit:prevent-default>
+	<button type=submit>bark!</button>
+</form>
 ```
 
 ## License

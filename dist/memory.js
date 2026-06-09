@@ -5,6 +5,7 @@ if (!memory) {
     if (descriptor && !descriptor.configurable)
         throw new Error("The property window[$hyperevents] is not configurable.");
     memory = Object.freeze({
+        version: "0.2.1",
         throttler: new WeakMap(),
         queue: new Queue(),
         debounce: new WeakMap(),

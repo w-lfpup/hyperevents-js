@@ -1,45 +1,35 @@
 declare global {
-	interface GlobalEventHandlersEventMap {
-		["#html"]: HtmlEventInterface;
-	}
-	interface ElementEventMap {
-		["#html"]: HtmlEventInterface;
-	}
+    interface GlobalEventHandlersEventMap {
+        ["#html"]: HtmlEventInterface;
+    }
+    interface ElementEventMap {
+        ["#html"]: HtmlEventInterface;
+    }
 }
-import type {
-	DispatchParams,
-	FetchParamsInterface,
-	Queueable,
-} from "./type_flyweight.js";
+import type { DispatchParams, FetchParamsInterface, Queueable } from "./type_flyweight.js";
 interface HtmlRequestQueuedInterface extends FetchParamsInterface {
-	status: "queued";
+    status: "queued";
 }
 interface HtmlRequestRequestedInterface extends FetchParamsInterface {
-	status: "requested";
+    status: "requested";
 }
 interface HtmlRequestResolvedInterface extends FetchParamsInterface {
-	status: "resolved";
-	response: Response;
-	html: string;
+    status: "resolved";
+    response: Response;
+    html: string;
 }
 interface HtmlRequestRejectedInterface extends FetchParamsInterface {
-	status: "rejected";
-	error: any;
+    status: "rejected";
+    error: any;
 }
-export type HtmlRequestState =
-	| HtmlRequestQueuedInterface
-	| HtmlRequestRejectedInterface
-	| HtmlRequestRequestedInterface
-	| HtmlRequestResolvedInterface;
+export type HtmlRequestState = HtmlRequestQueuedInterface | HtmlRequestRejectedInterface | HtmlRequestRequestedInterface | HtmlRequestResolvedInterface;
 export interface HtmlEventInterface {
-	readonly requestState: HtmlRequestState;
+    readonly requestState: HtmlRequestState;
 }
 export declare class HtmlEvent extends Event implements HtmlEventInterface {
-	#private;
-	constructor(requestState: HtmlRequestState, eventInit?: EventInit);
-	get requestState(): HtmlRequestState;
+    #private;
+    constructor(requestState: HtmlRequestState, eventInit?: EventInit);
+    get requestState(): HtmlRequestState;
 }
-export declare function composeHtml(
-	dispatchParams: DispatchParams,
-): Queueable | undefined;
+export declare function composeHtml(dispatchParams: DispatchParams): Queueable | undefined;
 export {};

@@ -46,8 +46,6 @@ interface EsImportParams {
 	event: Event;
 }
 
-// let moduleMap = new Set<string>();
-
 export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 

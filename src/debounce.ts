@@ -4,18 +4,16 @@ interface Callback {
 	(dispatchParams: DispatchParams): void;
 }
 
-let elementMap = new WeakMap<EventTarget, Map<string, number>>();
-
 export function debounced(params: DispatchParams, cb: Callback): boolean {
 	let windowMs = getDebouncedParams(params);
 	if (!windowMs) return false;
 
 	let { target, event } = params;
 
-	let debounceMap = elementMap.get(target);
+	let debounceMap = window.$hyperevents.debounce.get(target);
 	if (!debounceMap) {
 		debounceMap = new Map();
-		elementMap.set(target, debounceMap);
+		window.$hyperevents.debounce.set(target, debounceMap);
 	}
 
 	let prevReceipt = debounceMap.get(event.type);
@@ -26,7 +24,7 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 
 		// clean up after
 		debounceMap.delete(event.type);
-		if (!debounceMap.size) elementMap.delete(target);
+		if (!debounceMap.size) window.$hyperevents.debounce.delete(target);
 	}, windowMs);
 
 	debounceMap.set(event.type, receipt);

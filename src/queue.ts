@@ -37,8 +37,6 @@ export class Queue {
 	}
 }
 
-// let queueMap = new Queue();
-
 export function queued(
 	dispatchParams: DispatchParams,
 	atom: Queueable,

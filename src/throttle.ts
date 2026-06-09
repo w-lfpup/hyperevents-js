@@ -16,8 +16,6 @@ export interface Throttler {
 	event: Event;
 }
 
-// let elementMap = new WeakMap<EventTarget, Throttler>();
-
 interface ThrottleResult {
 	throttle: boolean;
 	abortController?: AbortController;

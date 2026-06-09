@@ -1,10 +1,9 @@
+import memory from "./memory.js";
 import type { DispatchParams } from "./type_flyweight.js";
 
 interface Callback {
 	(dispatchParams: DispatchParams): void;
 }
-
-let elementMap = new WeakMap<EventTarget, Map<string, number>>();
 
 export function debounced(params: DispatchParams, cb: Callback): boolean {
 	let windowMs = getDebouncedParams(params);
@@ -12,10 +11,10 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 
 	let { target, event } = params;
 
-	let debounceMap = elementMap.get(target);
+	let debounceMap = memory.debounce.get(target);
 	if (!debounceMap) {
 		debounceMap = new Map();
-		elementMap.set(target, debounceMap);
+		memory.debounce.set(target, debounceMap);
 	}
 
 	let prevReceipt = debounceMap.get(event.type);
@@ -26,7 +25,7 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 
 		// clean up after
 		debounceMap.delete(event.type);
-		if (!debounceMap.size) elementMap.delete(target);
+		if (!debounceMap.size) memory.debounce.delete(target);
 	}, windowMs);
 
 	debounceMap.set(event.type, receipt);
@@ -36,9 +35,9 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 function getDebouncedParams(
 	dispatchParams: DispatchParams,
 ): number | undefined {
-	let { target, event } = dispatchParams;
+	let { target, event, infix } = dispatchParams;
 
-	let windowMsAttr = target.getAttribute(`${event.type}:debounce-ms`);
+	let windowMsAttr = target.getAttribute(`${event.type}${infix}debounce-ms`);
 	if (null === windowMsAttr) return;
 
 	let windowMs = parseInt(windowMsAttr);

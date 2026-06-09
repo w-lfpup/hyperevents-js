@@ -5,12 +5,22 @@ export interface DispatchParams {
 	dispatchTarget: EventTarget;
 	abortController?: AbortController;
 	type: string;
+	infix: string;
 }
 
 interface RequestParams {
 	method: string;
 	timeoutMs: number;
 	url: string;
+}
+
+export interface Queueable {
+	queued(): void;
+	fetch(): Promise<void> | undefined;
+}
+
+export interface ComposerCallback {
+	(params: DispatchParams): Queueable | undefined;
 }
 
 export interface FetchParamsInterface {
@@ -32,14 +42,14 @@ export function createFetch(
 function getRequestParams(
 	dispatchParams: DispatchParams,
 ): RequestParams | undefined {
-	let { target, event } = dispatchParams;
+	let { target, event, infix } = dispatchParams;
 	let { type } = event;
 
-	let url = target.getAttribute(`${type}:url`);
+	let url = target.getAttribute(`${type}${infix}url`);
 	if (!url) return;
 
-	let method = target.getAttribute(`${type}:method`) ?? "GET";
-	let timeoutMsAttr = target.getAttribute(`${type}:timeout-ms`);
+	let method = target.getAttribute(`${type}${infix}method`) ?? "GET";
+	let timeoutMsAttr = target.getAttribute(`${type}${infix}timeout-ms`);
 	let timeoutMs = parseInt(timeoutMsAttr ?? "");
 	if (Number.isNaN(timeoutMs)) timeoutMs = FALLBACK_TIMEOUT_MS;
 

@@ -7,8 +7,11 @@ declare global {
 	}
 }
 
-import type { DispatchParams, FetchParamsInterface } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import type {
+	DispatchParams,
+	FetchParamsInterface,
+	Queueable,
+} from "./type_flyweight.js";
 
 import { createFetch } from "./type_flyweight.js";
 
@@ -57,7 +60,7 @@ export class ArrayBufferEvent
 	}
 }
 
-class HtmlFetch implements Queueable {
+class ArrayBufferFetch implements Queueable {
 	#dispatchParams;
 	#request;
 
@@ -81,11 +84,11 @@ class HtmlFetch implements Queueable {
 
 export function composeArrayBuffer(
 	dispatchParams: DispatchParams,
-): HtmlFetch | undefined {
+): Queueable | undefined {
 	let ArrayBufferRequest = createFetch(dispatchParams);
 	if (!ArrayBufferRequest) return;
 
-	return new HtmlFetch(dispatchParams, ArrayBufferRequest);
+	return new ArrayBufferFetch(dispatchParams, ArrayBufferRequest);
 }
 
 function fetchArrayBuffer(

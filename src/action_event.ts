@@ -7,8 +7,7 @@ declare global {
 	}
 }
 
-import type { DispatchParams } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
 export interface ActionQueuedInterface {
 	status: "queued";
@@ -19,7 +18,7 @@ export interface ActionQueuedInterface {
 }
 
 export interface ActionCompleteInterface {
-	status: "complete";
+	status: "resolved";
 	type: string;
 	formData?: FormData;
 	target: EventTarget;
@@ -76,7 +75,7 @@ class ActionFetch implements Queueable {
 		let { dispatchTarget, event, target } = this.#dispatchParams;
 
 		let actionEvent = new ActionEvent({
-			status: "complete",
+			status: "resolved",
 			type: this.#actionType,
 			formData: this.#formData,
 			target,
@@ -90,6 +89,6 @@ class ActionFetch implements Queueable {
 
 export function composeAction(
 	dispatchParams: DispatchParams,
-): ActionFetch | undefined {
+): Queueable | undefined {
 	return new ActionFetch(dispatchParams, dispatchParams.type);
 }

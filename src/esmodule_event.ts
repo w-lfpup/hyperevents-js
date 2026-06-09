@@ -7,8 +7,8 @@ declare global {
 	}
 }
 
-import type { DispatchParams } from "./type_flyweight.js";
-import type { Queueable } from "./queue.js";
+import memory from "./memory.js";
+import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
 interface EsModuleQueuedInterface {
 	status: "queued";
@@ -47,8 +47,6 @@ interface EsImportParams {
 	event: Event;
 }
 
-let moduleMap = new Set<string>();
-
 export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
 
@@ -84,7 +82,7 @@ class EsModuleImport implements Queueable {
 
 export function composeEsModule(
 	dispatchParams: DispatchParams,
-): EsModuleImport | undefined {
+): Queueable | undefined {
 	let { target, dispatchTarget, event, abortController } = dispatchParams;
 
 	let urlAttr = target.getAttribute(`${event.type}:url`);
@@ -92,8 +90,8 @@ export function composeEsModule(
 
 	let url = new URL(urlAttr, location.href).toString();
 
-	if (moduleMap.has(url)) return;
-	moduleMap.add(url);
+	if (memory.modules.has(url)) return;
+	memory.modules.add(url);
 
 	return new EsModuleImport(dispatchParams, {
 		url,
@@ -123,7 +121,7 @@ function importEsModule(
 			document.dispatchEvent(esmoduleEvent);
 		})
 		.catch(function (error: any) {
-			moduleMap.delete(url);
+			memory.modules.delete(url);
 
 			let esmoduleEvent = new EsModuleEvent({
 				status: "rejected",

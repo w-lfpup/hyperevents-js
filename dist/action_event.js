@@ -32,7 +32,7 @@ class ActionFetch {
             return;
         let { dispatchTarget, event, target } = this.#dispatchParams;
         let actionEvent = new ActionEvent({
-            status: "complete",
+            status: "resolved",
             type: this.#actionType,
             formData: this.#formData,
             target,

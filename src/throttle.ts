@@ -4,7 +4,7 @@
 	A stretch-goal might be attaching the queue map to the window itself.
 */
 
-import memory from "./memory";
+import memory from "./memory.js";
 
 interface Params {
 	target: Element;

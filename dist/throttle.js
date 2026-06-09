@@ -1,4 +1,4 @@
-import memory from "./memory";
+import memory from "./memory.js";
 export function throttled(params) {
     let abortController = undefined;
     let windowMs = getThrottleParams(params);

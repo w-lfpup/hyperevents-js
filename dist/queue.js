@@ -1,3 +1,4 @@
+import memory from "./memory.js";
 export class Queue {
     #inRoute;
     #inbound = [];
@@ -26,11 +27,10 @@ export class Queue {
         }
     }
 }
-let queueMap = new Queue();
 export function queued(dispatchParams, atom) {
     let { target, event, infix } = dispatchParams;
     let queueAttr = target.hasAttribute(`${event.type}${infix}queue`);
     if (queueAttr)
-        window["$h-events"].queue.enqueue(atom);
+        memory.queue.enqueue(atom);
     return queueAttr;
 }

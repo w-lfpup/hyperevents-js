@@ -7,6 +7,7 @@ declare global {
 	}
 }
 
+import memory from "./memory.js";
 import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
 interface EsModuleQueuedInterface {
@@ -89,8 +90,8 @@ export function composeEsModule(
 
 	let url = new URL(urlAttr, location.href).toString();
 
-	if (window["$hyperevents"].modules.has(url)) return;
-	window["$hyperevents"].modules.add(url);
+	if (memory.modules.has(url)) return;
+	memory.modules.add(url);
 
 	return new EsModuleImport(dispatchParams, {
 		url,
@@ -120,7 +121,7 @@ function importEsModule(
 			document.dispatchEvent(esmoduleEvent);
 		})
 		.catch(function (error: any) {
-			window["$hyperevents"].modules.delete(url);
+			memory.modules.delete(url);
 
 			let esmoduleEvent = new EsModuleEvent({
 				status: "rejected",

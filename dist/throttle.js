@@ -1,4 +1,4 @@
-let elementMap = new WeakMap();
+import memory from "./memory";
 export function throttled(params) {
     let abortController = undefined;
     let windowMs = getThrottleParams(params);
@@ -8,7 +8,7 @@ export function throttled(params) {
         return { throttle: true };
     let { target, event } = params;
     abortController = new AbortController();
-    window["$h-events"].throttler.set(target, { event, abortController });
+    window.$hyperevents.throttler.set(target, { event, abortController });
     return { throttle: false, abortController };
 }
 function getThrottleParams(dispatchParams) {
@@ -22,7 +22,7 @@ function getThrottleParams(dispatchParams) {
 }
 function shouldThrottle(dispatchParams, windowMs) {
     let { target, event } = dispatchParams;
-    let throttler = window["$h-events"].throttler.get(target);
+    let throttler = memory.throttler.get(target);
     if (throttler) {
         let { event: prevEvent, abortController } = throttler;
         let delta = Math.max(0, event.timeStamp - prevEvent.timeStamp);

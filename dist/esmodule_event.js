@@ -1,4 +1,4 @@
-let moduleMap = new Set();
+import memory from "./memory.js";
 export class EsModuleEvent extends Event {
     requestState;
     constructor(requestState, eventInitDict) {
@@ -30,9 +30,9 @@ export function composeEsModule(dispatchParams) {
     if (null === urlAttr)
         return;
     let url = new URL(urlAttr, location.href).toString();
-    if (window["$h-events"].modules.has(url))
+    if (memory.modules.has(url))
         return;
-    window["$h-events"].modules.add(url);
+    memory.modules.add(url);
     return new EsModuleImport(dispatchParams, {
         url,
         dispatchTarget,
@@ -54,7 +54,7 @@ function importEsModule(dispatchParams, esImportParams) {
         document.dispatchEvent(esmoduleEvent);
     })
         .catch(function (error) {
-        window["$h-events"].modules.delete(url);
+        memory.modules.delete(url);
         let esmoduleEvent = new EsModuleEvent({
             status: "rejected",
             url,

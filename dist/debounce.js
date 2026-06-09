@@ -1,13 +1,13 @@
-let elementMap = new WeakMap();
+import memory from "./memory.js";
 export function debounced(params, cb) {
     let windowMs = getDebouncedParams(params);
     if (!windowMs)
         return false;
     let { target, event } = params;
-    let debounceMap = elementMap.get(target);
+    let debounceMap = memory.debounce.get(target);
     if (!debounceMap) {
         debounceMap = new Map();
-        elementMap.set(target, debounceMap);
+        memory.debounce.set(target, debounceMap);
     }
     let prevReceipt = debounceMap.get(event.type);
     if (prevReceipt)
@@ -16,7 +16,7 @@ export function debounced(params, cb) {
         cb(params);
         debounceMap.delete(event.type);
         if (!debounceMap.size)
-            elementMap.delete(target);
+            memory.debounce.delete(target);
     }, windowMs);
     debounceMap.set(event.type, receipt);
     return true;

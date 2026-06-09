@@ -5,6 +5,8 @@
 */
 import type { DispatchParams, Queueable } from "./type_flyweight.js";
 
+import memory from "./memory.js";
+
 export class Queue {
 	#inRoute: Queueable | undefined;
 	#inbound: Queueable[] = [];
@@ -44,7 +46,7 @@ export function queued(
 	let { target, event, infix } = dispatchParams;
 
 	let queueAttr = target.hasAttribute(`${event.type}${infix}queue`);
-	if (queueAttr) window["$hyperevents"].queue.enqueue(atom);
+	if (queueAttr) memory.queue.enqueue(atom);
 
 	return queueAttr;
 }

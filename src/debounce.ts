@@ -1,3 +1,4 @@
+import memory from "./memory.js";
 import type { DispatchParams } from "./type_flyweight.js";
 
 interface Callback {
@@ -10,10 +11,10 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 
 	let { target, event } = params;
 
-	let debounceMap = window.$hyperevents.debounce.get(target);
+	let debounceMap = memory.debounce.get(target);
 	if (!debounceMap) {
 		debounceMap = new Map();
-		window.$hyperevents.debounce.set(target, debounceMap);
+		memory.debounce.set(target, debounceMap);
 	}
 
 	let prevReceipt = debounceMap.get(event.type);
@@ -24,7 +25,7 @@ export function debounced(params: DispatchParams, cb: Callback): boolean {
 
 		// clean up after
 		debounceMap.delete(event.type);
-		if (!debounceMap.size) window.$hyperevents.debounce.delete(target);
+		if (!debounceMap.size) memory.debounce.delete(target);
 	}, windowMs);
 
 	debounceMap.set(event.type, receipt);

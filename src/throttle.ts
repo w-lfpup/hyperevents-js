@@ -4,6 +4,8 @@
 	A stretch-goal might be attaching the queue map to the window itself.
 */
 
+import memory from "./memory";
+
 interface Params {
 	target: Element;
 	dispatchTarget: EventTarget;
@@ -32,7 +34,7 @@ export function throttled(params: Params): ThrottleResult {
 	let { target, event } = params;
 
 	abortController = new AbortController();
-	window["$hyperevents"].throttler.set(target, { event, abortController });
+	window.$hyperevents.throttler.set(target, { event, abortController });
 
 	return { throttle: false, abortController };
 }
@@ -50,7 +52,7 @@ function getThrottleParams(dispatchParams: Params): number | undefined {
 function shouldThrottle(dispatchParams: Params, windowMs: number): boolean {
 	let { target, event } = dispatchParams;
 
-	let throttler = window["$hyperevents"].throttler.get(target);
+	let throttler = memory.throttler.get(target);
 	if (throttler) {
 		let { event: prevEvent, abortController } = throttler;
 

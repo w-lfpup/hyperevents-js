@@ -6,16 +6,16 @@ A hypertext extension for the browser.
 
 HyperEvents enables HTML to:
 
-- Throttle, queue, and debounce events
 - Query JSON APIs
 - Fetch HTML fragments
 - Lazy-load ESModules
 - Dispatch redux-like actions
 - Retrieve ArrayBuffers
+- Throttle, queue, and debounce any of the above
 
-It's all the requirements of serious frontend without all the callbacks and cruft.
+It's all the frontend basics for frontend without all the cruft.
 
-HyperEvents is built for the modern web (2026). It is ideal for server AND client renders.
+HyperEvents is built for the modern web (2026). It is ideal for server renders.
 
 ## Install
 

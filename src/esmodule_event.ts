@@ -46,7 +46,7 @@ interface EsImportParams {
 	event: Event;
 }
 
-let moduleMap = new Set<string>();
+// let moduleMap = new Set<string>();
 
 export class EsModuleEvent extends Event implements EsModuleEventInterface {
 	requestState: EsModuleRequestState;
@@ -91,8 +91,8 @@ export function composeEsModule(
 
 	let url = new URL(urlAttr, location.href).toString();
 
-	if (moduleMap.has(url)) return;
-	moduleMap.add(url);
+	if (window["$hyperevents"].modules.has(url)) return;
+	window["$hyperevents"].modules.add(url);
 
 	return new EsModuleImport(dispatchParams, {
 		url,
@@ -122,7 +122,7 @@ function importEsModule(
 			document.dispatchEvent(esmoduleEvent);
 		})
 		.catch(function (error: any) {
-			moduleMap.delete(url);
+			window["$hyperevents"].modules.delete(url);
 
 			let esmoduleEvent = new EsModuleEvent({
 				status: "rejected",

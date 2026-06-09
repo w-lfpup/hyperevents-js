@@ -11,12 +11,12 @@ interface Params {
 	infix: string;
 }
 
-interface Throttler {
+export interface Throttler {
 	abortController: AbortController;
 	event: Event;
 }
 
-let elementMap = new WeakMap<EventTarget, Throttler>();
+// let elementMap = new WeakMap<EventTarget, Throttler>();
 
 interface ThrottleResult {
 	throttle: boolean;
@@ -34,7 +34,7 @@ export function throttled(params: Params): ThrottleResult {
 	let { target, event } = params;
 
 	abortController = new AbortController();
-	elementMap.set(target, { event, abortController });
+	window["$hyperevents"].throttler.set(target, { event, abortController });
 
 	return { throttle: false, abortController };
 }
@@ -52,7 +52,7 @@ function getThrottleParams(dispatchParams: Params): number | undefined {
 function shouldThrottle(dispatchParams: Params, windowMs: number): boolean {
 	let { target, event } = dispatchParams;
 
-	let throttler = elementMap.get(target);
+	let throttler = window["$hyperevents"].throttler.get(target);
 	if (throttler) {
 		let { event: prevEvent, abortController } = throttler;
 
